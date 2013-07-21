@@ -628,7 +628,7 @@ var TCrt = function () {
 
         var KPE = FKeyBuf.shift();
         if (FLocalEcho) {
-            Write(KPE.keyString);
+            that.Write(KPE.keyString);
         }
         return KPE;
     };
