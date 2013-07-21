@@ -17,6 +17,7 @@
   You should have received a copy of the GNU General Public License
   along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
 */
+// TODO This is still ActionScript, not JavaScript
 package randm.crt
 {
 	/// <summary>
