@@ -374,7 +374,7 @@ var THtmlTerm = function () {
 
     OnConnectionConnect = function (e) {
         Crt.ClrScr();
-        if (FProxyWebSocketHostName !== "") { FConnection.writeString(FWebSocketHostName + ":" + FWebSocketPort + "\r"); }
+        if (FProxyWebSocketHostName !== "") { FConnection.writeString(FWebSocketHostName + ":" + FWebSocketPort + "\r\n"); }
         if (FSendOnConnect.length > 0) { FConnection.writeString(FSendOnConnect); }
     };
 
