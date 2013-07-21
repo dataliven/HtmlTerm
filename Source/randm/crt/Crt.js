@@ -353,7 +353,9 @@ var TCrt = function () {
 
     this.FillScreen = function (AChar) {
         var Line = StringUtils.NewString(AChar.charAt(0), that.ScreenCols);
-        for (var Y = 1; Y <= that.ScreenRows; Y++) {
+
+        var Y;
+        for (Y = 1; Y <= that.ScreenRows; Y++) {
             that.FastWrite(Line, 1, Y, FTextAttr);
         }
     };
