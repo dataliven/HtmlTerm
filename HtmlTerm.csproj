@@ -1,0 +1,173 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{760BD53D-7EAD-47B6-97F6-BCFA55D958D9}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>HtmlTerm</RootNamespace>
+    <AssemblyName>HtmlTerm</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+    <UseIISExpress>false</UseIISExpress>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>4.0</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Source\client\connectbutton\Down.png" />
+    <Content Include="Source\client\connectbutton\General-Connect-icon.png" />
+    <Content Include="Source\client\connectbutton\Over.png" />
+    <Content Include="Source\client\connectbutton\TConnectButton.js" />
+    <Content Include="Source\client\connectbutton\Up.png" />
+    <Content Include="Source\client\savefilesbutton\Down.png" />
+    <Content Include="Source\client\savefilesbutton\filesave-48.png" />
+    <Content Include="Source\client\savefilesbutton\Over.png" />
+    <Content Include="Source\client\savefilesbutton\TSaveFilesButton.js" />
+    <Content Include="Source\client\savefilesbutton\Up.png" />
+    <Content Include="Source\Connect.ans.js" />
+    <Content Include="Source\Helper.js" />
+    <Content Include="Source\HtmlTerm.js" />
+    <Content Include="Source\ImpliedGlobals.js" />
+    <Content Include="Source\randm\actionscript\ByteArray.js" />
+    <Content Include="Source\randm\actionscript\FileReference.js" />
+    <Content Include="Source\randm\actionscript\Keyboard.js" />
+    <Content Include="Source\randm\actionscript\Point.js" />
+    <Content Include="Source\randm\ansi\Ansi.js" />
+    <Content Include="Source\randm\ansi\AnsiParserState.js" />
+    <Content Include="Source\randm\ansi\ESCQEvent.js" />
+    <Content Include="Source\randm\crt\BorderStyle.js" />
+    <Content Include="Source\randm\crt\ContentAlignment.js" />
+    <Content Include="Source\randm\crt\Crt.js" />
+    <Content Include="Source\randm\crt\cursor\BlinkState.js" />
+    <Content Include="Source\randm\crt\cursor\TCursor.js" />
+    <Content Include="Source\randm\crt\font\437-10x19.png" />
+    <Content Include="Source\randm\crt\font\437-12x23.png" />
+    <Content Include="Source\randm\crt\font\437-8x12.png" />
+    <Content Include="Source\randm\crt\font\437-8x13.png" />
+    <Content Include="Source\randm\crt\font\437-9x16.png" />
+    <Content Include="Source\randm\crt\font\737-12x23.png" />
+    <Content Include="Source\randm\crt\font\737-9x16.png" />
+    <Content Include="Source\randm\crt\font\775-9x16.png" />
+    <Content Include="Source\randm\crt\font\850-10x19.png" />
+    <Content Include="Source\randm\crt\font\850-12x23.png" />
+    <Content Include="Source\randm\crt\font\850-8x13.png" />
+    <Content Include="Source\randm\crt\font\850-9x16.png" />
+    <Content Include="Source\randm\crt\font\852-10x19.png" />
+    <Content Include="Source\randm\crt\font\852-12x23.png" />
+    <Content Include="Source\randm\crt\font\852-9x16.png" />
+    <Content Include="Source\randm\crt\font\855-9x16.png" />
+    <Content Include="Source\randm\crt\font\857-9x16.png" />
+    <Content Include="Source\randm\crt\font\860-9x16.png" />
+    <Content Include="Source\randm\crt\font\861-9x16.png" />
+    <Content Include="Source\randm\crt\font\862-10x19.png" />
+    <Content Include="Source\randm\crt\font\863-9x16.png" />
+    <Content Include="Source\randm\crt\font\865-10x19.png" />
+    <Content Include="Source\randm\crt\font\865-12x23.png" />
+    <Content Include="Source\randm\crt\font\865-8x13.png" />
+    <Content Include="Source\randm\crt\font\865-9x16.png" />
+    <Content Include="Source\randm\crt\font\866-9x16.png" />
+    <Content Include="Source\randm\crt\font\869-9x16.png" />
+    <Content Include="Source\randm\crt\font\ASCII-10x19.png" />
+    <Content Include="Source\randm\crt\font\ASCII-12x23.png" />
+    <Content Include="Source\randm\crt\font\ASCII-8x12.png" />
+    <Content Include="Source\randm\crt\font\ASCII-8x13.png" />
+    <Content Include="Source\randm\crt\font\ASCII-9x16.png" />
+    <Content Include="Source\randm\crt\font\TFont2.js" />
+    <Content Include="Source\randm\crt\font\TFontAmiga.js" />
+    <Content Include="Source\randm\crt\font\TFontAtari.js" />
+    <Content Include="Source\randm\crt\KeyPressEvent.js" />
+    <Content Include="Source\randm\crt\ProgressBarStyle.js" />
+    <Content Include="Source\randm\crt\TCrtControl.js" />
+    <Content Include="Source\randm\crt\TCrtLabel.js" />
+    <Content Include="Source\randm\crt\TCrtPanel.js" />
+    <Content Include="Source\randm\crt\TCrtProgressBar.js" />
+    <Content Include="Source\randm\tcp\TTelnet.js" />
+    <Content Include="Source\randm\xfer\CRC.js" />
+    <Content Include="Source\randm\xfer\EventTimer.js" />
+    <Content Include="Source\randm\xfer\TFileRecord.js" />
+    <Content Include="Source\randm\xfer\TYModemReceive.js" />
+    <Content Include="Source\randm\xfer\TYModemSend.js" />
+    <Content Include="Test.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Source\client\connectbutton\Icon Source.url" />
+    <None Include="Source\client\savefilesbutton\Icon Source.url" />
+    <Content Include="Source\randm\crt\font\TFont.js" />
+    <Content Include="Source\StringUtils.js" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>False</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>63640</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>
+          </IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,51 @@
+﻿<html>
+<head>
+    <title>HtmlTerm Test</title>
+
+    <script type="text/javascript">
+        // Change these settings below to configure the look/behaviour of fTelnet
+        var ClientVars = {};
+
+        // Override any defaults here (for testing)
+    </script>
+
+    <!--<script type="text/javascript" src="Release/HtmlTerm.js"></script>-->
+    <script type="text/javascript" src="Release/HtmlTerm.compiled.js"></script>
+    <script type="text/javascript" src="Release/HtmlTerm.font2.js"></script>
+    <script type="text/javascript" src="Release/HtmlTerm.fontamiga.js"></script>
+    <script type="text/javascript" src="Release/HtmlTerm.fontatari.js"></script>
+</head>
+<body>
+    <p id="ClientContainer" style="text-align: center;"></p>
+
+    <script type="text/javascript">
+        HtmlTerm.Init("ClientContainer", ClientVars);
+    </script>
+
+    <a href="javascript:HtmlTerm.Download();">Download</a> <a href="javascript:Crt.SetFont('437', 12, 23);">12x23</a> <a href="javascript:Crt.SetFont('Topaz', 8, 11);">Topaz</a>
+
+    Upload:
+    <input type="file" id="fuUpload" name="fuUpload[]" multiple />
+    <output id="list"></output>
+
+    <script>
+        function handleFileSelect(evt) {
+            var files = evt.target.files; // FileList object
+
+            // files is a FileList of File objects. List some properties.
+            var output = [];
+            for (var i = 0, f; f = files[i]; i++) {
+                output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
+                            f.size, ' bytes, last modified: ',
+                            f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
+                            '</li>');
+                var reader = new FileReader();
+                alert(reader.readAsText(f));
+            }
+            document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+        }
+
+        document.getElementById('fuUpload').addEventListener('change', handleFileSelect, false);
+    </script>
+</body>
+</html>
