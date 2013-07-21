@@ -63,6 +63,7 @@ var TCrt = function () {
     var FFont;
     var FKeyBuf;
     var FLastChar;
+    var FLocalEcho;
     var FScreenSize;
     var FTextAttr;
     var FWindMin;
@@ -101,6 +102,7 @@ var TCrt = function () {
         FFont.onchange = OnFontChanged;
         FKeyBuf = [];
         FLastChar = 0;
+        FLocalEcho = true;
         FScreenSize = new Point(80, 25);
         FTextAttr = 7;
         // FWindMin
@@ -202,8 +204,11 @@ var TCrt = function () {
         ///
         /// ClrBos is window-relative.
         /// </remarks>
-        that.ScrollUpWindow(that.WhereY());
-        that.ScrollDownWindow(that.WhereY());
+        // Clear rows before current row
+        that.ScrollUpWindow(that.WhereY() - 1);
+        that.ScrollDownWindow(that.WhereY() - 1);
+        // Clear start of current row
+        that.ClrBol();
     };
 
     this.ClrEol = function () {
@@ -218,7 +223,7 @@ var TCrt = function () {
         ///
         /// ClrEol is window-relative.
         /// </remarks>
-        that.FastWrite(StringUtils.NewString(' ', that.WindMaxX - that.WhereX() + 1), that.WhereXA(), that.WhereYA(), FTextAttr);
+        that.FastWrite(StringUtils.NewString(' ', (that.WindMaxX + 1) - that.WhereX() + 1), that.WhereXA(), that.WhereYA(), FTextAttr);
     };
 
     this.ClrEos = function () {
@@ -233,8 +238,11 @@ var TCrt = function () {
         ///
         /// ClrEos is window-relative.
         /// </remarks>
-        that.ScrollDownWindow(that.WindRows - that.WhereY() + 1);
-        that.ScrollUpWindow(that.WindRows - that.WhereY() + 1);
+        // Clear rows after current row
+        that.ScrollDownWindow(that.WindRows - that.WhereY());
+        that.ScrollUpWindow(that.WindRows - that.WhereY());
+        // Clear rest of current row
+        that.ClrEol();
     };
 
     this.ClrLine = function () {
@@ -343,6 +351,13 @@ var TCrt = function () {
         }
     };
 
+    this.FillScreen = function (AChar) {
+        var Line = StringUtils.NewString(AChar.charAt(0), that.ScreenCols);
+        for (var Y = 1; Y <= that.ScreenRows; Y++) {
+            that.FastWrite(Line, 1, Y, FTextAttr);
+        }
+    };
+
     this.GotoXY = function (AX, AY) {
         /// <summary>
         /// Moves the cursor to the given coordinates within the virtual screen.
@@ -354,7 +369,7 @@ var TCrt = function () {
         /// </remarks>
         /// <param name="AX">The 1-based column to move to</param>
         /// <param name="AY">The 1-based row to move to</param>
-        if ((AX > 0) && (AY > 0) && ((AX - 1 + that.WindMinX) <= that.WindMaxX) && ((AY - 1 + that.WindMinY) <= that.WindMaxY)) {
+        if ((AX >= 1) && (AY >= 1) && ((AX - 1 + that.WindMinX) <= that.WindMaxX) && ((AY - 1 + that.WindMinY) <= that.WindMaxY)) {
             FCursor.Position = new Point(AX, AY);
         }
     };
@@ -423,6 +438,10 @@ var TCrt = function () {
     this.KeyPressed = function () {
         return (FKeyBuf.length > 0);
     };
+
+    this.__defineSetter__("LocalEcho", function (ALocalEcho) {
+        FLocalEcho = ALocalEcho;
+    });
 
     this.LowVideo = function () {
         /// <summary>
@@ -605,7 +624,9 @@ var TCrt = function () {
     this.ReadKey = function () {
         if (FKeyBuf.length === 0) { return null; }
 
-        return FKeyBuf.shift();
+        var KPE = FKeyBuf.shift();
+        if (FLocalEcho) Write(KPE.keyString);
+        return KPE;
     };
 
     this.ReDraw = function () {
@@ -618,6 +639,7 @@ var TCrt = function () {
         }
     };
 
+    // TODO This doesn't match Crt.as -- which is correct?
     this.RestoreScreen = function (ABuffer, ALeft, ATop, ARight, ABottom) {
         var X;
         var Y;
@@ -639,6 +661,7 @@ var TCrt = function () {
         }
     };
 
+    // TODO This doesn't match Crt.as -- which is correct?
     this.SaveScreen = function (ALeft, ATop, ARight, ABottom) {
         var Result = [];
         Result.InitTwoDimensions(FScreenSize.x, FScreenSize.y);
@@ -688,8 +711,8 @@ var TCrt = function () {
         var Height = ((AY2 - AY1 + 1 - ALines) * FFont.Height);
         if (Height > 0) {
             var Buf = FContext.getImageData(Left, Top, Width, Height);
-            Left = (AX1 - 1) * FFont.Width;
-            Top = (AY1 - 1) * FFont.Height;
+            Left = (AX1 - 1 + ALines) * FFont.Width;
+            Top = (AY1 - 1 + ALines) * FFont.Height;
             FContext.putImageData(Buf, Left, Top);
         }
 
@@ -871,11 +894,13 @@ var TCrt = function () {
         }
 
         // Update the bitmap
+        // TODO Why is this commented out?
         /*FBitmap.bitmapData = new BitmapData(FFont.Width * FScreenSize.x, FFont.Height * FScreenSize.y, false, 0);
         FCanvas.width = FBitmap.width;
         FCanvas.height = FBitmap.height;*/
 
         // Restore the screen contents
+        // TODO If new screen is smaller than old screen, restore bottom portion not top portion
         if (FOldBuffer !== null) {
             for (Y = 1; Y <= Math.min(FScreenSize.y, FOldScreenSize.y); Y++) {
                 for (X = 1; X <= Math.min(FScreenSize.x, FOldScreenSize.x); X++) {
@@ -885,6 +910,7 @@ var TCrt = function () {
         }
 
         // Let the program know about the update
+        // TODO Is the commented or uncommented code correct?
         //FCanvas.dispatchEvent(that.SCREEN_SIZE_CHANGED);
         var evObj = document.createEvent('Events');
         evObj.initEvent(that.SCREEN_SIZE_CHANGED, true, false);
@@ -1078,7 +1104,7 @@ var TCrt = function () {
         /// <param name="AY1">The 1-based top row of the window</param>
         /// <param name="AX2">The 1-based right column of the window</param>
         /// <param name="AY2">The 1-based bottom row of the window</param>
-        if ((AX1 > 0) && (AY1 > 0) && (AX1 <= AX2) && (AY1 <= AY2)) {
+        if ((AX1 >= 1) && (AY1 >= 1) && (AX1 <= AX2) && (AY1 <= AY2)) {
             if ((AX2 <= FScreenSize.x) && (AY2 <= FScreenSize.y)) {
                 FWindMin = (AX1 - 1) + ((AY1 - 1) << 8);
                 FWindMax = (AX2 - 1) + ((AY2 - 1) << 8);
@@ -1121,7 +1147,10 @@ var TCrt = function () {
         for (i = 0; i < AText.length; i++) {
             var DoGoto = false;
 
-            if (AText.charCodeAt(i) === 0x07) {
+            if (AText.charCodeAt(i) === 0x00) {
+                // NULL, ignore
+            }
+            else if (AText.charCodeAt(i) === 0x07) {
                 that.Beep();
             }
             else if (AText.charCodeAt(i) === 0x08) {
@@ -1147,6 +1176,9 @@ var TCrt = function () {
                 } else {
                     // Cursor goes to the next multiple of 8
                     X += 8 - (X % 8);
+
+                    // Make sure we didn't tab beyond the width of the window (can happen if width of window is not divisible by 8)
+                    X = Math.min(X, that.WindCols);
                 }
                 DoGoto = true;
             }
@@ -1223,6 +1255,9 @@ var TCrt = function () {
             // trace(AText.charCodeAt(i));
             var DoGoto = false;
 
+            if (AText.charCodeAt(i) === 0x00) {
+                // NULL, ignore
+            }
             if ((AText.charCodeAt(i) === 0x1B) && (!FATASCIIEscaped)) {
                 // Escape
                 FATASCIIEscaped = true;
