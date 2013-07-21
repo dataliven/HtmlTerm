@@ -1,5 +1,43 @@
 // HtmlTerm.js 
+/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
 /*global document: false, navigator: false, console: false, setTimeout: false, setInterval: false, Image: false, window: false, WebSocket: false, MozWebSocket: false, XMLHttpRequest: false, confirm: false, clearInterval: false */
+/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
 var ByteArray = function () {
     // Private variables
     var that = this;
@@ -123,11 +161,49 @@ var ByteArray = function () {
         }
     };
 };
+/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
 var FileReference = function (AName, ASize) {
     this.data = new ByteArray();
     this.name = AName;
     this.size = ASize;
 };
+/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
 var Keyboard = 0;
 var TKeyboard = function () {
     this.BACKSPACE = 8;
@@ -159,10 +235,48 @@ var TKeyboard = function () {
     this.UP = 38;
 };
 Keyboard = new TKeyboard();
+/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
 var Point = function (AX, AY) {
     this.x = AX;
     this.y = AY;
 };
+/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
 function Base64Decode(input) {
     var _keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 
@@ -200,6 +314,25 @@ function Base64Decode(input) {
 }
 
 var ConnectAns = Base64Decode("G1swbRtbMkobWzA7MEgbWzE7NDQ7MzRt2sTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEG1swOzQ0OzMwbb8bWzBtDQobWzE7NDQ7MzRtsyAgG1szN21XZWxjb21lISAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAbWzA7NDQ7MzBtsxtbMG0NChtbMTs0NDszNG3AG1swOzQ0OzMwbcTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTE2RtbMG0NCg0KG1sxbSAbWzBtIBtbMTs0NDszNG3axMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMQbWzA7NDQ7MzBtvxtbMG0NCiAgG1sxOzQ0OzM0bbMbWzA7MzRt29vb2xtbMzBt29vb29vb29vb29vb29vb29vb29vb2xtbMzRt29vb29vbG1s0NDszMG2zG1swbQ0KICAbWzE7NDQ7MzRtsxtbMDszNG3b29vbG1sxOzMwbdvb29vb29vb29vb29vb29vb29vb29sbWzA7MzBt29sbWzM0bdvb29sbWzQ0OzMwbbMbWzBtDQogIBtbMTs0NDszNG2zG1swOzM0bdvb29sbWzE7MzBt29vb2xtbMG3b29vb29vb29vb29sbWzFt29vb2xtbMzBt29sbWzA7MzBt29sbWzM0bdvb29sbWzQ0OzMwbbMbWzBtDQogIBtbMTs0NDszNG2zG1swOzM0bdvb29sbWzE7MzBt29vb2xtbMG3b29vb29vb29vbG1sxbdvb29sbWzBt29sbWzE7MzBt29sbWzA7MzBt29sbWzM0bdvb29sbWzQ0OzMwbbMbWzBtDQogIBtbMTs0NDszNG2zG1swOzM0bdvb29sbWzE7MzBt29vb2xtbMG3b29vb29vb2xtbMW3b29vbG1swbdvbG1sxbdvbG1szMG3b2xtbMDszMG3b2xtbMzRt29vb2xtbNDQ7MzBtsxtbMG0NCiAgG1sxOzQ0OzM0bbMbWzA7MzRt29vb2xtbMTszMG3b29vbG1swbdvb29vb2xtbMW3b29vbG1swbdvbG1sxbdvb29sbWzMwbdvbG1swOzMwbdvbG1szNG3b29vbG1s0NDszMG2zG1swbQ0KICAbWzE7NDQ7MzRtsxtbMDszNG3b29vbG1sxOzMwbdvb29sbWzBt29vb2xtbMW3b29vbG1swbdvbG1sxbdvb29vb2xtbMzBt29sbWzA7MzBt29sbWzM0bdvb29sbWzQ0OzMwbbMbWzQwOzM3bQ0KICAbWzE7NDQ7MzRtsxtbMDszNG3b29vbG1sxOzMwbdvbG1swOzMwbdvbG1sxbdvb29vb29vb29vb29vb29vb2xtbMDszMG3b2xtbMzRt29vb2xtbNDQ7MzBtsxtbNDA7MzdtDQogIBtbMTs0NDszNG2zG1swOzM0bdvb29sbWzE7MzBt29sbWzBt29vb29vb29vb29vb29vb29vb29sbWzMwbdvbG1szNG3b29vbG1s0NDszMG2zG1s0MDszN20NCiAgG1sxOzQ0OzM0bbMbWzA7MzBt29vb29vb29vb29vb29vb29vb29vb29vb29vb29vbG1szNG3b2xtbNDQ7MzBtsxtbNDA7MzdtDQogIBtbMTs0NDszNG2zG1s0MDszMG3b2xtbMG3b29vb29vb29vb29vb29vb29vb29vb29vb29vbG1szMG3b2xtbNDRtsxtbNDA7MzdtIBtbMzRtIBtbMTs0NzszN23axMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMQbWzMwbb8bWzBtDQogIBtbMTs0NDszNG2zG1swOzMwbdvbG1sxbdvb29vb29vb29vb29vb29sbWzA7MzBt29vb29vb29vb2xtbMW3b2xtbMDszMG3b2xtbNDRtsxtbNDA7MzdtIBtbMzRtIBtbMTs0NzszN22zICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAbWzMwbbMbWzBtDQogIBtbMTs0NDszNG2zG1s0MDszMG3b2xtbMG3b29vb29vb29vb29vb29vb29vb29vb29vb29vbG1szMG3b2xtbNDRtsxtbMG0gG1szNG0gG1sxOzQ3OzM3bbMgICAbWzM0bUh0bWxUZXJtIC0tIFRlbG5ldCogZm9yIHRoZSBXZWIgICAgG1szMG2zG1swbQ0KG1sxbSAbWzBtIBtbMTs0NDszNG2zG1swOzMwbdvbG1sxbdvb29vb29vb29vb29vb29vb29vb29vb2xtbMDszMG3b29vb29sbWzQ0bbMbWzBtIBtbMzRtIBtbMTs0NzszN22zICAgICAbWzA7NDc7MzRtV2ViIGJhc2VkIEJCUyB0ZXJtaW5hbCBjbGllbnQgICAgG1sxOzMwbbMbWzBtDQogIBtbMTs0NDszNG2zG1swOzM0bdvbG1szMG3b29vb29vb29vb29vb29vb29vb29vb29vb29vbG1szNG3b2xtbNDQ7MzBtsxtbMG0gG1szNG0gG1sxOzQ3OzM3bbMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIBtbMzBtsxtbMG0NCiAgG1sxOzQ0OzM0bcAbWzA7NDQ7MzBtxMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTZG1swbSAbWzM0bSAbWzE7NDc7MzdtwBtbMzBtxMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTZG1swbQ0KDQobWzExQxtbMTszMm1Db3B5cmlnaHQgKEMpIDIwMDAtMjAxMCBSJk0gU29mdHdhcmUuICBBbGwgUmlnaHRzIFJlc2VydmVkDQobWzE7MzBtICogTk9URTogSHRtbFRlcm0gaXMgYWN0dWFsbHkgYSBXZWJTb2NrZXQgY2xpZW50LCBub3QgYSBUZWxuZXQgY2xpZW50DQobWzA7MzRtxMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExA==");
+/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
 // Set based on whether we're debugging or not
 var DEBUG = false;
 
@@ -280,6 +413,25 @@ function trace(AText) {
 //TODO        }
 //TODO    }
 }
+/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
 var StringUtils = 0;
 var TStringUtils = function () {
     var that = this;
@@ -340,6 +492,25 @@ var TStringUtils = function () {
     };
 };
 StringUtils = new TStringUtils();
+/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
 /**
 * @constructor
 */
@@ -457,6 +628,25 @@ var TConnectButton = function () {
     FImage.style.top = "0px";
     that.Hide();
 };
+/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
 /**
 * @constructor
 */
@@ -574,12 +764,50 @@ var TSaveFilesButton = function () {
     FImage.style.top = "0px";
     that.Hide();
 };
+/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
 var BlinkState = 0;
 var TBlinkState = function () {
     this.Show = 0;
     this.Hide = 1;
 };
 BlinkState = new TBlinkState();
+/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
 var TCursor = function (AParent, AColour, ASize) {
     // Public events
     this.onhide = function () { }; // Do nothing
@@ -711,6 +939,25 @@ var TCursor = function (AParent, AColour, ASize) {
         FTimer = setInterval(OnTimer, FBlinkRate);
     }
 };
+/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
 var CrtFonts = [];
 
 CrtFonts['437x9x16'] = PNGAsset + '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';
@@ -888,7 +1135,26 @@ var TFont = function () {
         for (i = 0; i < 256; i++) { FCharMap[i] = []; }
         this.Load(FCodePage, FSize.x, FSize.y);
     }
-};var KeyPressEvent = function (AKeyEvent, AKeyString) {
+};/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
+var KeyPressEvent = function (AKeyEvent, AKeyString) {
     // Constructor		
     this.altKey = AKeyEvent.altKey;
     this.charCode = AKeyEvent.charCode;
@@ -897,6 +1163,25 @@ var TFont = function () {
     this.keyString = AKeyString;
     this.shiftKey = AKeyEvent.shiftKey;
 };
+/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
 /// <reference path="cursor/TCursor.js" />
 
 var Crt = function () { }; // Do nothing
@@ -943,6 +1228,7 @@ var TCrt = function () {
     var FFont;
     var FKeyBuf;
     var FLastChar;
+    var FLocalEcho;
     var FScreenSize;
     var FTextAttr;
     var FWindMin;
@@ -981,6 +1267,7 @@ var TCrt = function () {
         FFont.onchange = OnFontChanged;
         FKeyBuf = [];
         FLastChar = 0;
+        FLocalEcho = true;
         FScreenSize = new Point(80, 25);
         FTextAttr = 7;
         // FWindMin
@@ -1082,8 +1369,11 @@ var TCrt = function () {
         ///
         /// ClrBos is window-relative.
         /// </remarks>
-        that.ScrollUpWindow(that.WhereY());
-        that.ScrollDownWindow(that.WhereY());
+        // Clear rows before current row
+        that.ScrollUpWindow(that.WhereY() - 1);
+        that.ScrollDownWindow(that.WhereY() - 1);
+        // Clear start of current row
+        that.ClrBol();
     };
 
     this.ClrEol = function () {
@@ -1098,7 +1388,7 @@ var TCrt = function () {
         ///
         /// ClrEol is window-relative.
         /// </remarks>
-        that.FastWrite(StringUtils.NewString(' ', that.WindMaxX - that.WhereX() + 1), that.WhereXA(), that.WhereYA(), FTextAttr);
+        that.FastWrite(StringUtils.NewString(' ', (that.WindMaxX + 1) - that.WhereX() + 1), that.WhereXA(), that.WhereYA(), FTextAttr);
     };
 
     this.ClrEos = function () {
@@ -1113,8 +1403,11 @@ var TCrt = function () {
         ///
         /// ClrEos is window-relative.
         /// </remarks>
-        that.ScrollDownWindow(that.WindRows - that.WhereY() + 1);
-        that.ScrollUpWindow(that.WindRows - that.WhereY() + 1);
+        // Clear rows after current row
+        that.ScrollDownWindow(that.WindRows - that.WhereY());
+        that.ScrollUpWindow(that.WindRows - that.WhereY());
+        // Clear rest of current row
+        that.ClrEol();
     };
 
     this.ClrLine = function () {
@@ -1167,7 +1460,7 @@ var TCrt = function () {
         if (AChars === undefined) { AChars = 1; }
 
         var i;
-        for (i = that.WhereXA(); i <= that.WindMinX + that.WindCols - AChars; i++) {
+        for (i = that.WhereXA() ; i <= that.WindMinX + that.WindCols - AChars; i++) {
             that.FastWrite(String.fromCharCode(FBuffer[i + AChars][that.WhereYA()].x), i, that.WhereYA(), FBuffer[i + AChars][that.WhereYA()].y);
         }
         for (i = that.WindMinX + that.WindCols + 1 - AChars; i <= that.WindMinX + that.WindCols; i++) {
@@ -1223,6 +1516,15 @@ var TCrt = function () {
         }
     };
 
+    this.FillScreen = function (AChar) {
+        var Line = StringUtils.NewString(AChar.charAt(0), that.ScreenCols);
+
+        var Y;
+        for (Y = 1; Y <= that.ScreenRows; Y++) {
+            that.FastWrite(Line, 1, Y, FTextAttr);
+        }
+    };
+
     this.GotoXY = function (AX, AY) {
         /// <summary>
         /// Moves the cursor to the given coordinates within the virtual screen.
@@ -1234,7 +1536,7 @@ var TCrt = function () {
         /// </remarks>
         /// <param name="AX">The 1-based column to move to</param>
         /// <param name="AY">The 1-based row to move to</param>
-        if ((AX > 0) && (AY > 0) && ((AX - 1 + that.WindMinX) <= that.WindMaxX) && ((AY - 1 + that.WindMinY) <= that.WindMaxY)) {
+        if ((AX >= 1) && (AY >= 1) && ((AX - 1 + that.WindMinX) <= that.WindMaxX) && ((AY - 1 + that.WindMinY) <= that.WindMaxY)) {
             FCursor.Position = new Point(AX, AY);
         }
     };
@@ -1276,7 +1578,7 @@ var TCrt = function () {
         for (i = that.WindMinX + that.WindCols; i >= that.WhereXA() + AChars; i--) {
             that.FastWrite(String.fromCharCode(FBuffer[i - AChars][that.WhereYA()].x), i, that.WhereYA(), FBuffer[i - AChars][that.WhereYA()].y);
         }
-        for (i = that.WhereXA(); i < that.WhereXA() + AChars; i++) {
+        for (i = that.WhereXA() ; i < that.WhereXA() + AChars; i++) {
             that.FastWrite(" ", i, that.WhereYA(), FTextAttr);
         }
     };
@@ -1303,6 +1605,10 @@ var TCrt = function () {
     this.KeyPressed = function () {
         return (FKeyBuf.length > 0);
     };
+
+    this.__defineSetter__("LocalEcho", function (ALocalEcho) {
+        FLocalEcho = ALocalEcho;
+    });
 
     this.LowVideo = function () {
         /// <summary>
@@ -1485,7 +1791,11 @@ var TCrt = function () {
     this.ReadKey = function () {
         if (FKeyBuf.length === 0) { return null; }
 
-        return FKeyBuf.shift();
+        var KPE = FKeyBuf.shift();
+        if (FLocalEcho) {
+            that.Write(KPE.keyString);
+        }
+        return KPE;
     };
 
     this.ReDraw = function () {
@@ -1498,6 +1808,7 @@ var TCrt = function () {
         }
     };
 
+    // TODO This doesn't match Crt.as -- which is correct?
     this.RestoreScreen = function (ABuffer, ALeft, ATop, ARight, ABottom) {
         var X;
         var Y;
@@ -1519,6 +1830,7 @@ var TCrt = function () {
         }
     };
 
+    // TODO This doesn't match Crt.as -- which is correct?
     this.SaveScreen = function (ALeft, ATop, ARight, ABottom) {
         var Result = [];
         Result.InitTwoDimensions(FScreenSize.x, FScreenSize.y);
@@ -1568,8 +1880,8 @@ var TCrt = function () {
         var Height = ((AY2 - AY1 + 1 - ALines) * FFont.Height);
         if (Height > 0) {
             var Buf = FContext.getImageData(Left, Top, Width, Height);
-            Left = (AX1 - 1) * FFont.Width;
-            Top = (AY1 - 1) * FFont.Height;
+            Left = (AX1 - 1 + ALines) * FFont.Width;
+            Top = (AY1 - 1 + ALines) * FFont.Height;
             FContext.putImageData(Buf, Left, Top);
         }
 
@@ -1662,7 +1974,7 @@ var TCrt = function () {
         var Y = 0;
 
         // First, shuffle the contents that are still visible
-        for (Y = AY1; Y <= (AY2 - ALines); Y++) {
+        for (Y = AY1; Y <= (AY2 - ALines) ; Y++) {
             for (X = AX1; X <= AX2; X++) {
                 FBuffer[X][Y].x = FBuffer[X][Y + ALines].x;
                 FBuffer[X][Y].y = FBuffer[X][Y + ALines].y;
@@ -1670,7 +1982,7 @@ var TCrt = function () {
         }
 
         // Then, blank the contents that are not
-        for (Y = AY2; Y > (AY2 - ALines); Y--) {
+        for (Y = AY2; Y > (AY2 - ALines) ; Y--) {
             for (X = AX1; X <= AX2; X++) {
                 FBuffer[X][Y].x = 32; // Blank
                 FBuffer[X][Y].y = AAttr;
@@ -1751,20 +2063,23 @@ var TCrt = function () {
         }
 
         // Update the bitmap
+        // TODO Why is this commented out?
         /*FBitmap.bitmapData = new BitmapData(FFont.Width * FScreenSize.x, FFont.Height * FScreenSize.y, false, 0);
         FCanvas.width = FBitmap.width;
         FCanvas.height = FBitmap.height;*/
 
         // Restore the screen contents
+        // TODO If new screen is smaller than old screen, restore bottom portion not top portion
         if (FOldBuffer !== null) {
-            for (Y = 1; Y <= Math.min(FScreenSize.y, FOldScreenSize.y); Y++) {
-                for (X = 1; X <= Math.min(FScreenSize.x, FOldScreenSize.x); X++) {
+            for (Y = 1; Y <= Math.min(FScreenSize.y, FOldScreenSize.y) ; Y++) {
+                for (X = 1; X <= Math.min(FScreenSize.x, FOldScreenSize.x) ; X++) {
                     that.FastWrite(String.fromCharCode(FOldBuffer[X][Y].x), X, Y, FOldBuffer[X][Y].y);
                 }
             }
         }
 
         // Let the program know about the update
+        // TODO Is the commented or uncommented code correct?
         //FCanvas.dispatchEvent(that.SCREEN_SIZE_CHANGED);
         var evObj = document.createEvent('Events');
         evObj.initEvent(that.SCREEN_SIZE_CHANGED, true, false);
@@ -1958,7 +2273,7 @@ var TCrt = function () {
         /// <param name="AY1">The 1-based top row of the window</param>
         /// <param name="AX2">The 1-based right column of the window</param>
         /// <param name="AY2">The 1-based bottom row of the window</param>
-        if ((AX1 > 0) && (AY1 > 0) && (AX1 <= AX2) && (AY1 <= AY2)) {
+        if ((AX1 >= 1) && (AY1 >= 1) && (AX1 <= AX2) && (AY1 <= AY2)) {
             if ((AX2 <= FScreenSize.x) && (AY2 <= FScreenSize.y)) {
                 FWindMin = (AX1 - 1) + ((AY1 - 1) << 8);
                 FWindMax = (AX2 - 1) + ((AY2 - 1) << 8);
@@ -2001,7 +2316,11 @@ var TCrt = function () {
         for (i = 0; i < AText.length; i++) {
             var DoGoto = false;
 
-            if (AText.charCodeAt(i) === 0x07) {
+            if (AText.charCodeAt(i) === 0x00) {
+                // NULL, ignore
+                i += 0; // Make JSLint happy (doesn't like empty block)
+            }
+            else if (AText.charCodeAt(i) === 0x07) {
                 that.Beep();
             }
             else if (AText.charCodeAt(i) === 0x08) {
@@ -2027,6 +2346,9 @@ var TCrt = function () {
                 } else {
                     // Cursor goes to the next multiple of 8
                     X += 8 - (X % 8);
+
+                    // Make sure we didn't tab beyond the width of the window (can happen if width of window is not divisible by 8)
+                    X = Math.min(X, that.WindCols);
                 }
                 DoGoto = true;
             }
@@ -2103,6 +2425,10 @@ var TCrt = function () {
             // trace(AText.charCodeAt(i));
             var DoGoto = false;
 
+            if (AText.charCodeAt(i) === 0x00) {
+                // NULL, ignore
+                i += 0; // Make JSLint happy (doesn't like empty block)
+            }
             if ((AText.charCodeAt(i) === 0x1B) && (!FATASCIIEscaped)) {
                 // Escape
                 FATASCIIEscaped = true;
@@ -2285,6 +2611,25 @@ var TCrt = function () {
     };
 };
 Crt = new TCrt();
+/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
 var AnsiParserState = 0;
 /// <summary>
 /// The possible states the ANSI parser may find itself in
@@ -2306,12 +2651,50 @@ var TAnsiParserState = function () {
 	this.Bracket = 2;
 };
 AnsiParserState = new TAnsiParserState();
+/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
 var ESCQEvent = function (ACodePage, AWidth, AHeight) {
 	// Constructor
 	this.CodePage = ACodePage;
 	this.Width = AWidth;
 	this.Height = AHeight;
 };
+/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
 var Ansi = 0;
 var TAnsi = function () {
     this.onesc5n = function () { }; // Do nothing
@@ -2712,6 +3095,25 @@ var TAnsi = function () {
     FAnsiXY = new Point(1, 1);
 };
 Ansi = new TAnsi();
+/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
 var TTelnet = function () {
     // Public events
     this.onclose = function () { }; // Do nothing
@@ -2931,6 +3333,25 @@ var TTelnet = function () {
     FInputBuffer = new ByteArray();
     FOutputBuffer = new ByteArray();
 };
+/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
 /// <reference path="randm/crt/Crt.js" />
 
 var HtmlTerm = function () { }; // Do nothing
