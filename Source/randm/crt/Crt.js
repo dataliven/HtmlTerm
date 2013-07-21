@@ -295,7 +295,7 @@ var TCrt = function () {
         if (AChars === undefined) { AChars = 1; }
 
         var i;
-        for (i = that.WhereXA(); i <= that.WindMinX + that.WindCols - AChars; i++) {
+        for (i = that.WhereXA() ; i <= that.WindMinX + that.WindCols - AChars; i++) {
             that.FastWrite(String.fromCharCode(FBuffer[i + AChars][that.WhereYA()].x), i, that.WhereYA(), FBuffer[i + AChars][that.WhereYA()].y);
         }
         for (i = that.WindMinX + that.WindCols + 1 - AChars; i <= that.WindMinX + that.WindCols; i++) {
@@ -413,7 +413,7 @@ var TCrt = function () {
         for (i = that.WindMinX + that.WindCols; i >= that.WhereXA() + AChars; i--) {
             that.FastWrite(String.fromCharCode(FBuffer[i - AChars][that.WhereYA()].x), i, that.WhereYA(), FBuffer[i - AChars][that.WhereYA()].y);
         }
-        for (i = that.WhereXA(); i < that.WhereXA() + AChars; i++) {
+        for (i = that.WhereXA() ; i < that.WhereXA() + AChars; i++) {
             that.FastWrite(" ", i, that.WhereYA(), FTextAttr);
         }
     };
@@ -627,7 +627,9 @@ var TCrt = function () {
         if (FKeyBuf.length === 0) { return null; }
 
         var KPE = FKeyBuf.shift();
-        if (FLocalEcho) Write(KPE.keyString);
+        if (FLocalEcho) {
+            Write(KPE.keyString);
+        }
         return KPE;
     };
 
@@ -807,7 +809,7 @@ var TCrt = function () {
         var Y = 0;
 
         // First, shuffle the contents that are still visible
-        for (Y = AY1; Y <= (AY2 - ALines); Y++) {
+        for (Y = AY1; Y <= (AY2 - ALines) ; Y++) {
             for (X = AX1; X <= AX2; X++) {
                 FBuffer[X][Y].x = FBuffer[X][Y + ALines].x;
                 FBuffer[X][Y].y = FBuffer[X][Y + ALines].y;
@@ -815,7 +817,7 @@ var TCrt = function () {
         }
 
         // Then, blank the contents that are not
-        for (Y = AY2; Y > (AY2 - ALines); Y--) {
+        for (Y = AY2; Y > (AY2 - ALines) ; Y--) {
             for (X = AX1; X <= AX2; X++) {
                 FBuffer[X][Y].x = 32; // Blank
                 FBuffer[X][Y].y = AAttr;
@@ -904,8 +906,8 @@ var TCrt = function () {
         // Restore the screen contents
         // TODO If new screen is smaller than old screen, restore bottom portion not top portion
         if (FOldBuffer !== null) {
-            for (Y = 1; Y <= Math.min(FScreenSize.y, FOldScreenSize.y); Y++) {
-                for (X = 1; X <= Math.min(FScreenSize.x, FOldScreenSize.x); X++) {
+            for (Y = 1; Y <= Math.min(FScreenSize.y, FOldScreenSize.y) ; Y++) {
+                for (X = 1; X <= Math.min(FScreenSize.x, FOldScreenSize.x) ; X++) {
                     that.FastWrite(String.fromCharCode(FOldBuffer[X][Y].x), X, Y, FOldBuffer[X][Y].y);
                 }
             }
