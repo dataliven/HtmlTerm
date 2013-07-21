@@ -1153,6 +1153,7 @@ var TCrt = function () {
 
             if (AText.charCodeAt(i) === 0x00) {
                 // NULL, ignore
+                i += 0; // Make JSLint happy (doesn't like empty block)
             }
             else if (AText.charCodeAt(i) === 0x07) {
                 that.Beep();
@@ -1261,6 +1262,7 @@ var TCrt = function () {
 
             if (AText.charCodeAt(i) === 0x00) {
                 // NULL, ignore
+                i += 0; // Make JSLint happy (doesn't like empty block)
             }
             if ((AText.charCodeAt(i) === 0x1B) && (!FATASCIIEscaped)) {
                 // Escape
