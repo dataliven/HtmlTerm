@@ -41,6 +41,7 @@ var TYModemReceive = function (ATelnet) {
     var FNextByte = 0;
     var FShouldSendG = true;
     var FTelnet;
+    var FTimer;
     var FTotalBytesReceived = 0;
     var lblFileCount;
     var lblFileName;
@@ -56,8 +57,7 @@ var TYModemReceive = function (ATelnet) {
     var CleanUp = function (AMessage) { }; // Do nothing
     var Dispatch = function () { }; // Do nothing
     var HandleIOError = function (ioe) { }; // Do nothing
-    var OnCrtKeyPress = function (kpe) { }; // Do nothing
-    var OnEnterFrame = function (e) { }; // Do nothing
+    var OnTimer = function (e) { }; // Do nothing
 
     Cancel = function (AReason) {
         // Send the cancel request
@@ -86,8 +86,7 @@ var TYModemReceive = function (ATelnet) {
 
     CleanUp = function (AMessage) {
         // Remove the listeners
-        removeEventListener(Event.ENTER_FRAME, OnEnterFrame, false);
-        Crt.Canvas.removeEventListener(Crt.KEY_PRESSED, OnCrtKeyPress, false);
+        clearInterval(FTimer);
 
         // Update status label
         lblStatus.Text = "Status: " + AMessage;
@@ -102,13 +101,14 @@ var TYModemReceive = function (ATelnet) {
         Crt.Blink = FBlink;
         Crt.ShowCursor();
 
-        dispatchEvent(new Event(that.TRANSFER_COMPLETE));
+        var evObj = document.createEvent('Events');
+        evObj.initEvent(that.TRANSFER_COMPLETE, true, false);
+        that.dispatchEvent(evObj);
     };
 
     this.Download = function () {
-        // Start the listeners
-        addEventListener(Event.ENTER_FRAME, OnEnterFrame, false);
-        Crt.Canvas.addEventListener(Crt.KEY_PRESSED, OnCrtKeyPress, false);
+        // Create our main timer
+        FTimer = setInterval(OnTimer, 50);
 
         // Create the transfer dialog
         FBlink = Crt.Blink;
@@ -142,13 +142,15 @@ var TYModemReceive = function (ATelnet) {
         }
     };
 
-    OnCrtKeyPress = function (kpe) {
-        if (kpe.ANSI.charCodeAt(0) === CAN) {
-            Cancel("User requested abort");
+    OnTimer = function (e) {
+        // Check for abort
+        while (Crt.KeyPressed()) {
+            var KPE = Crt.ReadKey();
+            if ((KPE !== null) && (KPE.keyString.length > 0) && (KPE.keyString.charCodeAt(0) === CAN)) {
+                Cancel("User requested abort");
+            }
         }
-    };
 
-    OnEnterFrame = function (e) {
         // Keep going until we don't have any more data to read
         while (true) {
             // Check if we've read a byte previously
@@ -156,7 +158,7 @@ var TYModemReceive = function (ATelnet) {
                 // Nope, try to read one now
                 if (FTelnet.bytesAvailable === 0) {
                     // No data -- check if we should send a G
-                    if (FShouldSendG && (getTimer() - FLastGTime > 3000)) {
+                    if (FShouldSendG && (new Date().getMilliseconds() - FLastGTime > 3000)) {
                         // Send a G after 3 quiet seconds	
                         try {
                             FTelnet.writeByte(CAPG);
@@ -167,7 +169,7 @@ var TYModemReceive = function (ATelnet) {
                         }
 
                         // Reset last G time so we don't spam G's
-                        FLastGTime = getTimer();
+                        FLastGTime = new Date().getMilliseconds();
                     }
 
                     return;
