@@ -37,5 +37,4 @@ var TFileRecord = function (AName, ASize) {
     // Constructor
     FName = AName;
     FSize = ASize;
-}
-
+};

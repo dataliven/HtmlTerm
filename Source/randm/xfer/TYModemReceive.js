@@ -37,7 +37,7 @@ var TYModemReceive = function (ATelnet) {
     var FLastGTime = 0;
     var FExpectingHeader = true;
     var FFile;
-    var FFiles = new Array();
+    var FFiles = [];
     var FNextByte = 0;
     var FShouldSendG = true;
     var FTelnet;
@@ -68,16 +68,16 @@ var TYModemReceive = function (ATelnet) {
             FTelnet.writeByte(CAN);
             FTelnet.writeByte(CAN);
             FTelnet.writeString("\b\b\b\b\b     \b\b\b\b\b"); // will auto-flush
-        } catch (ioe) {
-            HandleIOError(ioe);
+        } catch (ioe1) {
+            HandleIOError(ioe1);
             return;
         }
 
         // Drain the input buffer
         try {
             FTelnet.readString();
-        } catch (ioe) {
-            HandleIOError(ioe);
+        } catch (ioe2) {
+            HandleIOError(ioe2);
             return;
         }
 
@@ -102,7 +102,7 @@ var TYModemReceive = function (ATelnet) {
         Crt.Blink = FBlink;
         Crt.ShowCursor();
 
-        dispatchEvent(new Event(TRANSFER_COMPLETE));
+        dispatchEvent(new Event(that.TRANSFER_COMPLETE));
     };
 
     this.Download = function () {
@@ -143,8 +143,10 @@ var TYModemReceive = function (ATelnet) {
     };
 
     OnCrtKeyPress = function (kpe) {
-        if (kpe.ANSI.charCodeAt(0) === CAN) Cancel("User requested abort");
-    }
+        if (kpe.ANSI.charCodeAt(0) === CAN) {
+            Cancel("User requested abort");
+        }
+    };
 
     OnEnterFrame = function (e) {
         // Keep going until we don't have any more data to read
@@ -159,8 +161,8 @@ var TYModemReceive = function (ATelnet) {
                         try {
                             FTelnet.writeByte(CAPG);
                             FTelnet.flush();
-                        } catch (ioe) {
-                            HandleIOError(ioe);
+                        } catch (ioe1) {
+                            HandleIOError(ioe1);
                             return;
                         }
 
@@ -174,8 +176,8 @@ var TYModemReceive = function (ATelnet) {
                     // Data available, so read the next byte
                     try {
                         FNextByte = FTelnet.readUnsignedByte();
-                    } catch (ioe) {
-                        HandleIOError(ioe);
+                    } catch (ioe2) {
+                        HandleIOError(ioe2);
                         return;
                     }
                 }
@@ -196,7 +198,9 @@ var TYModemReceive = function (ATelnet) {
                     var BlockSize = (FNextByte === STX) ? 1024 : 128;
 
                     // Make sure we have enough data to read a full block
-                    if (FTelnet.bytesAvailable < (1 + 1 + BlockSize + 1 + 1)) return;
+                    if (FTelnet.bytesAvailable < (1 + 1 + BlockSize + 1 + 1)) {
+                        return;
+                    }
 
                     // Reset NextByte variable so we read in a new byte next loop
                     FNextByte = 0;
@@ -235,7 +239,7 @@ var TYModemReceive = function (ATelnet) {
                         FExpectingHeader = false;
 
                         // Get the filename
-                        var FileName = ""
+                        var FileName = "";
                         var B = Packet.readUnsignedByte();
                         while ((B !== 0) && (Packet.bytesAvailable > 0)) {
                             FileName += String.fromCharCode(B);
@@ -250,7 +254,7 @@ var TYModemReceive = function (ATelnet) {
                             Temp += String.fromCharCode(B);
                             B = Packet.readUnsignedByte();
                         }
-                        FileSize = parseInt(Temp);
+                        FileSize = parseInt(Temp, 10);
 
                         // Check for blank filename (means batch is complete)
                         if (FileName.length === 0) {
@@ -277,8 +281,8 @@ var TYModemReceive = function (ATelnet) {
                         try {
                             FTelnet.writeByte(CAPG);
                             FTelnet.flush();
-                        } catch (ioe) {
-                            HandleIOError(ioe);
+                        } catch (ioe3) {
+                            HandleIOError(ioe3);
                             return;
                         }
                     } else {
@@ -302,8 +306,8 @@ var TYModemReceive = function (ATelnet) {
                         FTelnet.writeByte(ACK);
                         FTelnet.writeByte(CAPG);
                         FTelnet.flush();
-                    } catch (ioe) {
-                        HandleIOError(ioe);
+                    } catch (ioe4) {
+                        HandleIOError(ioe4);
                         return;
                     }
 
@@ -325,4 +329,4 @@ var TYModemReceive = function (ATelnet) {
 
     // Constructor
     FTelnet = ATelnet;
-}
+};
