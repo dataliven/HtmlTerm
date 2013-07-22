@@ -17,36 +17,25 @@
   You should have received a copy of the GNU General Public License
   along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
 */
-// TODO This is still ActionScript, not JavaScript
-package randm.xfer
-{
-	import flash.utils.ByteArray;
+var TFileRecord = function (AName, ASize) {
+    var FData = new ByteArray();
+    var FName = "";
+    var FSize = 0;
 
-	public class TFileRecord
-	{
-		private var FData: ByteArray = new ByteArray();
-		private var FName: String = "";
-		private var FSize: uint = 0;
-		
-		public function TFileRecord(AName: String, ASize: int): void
-		{
-			FName = AName;
-			FSize = ASize;
-		}
-		
-		public function get data(): ByteArray
-		{
-			return FData;
-		}
-		
-		public function get name(): String
-		{
-			return FName;
-		}
-		
-		public function get size(): uint
-		{
-			return FSize;
-		}
-	}
+    this.__defineGetter__("data", function () {
+        return FData;
+    });
+
+    this.__defineGetter__("name", function () {
+        return FName;
+    });
+
+    this.__defineGetter__("size", function () {
+        return FSize;
+    });
+
+    // Constructor
+    FName = AName;
+    FSize = ASize;
 }
+
