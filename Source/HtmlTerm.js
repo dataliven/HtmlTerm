@@ -437,7 +437,8 @@ var THtmlTerm = function () {
         var FR = new FileReference();
         if (FYModemReceive.FileCount === 1) {
             // If we have just one file, save it
-            FR.save(FYModemReceive.FileAt(0).data, FYModemReceive.FileAt(0).name);
+            var myBlob = new Blob([FYModemReceive.FileAt(0).data], { "type": "application\/octet-stream" });
+            var fileSaver = window.saveAs(myBlob, FYModemReceive.FileAt(0).name);
         }
         else if (FYModemReceive.FileCount > 1) {
             // More than one requires bundling in a TAR archive
@@ -516,11 +517,12 @@ var THtmlTerm = function () {
             }
 
             // Save the tar
-            FR.save(TAR, "HtmlTerm-BatchDownload.tar");
+            var myBlob = new Blob([TAR.readString()], { "type": "application\/octet-stream" });
+            var fileSaver = window.saveAs(myBlob, "HtmlTerm-BatchDownload.tar");
         }
 
         // Remove button
-        FSaveFilesButton.removeEventListener('click', OnSaveFilesButtonClick, false);
+        FSaveFilesButton.Image.removeEventListener('click', OnSaveFilesButtonClick, false);
         FSaveFilesButton.Hide();
 
         // Reset display
