@@ -73,12 +73,15 @@ var ByteArray = function () {
             throw "There is not sufficient data available to read.";
         }
 
+        var DestPosition = ADest.position;
         ADest.position = AOffset;
 
         var i;
         for (i = 0; i < ACount; i++) {
             ADest.writeByte(FBytes[FPosition++] & 0xFF);
         }
+
+        ADest.position = DestPosition;
     };
 
     this.readString = function () {
@@ -133,11 +136,15 @@ var ByteArray = function () {
         if (length > bytes.length) { length = bytes.length; }
         if (offset + length > bytes.length) { length = bytes.length - offset; }
 
+        var BytesPosition = bytes.position;
         bytes.position = offset;
+
         var i;
         for (i = 0; i < length; i++) {
-            FBytes.writeByte(bytes.readUnsignedByte());
+            that.writeByte(bytes.readUnsignedByte());
         }
+
+        bytes.position = BytesPosition;
     };
 
     this.writeString = function (AText) {
