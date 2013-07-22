@@ -123,7 +123,6 @@
     <Content Include="Source\randm\crt\TCrtProgressBar.js" />
     <Content Include="Source\randm\tcp\TTelnet.js" />
     <Content Include="Source\randm\xfer\CRC.js" />
-    <Content Include="Source\randm\xfer\EventTimer.js" />
     <Content Include="Source\randm\xfer\TFileRecord.js" />
     <Content Include="Source\randm\xfer\TYModemReceive.js" />
     <Content Include="Source\randm\xfer\TYModemSend.js" />
