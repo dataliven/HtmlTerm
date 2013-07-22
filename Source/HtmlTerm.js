@@ -72,9 +72,7 @@ var THtmlTerm = function () {
     var OnCrtScreenSizeChanged = function (e) { }; // Do nothing
     var OnDonateMenuClick = function (cme) { }; // Do nothing
     var OnDownloadComplete = function (e) { }; // Do nothing
-    var OnDownloadMenuClick = function (cme) { }; // Do nothing
     var OnHelpMenuClick = function (cme) { }; // Do nothing
-    var OnKeyDown = function (ke) { }; // Do nothing
     var OnMaximizeButtonClick = function (me) { }; // Do nothing
     var OnMinimizeButtonClick = function (me) { }; // Do nothing
     var OnSaveFilesButtonClick = function (me) { }; // Do nothing
@@ -410,14 +408,16 @@ var THtmlTerm = function () {
 
         // Display the save button (if files were completed)
         if (FYModemReceive.FileCount > 0) { ShowSaveFilesButton(); }
+
+        trace(FYModemReceive.FileAt[0].data);
     };
 
-    OnDownloadMenuClick = function (cme) {
+    this.Download = function (cme) {
         if (FConnection === null) { return; }
         if (!FConnection.connected) { return; }
 
         // Transfer the file
-        //TODO FYModemReceive = new TYModemReceive(FConnection);
+        FYModemReceive = new TYModemReceive(FConnection);
 
         // Setup listeners for during transfer
         clearInterval(FTimer);
@@ -429,27 +429,6 @@ var THtmlTerm = function () {
 
     OnHelpMenuClick = function (cme) {
         //TODO navigateToURL(new URLRequest("http://www.ftelnet.ca/help.php"));
-    };
-
-    OnKeyDown = function (ke) {
-        if (ke.ctrlKey) {
-            switch (ke.keyCode) {
-                case Keyboard.PAGE_DOWN:
-                    OnDownloadMenuClick("Download");
-                    break;
-                case Keyboard.PAGE_UP:
-                    OnUploadMenuClick("Upload");
-                    break;
-            }
-        }
-    };
-
-    OnMaximizeButtonClick = function (me) {
-        OnUploadMenuClick("Upload");
-    };
-
-    OnMinimizeButtonClick = function (me) {
-        OnDownloadMenuClick("Upload");
     };
 
     OnSaveFilesButtonClick = function (me) {
@@ -538,7 +517,7 @@ var THtmlTerm = function () {
             }
 
             // Save the tar
-            FR.save(TAR, "fTelnet-BatchDownload.tar");
+            FR.save(TAR, "HtmlTerm-BatchDownload.tar");
         }
 
         // Remove button
@@ -576,7 +555,7 @@ var THtmlTerm = function () {
                 // Check for upload/download
                 if (KPE !== null) {
                     if ((KPE.ctrlKey) && (KPE.keyCode === Keyboard.PAGE_DOWN)) {
-                        OnDownloadMenuClick();
+                        that.Download();
                     } else if ((KPE.ctrlKey) && (KPE.keyCode === Keyboard.PAGE_UP)) {
                         OnUploadMenuClick();
                     } else if (KPE.keyString.length > 0) {

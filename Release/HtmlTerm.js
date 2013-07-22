@@ -3352,6 +3352,488 @@ var TTelnet = function () {
   You should have received a copy of the GNU General Public License
   along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
 */
+// TODO This is still ActionScript, not JavaScript
+var CRC = function () {
+    // Private constants
+    var CrcTable = [0x0000,  0x1021,  0x2042,  0x3063,  0x4084,  0x50a5,  0x60c6,  0x70e7,
+                    0x8108,  0x9129,  0xa14a,  0xb16b,  0xc18c,  0xd1ad,  0xe1ce,  0xf1ef,
+                    0x1231,  0x0210,  0x3273,  0x2252,  0x52b5,  0x4294,  0x72f7,  0x62d6,
+                    0x9339,  0x8318,  0xb37b,  0xa35a,  0xd3bd,  0xc39c,  0xf3ff,  0xe3de,
+                    0x2462,  0x3443,  0x0420,  0x1401,  0x64e6,  0x74c7,  0x44a4,  0x5485,
+                    0xa56a,  0xb54b,  0x8528,  0x9509,  0xe5ee,  0xf5cf,  0xc5ac,  0xd58d,
+                    0x3653,  0x2672,  0x1611,  0x0630,  0x76d7,  0x66f6,  0x5695,  0x46b4,
+                    0xb75b,  0xa77a,  0x9719,  0x8738,  0xf7df,  0xe7fe,  0xd79d,  0xc7bc,
+                    0x48c4,  0x58e5,  0x6886,  0x78a7,  0x0840,  0x1861,  0x2802,  0x3823,
+                    0xc9cc,  0xd9ed,  0xe98e,  0xf9af,  0x8948,  0x9969,  0xa90a,  0xb92b,
+                    0x5af5,  0x4ad4,  0x7ab7,  0x6a96,  0x1a71,  0x0a50,  0x3a33,  0x2a12,
+                    0xdbfd,  0xcbdc,  0xfbbf,  0xeb9e,  0x9b79,  0x8b58,  0xbb3b,  0xab1a,
+                    0x6ca6,  0x7c87,  0x4ce4,  0x5cc5,  0x2c22,  0x3c03,  0x0c60,  0x1c41,
+                    0xedae,  0xfd8f,  0xcdec,  0xddcd,  0xad2a,  0xbd0b,  0x8d68,  0x9d49,
+                    0x7e97,  0x6eb6,  0x5ed5,  0x4ef4,  0x3e13,  0x2e32,  0x1e51,  0x0e70,
+                    0xff9f,  0xefbe,  0xdfdd,  0xcffc,  0xbf1b,  0xaf3a,  0x9f59,  0x8f78,
+                    0x9188,  0x81a9,  0xb1ca,  0xa1eb,  0xd10c,  0xc12d,  0xf14e,  0xe16f,
+                    0x1080,  0x00a1,  0x30c2,  0x20e3,  0x5004,  0x4025,  0x7046,  0x6067,
+                    0x83b9,  0x9398,  0xa3fb,  0xb3da,  0xc33d,  0xd31c,  0xe37f,  0xf35e,
+                    0x02b1,  0x1290,  0x22f3,  0x32d2,  0x4235,  0x5214,  0x6277,  0x7256,
+                    0xb5ea,  0xa5cb,  0x95a8,  0x8589,  0xf56e,  0xe54f,  0xd52c,  0xc50d,
+                    0x34e2,  0x24c3,  0x14a0,  0x0481,  0x7466,  0x6447,  0x5424,  0x4405,
+                    0xa7db,  0xb7fa,  0x8799,  0x97b8,  0xe75f,  0xf77e,  0xc71d,  0xd73c,
+                    0x26d3,  0x36f2,  0x0691,  0x16b0,  0x6657,  0x7676,  0x4615,  0x5634,
+                    0xd94c,  0xc96d,  0xf90e,  0xe92f,  0x99c8,  0x89e9,  0xb98a,  0xa9ab,
+                    0x5844,  0x4865,  0x7806,  0x6827,  0x18c0,  0x08e1,  0x3882,  0x28a3,
+                    0xcb7d,  0xdb5c,  0xeb3f,  0xfb1e,  0x8bf9,  0x9bd8,  0xabbb,  0xbb9a,
+                    0x4a75,  0x5a54,  0x6a37,  0x7a16,  0x0af1,  0x1ad0,  0x2ab3,  0x3a92,
+                    0xfd2e,  0xed0f,  0xdd6c,  0xcd4d,  0xbdaa,  0xad8b,  0x9de8,  0x8dc9,
+                    0x7c26,  0x6c07,  0x5c64,  0x4c45,  0x3ca2,  0x2c83,  0x1ce0,  0x0cc1,
+                    0xef1f,  0xff3e,  0xcf5d,  0xdf7c,  0xaf9b,  0xbfba,  0x8fd9,  0x9ff8,
+                    0x6e17,  0x7e36,  0x4e55,  0x5e74,  0x2e93,  0x3eb2,  0x0ed1,  0x1ef0];
+
+    // Private methods
+    var OldUpdateCrc = function(CurByte, CurCrc) { }; // Do nothing
+    var UpdateCrc = function(CurByte, CurCrc) { }; // Do nothing
+		
+    this.Calculate16 = function(ABytes) {
+        var CRC = 0;
+			
+        // Save the old byte position
+        var OldPosition = ABytes.position;
+        ABytes.position = 0;
+			
+        // Calculate the CRC
+        while (ABytes.bytesAvailable > 0) {
+            CRC = UpdateCrc(ABytes.readUnsignedByte(), CRC);
+        }
+        CRC = UpdateCrc(0, CRC);
+        CRC = UpdateCrc(0, CRC);
+	
+        // Restore the old byte position
+        ABytes.position = OldPosition;
+			
+        return CRC;
+    };
+		
+    OldUpdateCrc = function(CurByte, CurCrc) {
+        // Pascal code: UpdateCrc := CrcTable[((CurCrc shr 8) and 255)] xor (CurCrc shl 8) xor CurByte;
+			
+        // Probably overkill, but without a byte type this is the safe alternative
+        var A = (CurCrc >> 8) & 0x00FF;
+        var B = (CurCrc << 8) & 0xFF00;
+        var C = CurByte & 0x00FF;
+        var D = (CrcTable[A] ^ B) & 0xFFFF;
+        var E = (D ^ C) & 0xFFFF;
+        return E;
+    };
+
+    UpdateCrc = function(CurByte, CurCrc) {
+        // Pascal code: UpdateCrc := CrcTable[((CurCrc shr 8) and 255)] xor (CurCrc shl 8) xor CurByte;
+        return (CrcTable[(CurCrc >> 8) & 0x00FF] ^ (CurCrc << 8) ^ CurByte) & 0xFFFF;
+    };
+};/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
+var TFileRecord = function (AName, ASize) {
+    var FData = new ByteArray();
+    var FName = "";
+    var FSize = 0;
+
+    this.__defineGetter__("data", function () {
+        return FData;
+    });
+
+    this.__defineGetter__("name", function () {
+        return FName;
+    });
+
+    this.__defineGetter__("size", function () {
+        return FSize;
+    });
+
+    // Constructor
+    FName = AName;
+    FSize = ASize;
+};/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
+var TYModemReceive = function (ATelnet) {
+    // Public constants
+    this.TRANSFER_COMPLETE = "TransferComplete";
+
+    // Private constants
+    var SOH = 0x01;
+    var STX = 0x02;
+    var EOT = 0x04;
+    var ACK = 0x06;
+    var NAK = 0x15;
+    var CAN = 0x18;
+    var SUB = 0x1A;
+    var CAPG = "G".charCodeAt(0);
+
+    // Private variables
+    var that = this;
+    var FBlink = false;
+    var FLastGTime = 0;
+    var FExpectingHeader = true;
+    var FFile;
+    var FFiles = [];
+    var FNextByte = 0;
+    var FShouldSendG = true;
+    var FTelnet;
+    var FTimer;
+    var FTotalBytesReceived = 0;
+    /*TODO
+    var lblFileCount;
+    var lblFileName;
+    var lblFileSize;
+    var lblFileReceived;
+    var lblTotalReceived;
+    var lblStatus;
+    var pbFileReceived;
+    var pnlMain;
+    TODO*/
+
+    // Private methods
+    var Cancel = function (AReason) { }; // Do nothing
+    var CleanUp = function (AMessage) { }; // Do nothing
+    var Dispatch = function () { }; // Do nothing
+    var HandleIOError = function (ioe) { }; // Do nothing
+    var OnTimer = function (e) { }; // Do nothing
+
+    Cancel = function (AReason) {
+        // Send the cancel request
+        try {
+            FTelnet.writeByte(CAN);
+            FTelnet.writeByte(CAN);
+            FTelnet.writeByte(CAN);
+            FTelnet.writeByte(CAN);
+            FTelnet.writeByte(CAN);
+            FTelnet.writeString("\b\b\b\b\b     \b\b\b\b\b"); // will auto-flush
+        } catch (ioe1) {
+            HandleIOError(ioe1);
+            return;
+        }
+
+        // Drain the input buffer
+        try {
+            FTelnet.readString();
+        } catch (ioe2) {
+            HandleIOError(ioe2);
+            return;
+        }
+
+        CleanUp("Cancelling (" + AReason + ")");
+    };
+
+    CleanUp = function (AMessage) {
+        // Remove the listeners
+        clearInterval(FTimer);
+
+        // Update status label
+        //TODO lblStatus.Text = "Status: " + AMessage;
+        Crt.WriteLn("Status: " + AMessage);
+
+        // Dispatch the event after 3 seconds
+        setTimeout(Dispatch, 3000);
+    };
+
+    Dispatch = function () {
+        // Remove the panel
+        //TODO pnlMain.Hide();
+        Crt.Blink = FBlink;
+        Crt.ShowCursor();
+
+        var evObj = document.createEvent('Events');
+        evObj.initEvent(that.TRANSFER_COMPLETE, true, false);
+        that.dispatchEvent(evObj);
+    };
+
+    this.Download = function () {
+        // Create our main timer
+        FTimer = setInterval(OnTimer, 50);
+
+        // Create the transfer dialog
+        FBlink = Crt.Blink;
+        Crt.Blink = false;
+        Crt.HideCursor();
+        /*TODO
+        pnlMain = new TCrtPanel(null, 10, 5, 60, 14, BorderStyle.Single, Crt.WHITE, Crt.BLUE, "YModem-G Receive Status (Hit CTRL+X to abort)", ContentAlignment.TopLeft);
+        lblFileCount = new TCrtLabel(pnlMain, 2, 2, 56, "Receiving file 1", ContentAlignment.Left, Crt.YELLOW, Crt.BLUE);
+        lblFileName = new TCrtLabel(pnlMain, 2, 4, 56, "File Name: ", ContentAlignment.Left, Crt.YELLOW, Crt.BLUE);
+        lblFileSize = new TCrtLabel(pnlMain, 2, 5, 56, "File Size: ", ContentAlignment.Left, Crt.YELLOW, Crt.BLUE);
+        lblFileReceived = new TCrtLabel(pnlMain, 2, 6, 56, "File Recv: ", ContentAlignment.Left, Crt.YELLOW, Crt.BLUE);
+        pbFileReceived = new TCrtProgressBar(pnlMain, 2, 7, 56, ProgressBarStyle.Continuous);
+        lblTotalReceived = new TCrtLabel(pnlMain, 2, 9, 56, "Total Recv: ", ContentAlignment.Left, Crt.YELLOW, Crt.BLUE);
+        lblStatus = new TCrtLabel(pnlMain, 2, 11, 56, "Status: Transferring file(s)", ContentAlignment.Left, Crt.WHITE, Crt.BLUE);
+        TODO*/
+    };
+
+    this.FileAt = function (AIndex) {
+        return TFileRecord(FFiles[AIndex]);
+    };
+
+    this.__defineGetter__("FileCount", function () {
+        return FFiles.length;
+    });
+
+    HandleIOError = function (ioe) {
+        trace("I/O Error: " + ioe);
+
+        if (FTelnet.connected) {
+            CleanUp("Unhandled I/O error");
+        } else {
+            CleanUp("Connection to server lost");
+        }
+    };
+
+    OnTimer = function (e) {
+        // Check for abort
+        while (Crt.KeyPressed()) {
+            var KPE = Crt.ReadKey();
+            if ((KPE !== null) && (KPE.keyString.length > 0) && (KPE.keyString.charCodeAt(0) === CAN)) {
+                Cancel("User requested abort");
+            }
+        }
+
+        // Keep going until we don't have any more data to read
+        while (true) {
+            // Check if we've read a byte previously
+            if (FNextByte === 0) {
+                // Nope, try to read one now
+                if (FTelnet.bytesAvailable === 0) {
+                    // No data -- check if we should send a G
+                    if (FShouldSendG && (new Date().getMilliseconds() - FLastGTime > 3000)) {
+                        // Send a G after 3 quiet seconds	
+                        try {
+                            FTelnet.writeByte(CAPG);
+                            FTelnet.flush();
+                        } catch (ioe1) {
+                            HandleIOError(ioe1);
+                            return;
+                        }
+
+                        // Reset last G time so we don't spam G's
+                        FLastGTime = new Date().getMilliseconds();
+                    }
+
+                    return;
+                }
+                else {
+                    // Data available, so read the next byte
+                    try {
+                        FNextByte = FTelnet.readUnsignedByte();
+                    } catch (ioe2) {
+                        HandleIOError(ioe2);
+                        return;
+                    }
+                }
+            }
+
+            // See what to do
+            switch (FNextByte) {
+                case CAN:
+                    // Sender requested cancellation
+                    CleanUp("Sender requested abort");
+
+                    break;
+                case SOH:
+                case STX:
+                    // File transfer is happening, don't send a G on timeout
+                    FShouldSendG = false;
+
+                    var BlockSize = (FNextByte === STX) ? 1024 : 128;
+
+                    // Make sure we have enough data to read a full block
+                    if (FTelnet.bytesAvailable < (1 + 1 + BlockSize + 1 + 1)) {
+                        return;
+                    }
+
+                    // Reset NextByte variable so we read in a new byte next loop
+                    FNextByte = 0;
+
+                    // Get block numbers
+                    var InBlock = FTelnet.readUnsignedByte();
+                    var InBlockInverse = FTelnet.readUnsignedByte();
+
+                    // Validate block numbers
+                    if (InBlockInverse !== (255 - InBlock)) {
+                        Cancel("Bad block #: " + InBlockInverse.toString() + " !== 255-" + InBlock.toString());
+                        return;
+                    }
+
+                    // Read data block
+                    var Packet = new ByteArray();
+                    FTelnet.readBytes(Packet, 0, BlockSize);
+
+                    // Validate CRC
+                    var InCRC = FTelnet.readUnsignedShort();
+                    var OurCRC = CRC.Calculate16(Packet);
+                    if (InCRC !== OurCRC) {
+                        Cancel("Bad CRC: " + InCRC.toString() + " !== " + OurCRC.toString());
+                        return;
+                    }
+
+                    // Reading the header?
+                    if (FExpectingHeader) {
+                        // Make sure it's block 0
+                        if (InBlock !== 0) {
+                            Cancel("Expecting header got block " + InBlock.toString());
+                            return;
+                        }
+
+                        // It is, so mark that we don't want it next packet 0
+                        FExpectingHeader = false;
+
+                        // Get the filename
+                        var FileName = "";
+                        var B = Packet.readUnsignedByte();
+                        while ((B !== 0) && (Packet.bytesAvailable > 0)) {
+                            FileName += String.fromCharCode(B);
+                            B = Packet.readUnsignedByte();
+                        }
+
+                        // Get the file size
+                        var Temp = "";
+                        var FileSize = 0;
+                        B = Packet.readUnsignedByte();
+                        while ((B >= 48) && (B <= 57) && (Packet.bytesAvailable > 0)) {
+                            Temp += String.fromCharCode(B);
+                            B = Packet.readUnsignedByte();
+                        }
+                        FileSize = parseInt(Temp, 10);
+
+                        // Check for blank filename (means batch is complete)
+                        if (FileName.length === 0) {
+                            CleanUp("File(s) successfully received!");
+                            return;
+                        }
+
+                        // Check for blank file size (we don't like this case!)
+                        if (isNaN(FileSize) || (FileSize === 0)) {
+                            Cancel("File Size missing from header block");
+                            return;
+                        }
+
+                        // Header is good, setup a new file record
+                        FFile = new TFileRecord(FileName, FileSize);
+                        /*TODO
+                        lblFileCount.Text = "Receiving file " + (FFiles.length + 1).toString();
+                        lblFileName.Text = "File Name: " + FileName;
+                        lblFileSize.Text = "File Size: " + StringUtils.AddCommas(FileSize) + " bytes";
+                        lblFileReceived.Text = "File Recv: 0 bytes";
+                        pbFileReceived.Value = 0;
+                        pbFileReceived.Maximum = FileSize;
+                        TODO*/
+                        Crt.WriteLn("Receiving file " + (FFiles.length + 1).toString());
+                        Crt.WriteLn("File Name: " + FileName);
+                        Crt.WriteLn("File Size: " + StringUtils.AddCommas(FileSize) + " bytes");
+                        Crt.WriteLn("File Recv: 0 bytes");
+
+                        // Send a G to request file start
+                        try {
+                            FTelnet.writeByte(CAPG);
+                            FTelnet.flush();
+                        } catch (ioe3) {
+                            HandleIOError(ioe3);
+                            return;
+                        }
+                    } else {
+                        // Add bytes to byte array (don't exceed desired file size though)
+                        var BytesToWrite = Math.min(BlockSize, FFile.size - FFile.data.length);
+                        FFile.data.writeBytes(Packet, 0, BytesToWrite);
+                        FTotalBytesReceived += BytesToWrite;
+
+                        /*TODO
+                        lblFileReceived.Text = "File Recv: " + StringUtils.AddCommas(FFile.data.length) + " bytes";
+                        pbFileReceived.Value = FFile.data.length;
+                        lblTotalReceived.Text = "Total Recv: " + StringUtils.AddCommas(FTotalBytesReceived) + " bytes";
+                        TODO*/
+                        Crt.WriteLn("File Recv: " + StringUtils.AddCommas(FFile.data.length) + " bytes");
+                        Crt.WriteLn("Total Recv: " + StringUtils.AddCommas(FTotalBytesReceived) + " bytes");
+                    }
+
+                    break;
+                case EOT:
+                    // File transfer is over, send a G on timeout
+                    FShouldSendG = true;
+
+                    // Acknowledge EOT and ask for next file
+                    try {
+                        FTelnet.writeByte(ACK);
+                        FTelnet.writeByte(CAPG);
+                        FTelnet.flush();
+                    } catch (ioe4) {
+                        HandleIOError(ioe4);
+                        return;
+                    }
+
+                    // Reset NextByte variable so we read in a new byte next loop
+                    FNextByte = 0;
+
+                    // Reset variables for next transfer
+                    FExpectingHeader = true;
+                    FFiles.push(FFile);
+
+                    break;
+                default:
+                    // Didn't expect this, so abort
+                    Cancel("Unexpected byte: " + FNextByte.toString());
+                    return;
+            }
+        }
+    };
+
+    // Constructor
+    FTelnet = ATelnet;
+};/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
 /// <reference path="randm/crt/Crt.js" />
 
 var HtmlTerm = function () { }; // Do nothing
@@ -3407,9 +3889,7 @@ var THtmlTerm = function () {
     var OnCrtScreenSizeChanged = function (e) { }; // Do nothing
     var OnDonateMenuClick = function (cme) { }; // Do nothing
     var OnDownloadComplete = function (e) { }; // Do nothing
-    var OnDownloadMenuClick = function (cme) { }; // Do nothing
     var OnHelpMenuClick = function (cme) { }; // Do nothing
-    var OnKeyDown = function (ke) { }; // Do nothing
     var OnMaximizeButtonClick = function (me) { }; // Do nothing
     var OnMinimizeButtonClick = function (me) { }; // Do nothing
     var OnSaveFilesButtonClick = function (me) { }; // Do nothing
@@ -3745,14 +4225,16 @@ var THtmlTerm = function () {
 
         // Display the save button (if files were completed)
         if (FYModemReceive.FileCount > 0) { ShowSaveFilesButton(); }
+
+        trace(FYModemReceive.FileAt[0].data);
     };
 
-    OnDownloadMenuClick = function (cme) {
+    this.Download = function (cme) {
         if (FConnection === null) { return; }
         if (!FConnection.connected) { return; }
 
         // Transfer the file
-        //TODO FYModemReceive = new TYModemReceive(FConnection);
+        FYModemReceive = new TYModemReceive(FConnection);
 
         // Setup listeners for during transfer
         clearInterval(FTimer);
@@ -3764,27 +4246,6 @@ var THtmlTerm = function () {
 
     OnHelpMenuClick = function (cme) {
         //TODO navigateToURL(new URLRequest("http://www.ftelnet.ca/help.php"));
-    };
-
-    OnKeyDown = function (ke) {
-        if (ke.ctrlKey) {
-            switch (ke.keyCode) {
-                case Keyboard.PAGE_DOWN:
-                    OnDownloadMenuClick("Download");
-                    break;
-                case Keyboard.PAGE_UP:
-                    OnUploadMenuClick("Upload");
-                    break;
-            }
-        }
-    };
-
-    OnMaximizeButtonClick = function (me) {
-        OnUploadMenuClick("Upload");
-    };
-
-    OnMinimizeButtonClick = function (me) {
-        OnDownloadMenuClick("Upload");
     };
 
     OnSaveFilesButtonClick = function (me) {
@@ -3873,7 +4334,7 @@ var THtmlTerm = function () {
             }
 
             // Save the tar
-            FR.save(TAR, "fTelnet-BatchDownload.tar");
+            FR.save(TAR, "HtmlTerm-BatchDownload.tar");
         }
 
         // Remove button
@@ -3911,7 +4372,7 @@ var THtmlTerm = function () {
                 // Check for upload/download
                 if (KPE !== null) {
                     if ((KPE.ctrlKey) && (KPE.keyCode === Keyboard.PAGE_DOWN)) {
-                        OnDownloadMenuClick();
+                        that.Download();
                     } else if ((KPE.ctrlKey) && (KPE.keyCode === Keyboard.PAGE_UP)) {
                         OnUploadMenuClick();
                     } else if (KPE.keyString.length > 0) {

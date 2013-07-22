@@ -53,10 +53,9 @@ TYPE Source\randm\ansi\Ansi.js >> Release\HtmlTerm.js
 
 TYPE Source\randm\tcp\TTelnet.js >> Release\HtmlTerm.js
 
-REM TYPE Source\randm\xfer\CRC.js >> Release\HtmlTerm.js
-REM TYPE Source\randm\xfer\EventTimer.js >> Release\HtmlTerm.js
-REM TYPE Source\randm\xfer\TFileRecord.js >> Release\HtmlTerm.js
-REM TYPE Source\randm\xfer\TYModemReceive.js >> Release\HtmlTerm.js
+TYPE Source\randm\xfer\CRC.js >> Release\HtmlTerm.js
+TYPE Source\randm\xfer\TFileRecord.js >> Release\HtmlTerm.js
+TYPE Source\randm\xfer\TYModemReceive.js >> Release\HtmlTerm.js
 REM TYPE Source\randm\xfer\TYModemSend.js >> Release\HtmlTerm.js        
 
 TYPE Source\HtmlTerm.js >> Release\HtmlTerm.js
