@@ -422,8 +422,6 @@ var THtmlTerm = function () {
 
         // Display the save button (if files were completed)
         if (FYModemReceive.FileCount > 0) { ShowSaveFilesButton(); }
-
-        trace(FYModemReceive.FileAt(0).data);
     };
 
     OnHelpMenuClick = function (cme) {
@@ -434,10 +432,18 @@ var THtmlTerm = function () {
         if (FYModemReceive === null) { return; }
         if (FYModemReceive.FileCount === 0) { return; }
 
-        var FR = new FileReference();
         if (FYModemReceive.FileCount === 1) {
             // If we have just one file, save it
-            var myBlob = new Blob([FYModemReceive.FileAt(0).data], { "type": "application\/octet-stream" });
+            var ByteString = FYModemReceive.FileAt(0).data.toString();
+            trace(ByteString);
+
+            var buffer = new ArrayBuffer(ByteString.length);
+            var dataView = new DataView(buffer);
+            for (var i = 0; i < ByteString.length; i++) {
+                dataView.setUint8(i, ByteString.charCodeAt(i));
+            }
+
+            var myBlob = new Blob([buffer], { type: 'application/octet-binary' });
             var fileSaver = window.saveAs(myBlob, FYModemReceive.FileAt(0).name);
         }
         else if (FYModemReceive.FileCount > 1) {
