@@ -99,6 +99,14 @@ var ByteArray = function () {
         return (FBytes[FPosition++] & 0xFF);
     };
 
+    this.readUnsignedShort = function () {
+        if (FPosition >= (FLength - 1)) {
+            throw "There is not sufficient data available to read.";
+        }
+
+        return ((FBytes[FPosition++] & 0xFF) << 8) + (FBytes[FPosition++] & 0xFF);
+    };
+
     this.toString = function () {
         var Result = [];
         var i;
