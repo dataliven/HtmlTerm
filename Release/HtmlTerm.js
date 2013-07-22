@@ -1267,7 +1267,7 @@ var TCrt = function () {
         FFont.onchange = OnFontChanged;
         FKeyBuf = [];
         FLastChar = 0;
-        FLocalEcho = true;
+        FLocalEcho = false;
         FScreenSize = new Point(80, 25);
         FTextAttr = 7;
         // FWindMin
