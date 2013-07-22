@@ -250,6 +250,21 @@ var THtmlTerm = function () {
         OnConnectionClose("Disconnect");
     };
 
+    this.Download = function (cme) {
+        if (FConnection === null) { return; }
+        if (!FConnection.connected) { return; }
+
+        // Transfer the file
+        FYModemReceive = new TYModemReceive(FConnection);
+
+        // Setup listeners for during transfer
+        clearInterval(FTimer);
+        document.addEventListener('TRANSFER_COMPLETE', OnDownloadComplete, false);
+
+        // Download the file
+        FYModemReceive.Download();
+    };
+
     this.__defineGetter__("Loaded", function () {
         return FLoaded;
     });
@@ -410,21 +425,6 @@ var THtmlTerm = function () {
         if (FYModemReceive.FileCount > 0) { ShowSaveFilesButton(); }
 
         trace(FYModemReceive.FileAt[0].data);
-    };
-
-    this.Download = function (cme) {
-        if (FConnection === null) { return; }
-        if (!FConnection.connected) { return; }
-
-        // Transfer the file
-        FYModemReceive = new TYModemReceive(FConnection);
-
-        // Setup listeners for during transfer
-        clearInterval(FTimer);
-        FYModemReceive.addEventListener('TRANSFER_COMPLETE', OnDownloadComplete, false);
-
-        // Download the file
-        FYModemReceive.Download();
     };
 
     OnHelpMenuClick = function (cme) {

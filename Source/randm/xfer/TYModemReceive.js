@@ -106,7 +106,7 @@ var TYModemReceive = function (ATelnet) {
 
         var evObj = document.createEvent('Events');
         evObj.initEvent(that.TRANSFER_COMPLETE, true, false);
-        that.dispatchEvent(evObj);
+        document.dispatchEvent(evObj);
     };
 
     this.Download = function () {
@@ -163,7 +163,7 @@ var TYModemReceive = function (ATelnet) {
                 // Nope, try to read one now
                 if (FTelnet.bytesAvailable === 0) {
                     // No data -- check if we should send a G
-                    if (FShouldSendG && (new Date().getMilliseconds() - FLastGTime > 3000)) {
+                    if (FShouldSendG && ((new Date()) - FLastGTime > 3000)) {
                         // Send a G after 3 quiet seconds	
                         try {
                             FTelnet.writeByte(CAPG);
@@ -174,12 +174,11 @@ var TYModemReceive = function (ATelnet) {
                         }
 
                         // Reset last G time so we don't spam G's
-                        FLastGTime = new Date().getMilliseconds();
+                        FLastGTime = new Date();
                     }
 
                     return;
-                }
-                else {
+                } else {
                     // Data available, so read the next byte
                     try {
                         FNextByte = FTelnet.readUnsignedByte();

@@ -3575,7 +3575,7 @@ var TYModemReceive = function (ATelnet) {
 
         var evObj = document.createEvent('Events');
         evObj.initEvent(that.TRANSFER_COMPLETE, true, false);
-        that.dispatchEvent(evObj);
+        document.dispatchEvent(evObj);
     };
 
     this.Download = function () {
@@ -3627,12 +3627,17 @@ var TYModemReceive = function (ATelnet) {
 
         // Keep going until we don't have any more data to read
         while (true) {
+            trace("1");
             // Check if we've read a byte previously
             if (FNextByte === 0) {
+                trace("2");
                 // Nope, try to read one now
                 if (FTelnet.bytesAvailable === 0) {
+                    trace("3");
+                    trace((new Date()) - FLastGTime);
                     // No data -- check if we should send a G
-                    if (FShouldSendG && (new Date().getMilliseconds() - FLastGTime > 3000)) {
+                    if (FShouldSendG && ((new Date()) - FLastGTime > 3000)) {
+                        trace("4");
                         // Send a G after 3 quiet seconds	
                         try {
                             FTelnet.writeByte(CAPG);
@@ -3643,12 +3648,12 @@ var TYModemReceive = function (ATelnet) {
                         }
 
                         // Reset last G time so we don't spam G's
-                        FLastGTime = new Date().getMilliseconds();
+                        FLastGTime = new Date();
                     }
 
                     return;
-                }
-                else {
+                } else {
+                    trace("5");
                     // Data available, so read the next byte
                     try {
                         FNextByte = FTelnet.readUnsignedByte();
@@ -3659,6 +3664,7 @@ var TYModemReceive = function (ATelnet) {
                 }
             }
 
+            trace("6");
             // See what to do
             switch (FNextByte) {
                 case CAN:
@@ -4067,6 +4073,21 @@ var THtmlTerm = function () {
         OnConnectionClose("Disconnect");
     };
 
+    this.Download = function (cme) {
+        if (FConnection === null) { return; }
+        if (!FConnection.connected) { return; }
+
+        // Transfer the file
+        FYModemReceive = new TYModemReceive(FConnection);
+
+        // Setup listeners for during transfer
+        clearInterval(FTimer);
+        document.addEventListener('TRANSFER_COMPLETE', OnDownloadComplete, false);
+
+        // Download the file
+        FYModemReceive.Download();
+    };
+
     this.__defineGetter__("Loaded", function () {
         return FLoaded;
     });
@@ -4227,21 +4248,6 @@ var THtmlTerm = function () {
         if (FYModemReceive.FileCount > 0) { ShowSaveFilesButton(); }
 
         trace(FYModemReceive.FileAt[0].data);
-    };
-
-    this.Download = function (cme) {
-        if (FConnection === null) { return; }
-        if (!FConnection.connected) { return; }
-
-        // Transfer the file
-        FYModemReceive = new TYModemReceive(FConnection);
-
-        // Setup listeners for during transfer
-        clearInterval(FTimer);
-        FYModemReceive.addEventListener('TRANSFER_COMPLETE', OnDownloadComplete, false);
-
-        // Download the file
-        FYModemReceive.Download();
     };
 
     OnHelpMenuClick = function (cme) {
