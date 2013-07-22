@@ -53,6 +53,7 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="FileSaver.js" />
     <Content Include="Source\client\connectbutton\Down.png" />
     <Content Include="Source\client\connectbutton\General-Connect-icon.png" />
     <Content Include="Source\client\connectbutton\Over.png" />
@@ -136,6 +137,13 @@
     <None Include="Source\client\savefilesbutton\Icon Source.url" />
     <Content Include="Source\randm\crt\font\TFont.js" />
     <Content Include="Source\StringUtils.js" />
+    <Content Include="web.config" />
+    <None Include="web.Debug.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+    <None Include="web.Release.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
