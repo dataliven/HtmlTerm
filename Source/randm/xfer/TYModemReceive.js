@@ -18,8 +18,8 @@
   along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
 */
 var TYModemReceive = function (ATelnet) {
-    // Public constants
-    this.TRANSFER_COMPLETE = "TransferComplete";
+    // Public events
+    this.ontransfercomplete = function () { }; // Do nothing
 
     // Private constants
     var SOH = 0x01;
@@ -104,9 +104,7 @@ var TYModemReceive = function (ATelnet) {
         Crt.Blink = FBlink;
         Crt.ShowCursor();
 
-        var evObj = document.createEvent('Events');
-        evObj.initEvent(that.TRANSFER_COMPLETE, true, false);
-        document.dispatchEvent(evObj);
+        that.ontransfercomplete();
     };
 
     this.Download = function () {
@@ -130,7 +128,7 @@ var TYModemReceive = function (ATelnet) {
     };
 
     this.FileAt = function (AIndex) {
-        return TFileRecord(FFiles[AIndex]);
+        return FFiles[AIndex];
     };
 
     this.__defineGetter__("FileCount", function () {

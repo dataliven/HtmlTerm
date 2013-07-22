@@ -71,7 +71,7 @@ var THtmlTerm = function () {
     var OnCrtFontChanged = function (e) { }; // Do nothing    
     var OnCrtScreenSizeChanged = function (e) { }; // Do nothing
     var OnDonateMenuClick = function (cme) { }; // Do nothing
-    var OnDownloadComplete = function (e) { }; // Do nothing
+    var OnDownloadComplete = function () { }; // Do nothing
     var OnHelpMenuClick = function (cme) { }; // Do nothing
     var OnMaximizeButtonClick = function (me) { }; // Do nothing
     var OnMinimizeButtonClick = function (me) { }; // Do nothing
@@ -259,7 +259,7 @@ var THtmlTerm = function () {
 
         // Setup listeners for during transfer
         clearInterval(FTimer);
-        document.addEventListener('TRANSFER_COMPLETE', OnDownloadComplete, false);
+        FYModemReceive.ontransfercomplete = OnDownloadComplete;
 
         // Download the file
         FYModemReceive.Download();
@@ -416,15 +416,14 @@ var THtmlTerm = function () {
         //TODO
     };
 
-    OnDownloadComplete = function (e) {
+    OnDownloadComplete = function () {
         // Restart listeners for keyboard and connection data
         FTimer = setInterval(OnTimer, 50);
-        FYModemReceive.removeEventListener('TRANSFER_COMPLETE', OnDownloadComplete, false);
 
         // Display the save button (if files were completed)
         if (FYModemReceive.FileCount > 0) { ShowSaveFilesButton(); }
 
-        trace(FYModemReceive.FileAt[0].data);
+        trace(FYModemReceive.FileAt(0).data);
     };
 
     OnHelpMenuClick = function (cme) {
@@ -658,7 +657,7 @@ var THtmlTerm = function () {
     ShowSaveFilesButton = function () {
         Crt.Canvas.style.opacity = 0.4;
 
-        FSaveFilesButton.addEventListener('click', OnSaveFilesButtonClick, false);
+        FSaveFilesButton.Image.addEventListener('click', OnSaveFilesButtonClick, false);
         FSaveFilesButton.Show();
     };
 };
