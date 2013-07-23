@@ -18,290 +18,324 @@
   along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
 */
 // TODO This is still ActionScript, not JavaScript
-package randm.crt
-{
-	import flash.utils.getTimer;
-	
-	import randm.StringUtils;
+var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
+    var that = this; 
+    var FBackColour = Crt.BLACK;
+    var FBackground = null;
+    var FBarForeColour;
+    var FBlankForeColour;
+    var FControls = [];
+    var FForeColour = Crt.LIGHTGRAY;
+    var FHeight;
+    var FLastBarWidth = 9999;
+    var FLastMarqueeUpdate = 0; 
+    var FLastPercentText = "";
+    var FLeft;
+    var FMarqueeAnimationSpeed;
+    var FMaximum;
+    var FParent = null;
+    var FPercentPrecision;
+    var FPercentVisible;
+    var FStyle;
+    var FTop;
+    var FValue;
+    var FWidth;
 
-	public class TCrtProgressBar extends TCrtControl
-	{
-		private var FLastBarWidth: int = 9999;
-		private var FLastMarqueeUpdate: int = 0; 
-		private var FLastPercentText: String = "";
+    // Private methods
+    var Paint = function (AForce) { }; // Do nothing
+    var RestoreBackground = function () { }; // Do nothing
+    var SaveBackground = function () { }; // Do nothing
 		
-		/// <summary>
-		/// Initializes a progress bar with the given name and details, and draws the 0% progress to the screen
-		/// </summary>
-		/// <param name="AX">The x coordinate of the bar</param>
-		/// <param name="AY">The y coordinate of the bar</param>
-		/// <param name="AWidth">The width of the bar</param>
-		/// <param name="AStyle">The style of the bar</param>
-		/// <param name="AFG">The foreground colour of the completed bar</param>
-		/// <param name="ABG">The background colour of the bar</param>
-		/// <param name="AShaded">The foreground colour of the uncompleted bar</param>
-		public function TCrtProgressBar(AParent: TCrtControl, ALeft: int, ATop: int, AWidth: int, AStyle: int)
-		{
-			super(AParent, ALeft, ATop, AWidth, 1);
-			
-			FStyle = AStyle;
-			
-			FBackColour = Crt.BLUE;
-			FBarForeColour = Crt.YELLOW;
-			FBlankForeColour = Crt.LIGHTGRAY;
-			FLastMarqueeUpdate = getTimer();
-			FMarqueeAnimationSpeed = 25;
-			FMaximum = 100;
-			FPercentPrecision = 2;
-			FPercentVisible = true;
-			FValue = 0;
-			
-			Paint(true);
-		}
-		
-		public function get BarForeColour(): int
-		{
-			return FBarForeColour;
-		}
-		
-		public function set BarForeColour(value: int): void
-		{
-			if (value !== FBarForeColour)
-			{
-				FBarForeColour = value;
-				Paint(true);
-			}
-		}
-		private var FBarForeColour: int;
-		
-		public function get BlankForeColour(): int
-		{
-			return FBlankForeColour;
-		}
-		
-		public function set BlankForeColour(value: int): void
-		{
-			if (value !== FBlankForeColour)
-			{
-				FBlankForeColour = value;
-				Paint(true);
-			}
-		}
+    this.__defineGetter__("BarForeColour", function () {
+        return FBarForeColour;
+    });
 
-		private var FBlankForeColour: int;
+    this.__defineSetter__("BarForeColour", function (ABarForeColour) {
+        if (ABarForeColour !== FBarForeColour)
+        {
+            FBarForeColour = ABarForeColour;
+            Paint(true);
+        }
+    });
 		
-		public function get MarqueeAnimationSpeed(): int
-		{
-			return FMarqueeAnimationSpeed;
-		}
+    this.__defineGetter__("BlankForeColour", function () {
+        return FBlankForeColour;
+    });
+
+    this.__defineSetter__("BlankForeColour", function (ABlankForeColour) {
+        if (ABlankForeColour !== FBlankForeColour)
+        {
+            FBlankForeColour = ABlankForeColour;
+            Paint(true);
+        }
+    });
 		
-		public function set MarqueeAnimationSpeed(value: int): void
-		{
-			FMarqueeAnimationSpeed = value;
-		}
-		private var FMarqueeAnimationSpeed: int;
+    this.__defineGetter__("Left", function () {
+        return FLeft;
+    });
+
+    this.__defineSetter__("Left", function (ALeft) {
+        var i;
+
+        if (ALeft !== FLeft) {
+            RestoreBackground();
+            FLeft = ALeft;
+            SaveBackground();
+            Paint(true);
+
+            for (i = 0; i < FControls.length; i++) {
+                FControls[i].Paint(true);
+            }
+        }
+    });
+
+    this.__defineGetter__("MarqueeAnimationSpeed", function () {
+        return FMarqueeAnimationSpeed;
+    });
+
+    this.__defineSetter__("MarqueeAnimationSpeed", function (AMarqueeAnimationSpeed) {
+        FMarqueeAnimationSpeed = AMarqueeAnimationSpeed;
+    });
 		
-		public function get Maximum(): Number
-		{
-			return FMaximum;
-		}
+    this.__defineGetter__("Maximum", function () {
+        return FMaximum;
+    });
+
+    this.__defineSetter__("Maximum", function (AMaximum) {
+        if (AMaximum !== FMaximum)
+        {
+            FMaximum = AMaximum;
+            if (FValue > FMaximum) {
+                FValue = FMaximum;
+            }
+            Paint(true);
+        }
+    });
 		
-		public function set Maximum(value: Number): void
-		{
-			if (value !== FMaximum)
-			{
-				FMaximum = value;
-				if (FValue > FMaximum) FValue = FMaximum;
-				Paint(true);
-			}
-		}
-		
-		private var FMaximum: Number;
-		
-		/// <summary>
-		/// Re-Draw the bar and percent text.
-		/// </summary>
-		/// <param name="AForce">When true, the bar and percent will always be Paintn.  When false, the bar and percent will only be Paintn as necessary, which reduces the number of unnecessary Paints (especially when a large maximum is used)</param>
-		protected override function Paint(AForce: Boolean): void
-		{
-			if (Style === ProgressBarStyle.Marquee)
-			{
-				if (AForce)
-				{
-					// Erase the old bar
-					Crt.FastWrite(StringUtils.NewString(String.fromCharCode(176), FWidth), ScreenLeft, ScreenTop, FBlankForeColour + (FBackColour << 4));
-				}
+    /// <summary>
+    /// Re-Draw the bar and percent text.
+    /// </summary>
+    /// <param name="AForce">When true, the bar and percent will always be Paintn.  When false, the bar and percent will only be Paintn as necessary, which reduces the number of unnecessary Paints (especially when a large maximum is used)</param>
+    Paint = function (AForce) {
+        if (FStyle === ProgressBarStyle.Marquee)
+        {
+            if (AForce)
+            {
+                // Erase the old bar
+                Crt.FastWrite(StringUtils.NewString(String.fromCharCode(176), FWidth), that.ScreenLeft, that.ScreenTop, FBlankForeColour + (FBackColour << 4));
+            }
 				
-				// Draw the new bar
-				if (FValue > 0)
-				{
-					if (FValue > FWidth)
-					{
-						Crt.FastWrite(String.fromCharCode(176), ScreenLeft + FWidth - (15 - (int)(FValue - FWidth)), ScreenTop, FBlankForeColour + (FBackColour << 4));
-					}
-					else if (FValue >= 15)
-					{
-						Crt.FastWrite(StringUtils.NewString(String.fromCharCode(219), Math.min(FValue, 15)), ScreenLeft + FValue - 15, ScreenTop, FBarForeColour + (FBackColour << 4));
-						Crt.FastWrite(String.fromCharCode(176), ScreenLeft + FValue - 15, ScreenTop, FBlankForeColour + (FBackColour << 4));
-					}
-					else
-					{
-						Crt.FastWrite(StringUtils.NewString(String.fromCharCode(219), Math.min(FValue, 15)), ScreenLeft, ScreenTop, FBarForeColour + (FBackColour << 4));
-					}
-				}
-			}
-			else
-			{
-				// Check if we're forcing an update (probably due to a change in Left, Top, Width, etc)
-				if (AForce)
-				{
-					// Yep, so reset the "Last" variables
-					FLastBarWidth = 9999;
-					FLastPercentText = "";
-				}
+            // Draw the new bar
+            if (FValue > 0)
+            {
+                if (FValue > FWidth)
+                {
+                    Crt.FastWrite(String.fromCharCode(176), that.ScreenLeft + FWidth - (15 - Math.floor(FValue - FWidth)), that.ScreenTop, FBlankForeColour + (FBackColour << 4));
+                }
+                else if (FValue >= 15)
+                {
+                    Crt.FastWrite(StringUtils.NewString(String.fromCharCode(219), Math.min(FValue, 15)), that.ScreenLeft + FValue - 15, that.ScreenTop, FBarForeColour + (FBackColour << 4));
+                    Crt.FastWrite(String.fromCharCode(176), that.ScreenLeft + FValue - 15, that.ScreenTop, FBlankForeColour + (FBackColour << 4));
+                }
+                else
+                {
+                    Crt.FastWrite(StringUtils.NewString(String.fromCharCode(219), Math.min(FValue, 15)), that.ScreenLeft, that.ScreenTop, FBarForeColour + (FBackColour << 4));
+                }
+            }
+        }
+        else
+        {
+            // Check if we're forcing an update (probably due to a change in Left, Top, Width, etc)
+            if (AForce)
+            {
+                // Yep, so reset the "Last" variables
+                FLastBarWidth = 9999;
+                FLastPercentText = "";
+            }
 				
-				var PaintPercentText: Boolean = false;
-				var Percent: Number = Value / Maximum;
-				var NewBarWidth: int = int(Percent * FWidth);
-				if (NewBarWidth !== FLastBarWidth)
-				{
-					// Check if the bar shrank (if so, we need to delete the old bar)
-					if (NewBarWidth < FLastBarWidth)
-					{
-						// Erase the old bar
-						Crt.FastWrite(StringUtils.NewString(String.fromCharCode(176), FWidth), ScreenLeft, ScreenTop, FBlankForeColour + (FBackColour << 4));
-					}
+            var PaintPercentText = false;
+            var Percent = FValue / FMaximum;
+            var NewBarWidth = Math.floor(Percent * FWidth);
+            if (NewBarWidth !== FLastBarWidth)
+            {
+                // Check if the bar shrank (if so, we need to delete the old bar)
+                if (NewBarWidth < FLastBarWidth)
+                {
+                    // Erase the old bar
+                    Crt.FastWrite(StringUtils.NewString(String.fromCharCode(176), FWidth), that.ScreenLeft, that.ScreenTop, FBlankForeColour + (FBackColour << 4));
+                }
 					
-					// Draw the new bar
-					Crt.FastWrite(StringUtils.NewString(String.fromCharCode(FStyle), NewBarWidth), ScreenLeft, ScreenTop, FBarForeColour + (FBackColour << 4));
+                // Draw the new bar
+                Crt.FastWrite(StringUtils.NewString(String.fromCharCode(FStyle), NewBarWidth), that.ScreenLeft, that.ScreenTop, FBarForeColour + (FBackColour << 4));
 					
-					FLastBarWidth = NewBarWidth;
-					PaintPercentText = true;
-				}
+                FLastBarWidth = NewBarWidth;
+                PaintPercentText = true;
+            }
 				
-				// Draw the percentage
-				if (FPercentVisible)
-				{
-					var NewPercentText: String = StringUtils.FormatPercent(Percent, FPercentPrecision);
-					if ((NewPercentText !== FLastPercentText) || (PaintPercentText))
-					{
-						FLastPercentText = NewPercentText;
+            // Draw the percentage
+            if (FPercentVisible)
+            {
+                var NewPercentText = StringUtils.FormatPercent(Percent, FPercentPrecision);
+                if ((NewPercentText !== FLastPercentText) || (PaintPercentText))
+                {
+                    FLastPercentText = NewPercentText;
 						
-						var ProgressStart: int = (Width - NewPercentText.length) / 2;
-						if (ProgressStart >= NewBarWidth)
-						{
-							// Bar hasn't reached the percent text, so draw in the bar's empty color
-							Crt.FastWrite(NewPercentText, ScreenLeft + ProgressStart, ScreenTop, FBlankForeColour + (FBackColour << 4));
-						}
-						else if (ProgressStart + NewPercentText.length <= NewBarWidth)
-						{
-							// Bar has passed the percent text, so draw in the bar's foreground colour (or still use background for Blocks)
-							Crt.FastWrite(NewPercentText, ScreenLeft + ProgressStart, ScreenTop, FBackColour + (FBarForeColour << 4));
+                    var ProgressStart = (FWidth - NewPercentText.length) / 2;
+                    if (ProgressStart >= NewBarWidth)
+                    {
+                        // Bar hasn't reached the percent text, so draw in the bar's empty color
+                        Crt.FastWrite(NewPercentText, that.ScreenLeft + ProgressStart, that.ScreenTop, FBlankForeColour + (FBackColour << 4));
+                    }
+                    else if (ProgressStart + NewPercentText.length <= NewBarWidth)
+                    {
+                        // Bar has passed the percent text, so draw in the bar's foreground colour (or still use background for Blocks)
+                        Crt.FastWrite(NewPercentText, that.ScreenLeft + ProgressStart, that.ScreenTop, FBackColour + (FBarForeColour << 4));
 							
-						}
-						else
-						{
-							// Bar is in the middle of the percent text, so draw the colour as necessary for each letter in the text
-							for (var i: int = 0; i < NewPercentText.length; i++)
-							{
-								var LetterPosition: int = ProgressStart + i;
-								var FG: int = (LetterPosition >= NewBarWidth) ? FBlankForeColour : FBackColour;
-								var BG: int = (LetterPosition >= NewBarWidth) ? FBackColour : FBarForeColour;
-								Crt.FastWrite(NewPercentText.charAt(i), ScreenLeft + LetterPosition, ScreenTop, FG + (BG << 4));
-							}
-						}
-					}
-				}
-			}
-		}
+                    }
+                    else
+                    {
+                        // Bar is in the middle of the percent text, so draw the colour as necessary for each letter in the text
+                        var i;
+                        for (i = 0; i < NewPercentText.length; i++)
+                        {
+                            var LetterPosition = ProgressStart + i;
+                            var FG = (LetterPosition >= NewBarWidth) ? FBlankForeColour : FBackColour;
+                            var BG = (LetterPosition >= NewBarWidth) ? FBackColour : FBarForeColour;
+                            Crt.FastWrite(NewPercentText.charAt(i), that.ScreenLeft + LetterPosition, that.ScreenTop, FG + (BG << 4));
+                        }
+                    }
+                }
+            }
+        }
+    };
 		
-		public function get PercentPrecision(): int
-		{
-			return FPercentPrecision;
-		}
-		
-		public function set PercentPrecision(value: int): void
-		{
-			if (value !== FPercentPrecision)
-			{
-				FPercentPrecision = value;
-				Paint(true);
-			}
-		}
-		private var FPercentPrecision: int;
-		
-		public function get PercentVisible(): Boolean
-		{
-			return FPercentVisible;
-		}
-		
-		public function set PercentVisible(value: Boolean): void
-		{
-			if (value !== FPercentVisible)
-			{
-				FPercentVisible = value;
-				Paint(true);
-			}
-		}
+    this.__defineGetter__("PercentPrecision", function () {
+        return FPercentPrecision;
+    });
 
-		private var FPercentVisible: Boolean;
+    this.__defineSetter__("PercentPrecision", function (APercentPrecision) {
+        if (APercentPrecision !== FPercentPrecision)
+        {
+            FPercentPrecision = APercentPrecision;
+            Paint(true);
+        }
+    });
 		
-		public function Step(): void
-		{
-			StepBy(1);
-		}
-		
-		public function StepBy(ABy: int): void
-		{
-			Value += ABy;
-		}
-		
-		public function get Style(): int
-		{
-			return FStyle;
-		}
-		
-		public function set Style(value: int): void
-		{
-			if (value !== FStyle)
-			{
-				FStyle = value;
-				Paint(true);
-			}
-		}
+    this.__defineGetter__("PercentVisible", function () {
+        return FPercentVisible;
+    });
 
-		private var FStyle: int;
+    this.__defineSetter__("PercentVisible", function (APercentVisible) {
+        if (APercentVisible !== FPercentVisible)
+        {
+            FPercentVisible = APercentVisible;
+            Paint(true);
+        }
+    });
 		
-		public function get Value(): Number
-		{
-			return FValue;
-		}
-		
-		public function set Value(value: Number): void
-		{
-			if (value !== FValue)
-			{
-				if (FStyle === ProgressBarStyle.Marquee)
-				{
-					if (getTimer() - FLastMarqueeUpdate >= FMarqueeAnimationSpeed)
-					{
-						// Keep value between 0 and Maximum + 15
-						if (value < 0) value = 0;
-						if (value >= FWidth + 15) value = 0;
-						FValue = value;
-						Paint(false);
-						FLastMarqueeUpdate = getTimer();
-					}
-				}
-				else
-				{
-					// Keep value between 0 and Maximum
-					FValue = Math.max(0, Math.min(value, Maximum));
-					Paint(false);
-				}
-			}
-		}
+    this.__defineGetter__("ScreenLeft", function () {
+        return FLeft + ((FParent === null) ? 0 : FParent.Left);
+    });
 
-		private var FValue: Number;
-	}
-}
+    this.__defineGetter__("ScreenTop", function () {
+        return FTop + ((FParent === null) ? 0 : FParent.Top);
+    });
+		
+    this.Step = function() {
+        that.StepBy(1);
+    };
+		
+    this.StepBy = function(ABy) {
+        that.Value += ABy;
+    };
+		
+    this.__defineGetter__("Style", function () {
+        return FStyle;
+    });
+
+    this.__defineSetter__("Style", function (AStyle) {
+        if (AStyle !== FStyle)
+        {
+            FStyle = AStyle;
+            Paint(true);
+        }
+    });
+
+    this.__defineGetter__("Top", function () {
+        return FTop;
+    });
+
+    this.__defineSetter__("Top", function (ATop) {
+        var i;
+
+        if (ATop !== FTop) {
+            RestoreBackground();
+            FTop = ATop;
+            SaveBackground();
+            Paint(true);
+
+            for (i = 0; i < FControls.length; i++) {
+                FControls[i].Paint(true);
+            }
+        }
+    });
+		
+    this.__defineGetter__("Value", function () {
+        return FValue;
+    });
+
+    this.__defineSetter__("Value", function (AValue) {
+        if (AValue !== FValue)
+        {
+            if (FStyle === ProgressBarStyle.Marquee)
+            {
+                if ((new Date()) - FLastMarqueeUpdate >= FMarqueeAnimationSpeed)
+                {
+                    // Keep value between 0 and Maximum + 15
+                    if (AValue < 0) {
+                        AValue = 0;
+                    }
+                    if (AValue >= FWidth + 15) {
+                        AValue = 0;
+                    }
+                    FValue = AValue;
+                    Paint(false);
+                    FLastMarqueeUpdate = new Date();
+                }
+            }
+            else
+            {
+                // Keep value between 0 and Maximum
+                FValue = Math.max(0, Math.min(AValue, FMaximum));
+                Paint(false);
+            }
+        }
+    });
+
+    //super(AParent, ALeft, ATop, AWidth, 1);
+    FParent = AParent;
+    FLeft = ALeft;
+    FTop = ATop;
+    FWidth = AWidth;
+    FHeight = 1;
+
+    SaveBackground();
+
+    if (FParent !== null) {
+        AParent.AddControl(this);
+    }
+		
+    FStyle = AStyle;
+			
+    FBackColour = Crt.BLUE;
+    FBarForeColour = Crt.YELLOW;
+    FBlankForeColour = Crt.LIGHTGRAY;
+    FLastMarqueeUpdate = new Date();
+    FMarqueeAnimationSpeed = 25;
+    FMaximum = 100;
+    FPercentPrecision = 2;
+    FPercentVisible = true;
+    FValue = 0;
+			
+    Paint(true);
+};

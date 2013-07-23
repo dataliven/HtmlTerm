@@ -117,7 +117,7 @@ var TYModemReceive = function (ATelnet) {
         lblFileName = new TCrtLabel(pnlMain, 2, 4, 56, "File Name: ", ContentAlignment.Left, Crt.YELLOW, Crt.BLUE);
         lblFileSize = new TCrtLabel(pnlMain, 2, 5, 56, "File Size: ", ContentAlignment.Left, Crt.YELLOW, Crt.BLUE);
         lblFileReceived = new TCrtLabel(pnlMain, 2, 6, 56, "File Recv: ", ContentAlignment.Left, Crt.YELLOW, Crt.BLUE);
-        //TODO pbFileReceived = new TCrtProgressBar(pnlMain, 2, 7, 56, ProgressBarStyle.Continuous);
+        pbFileReceived = new TCrtProgressBar(pnlMain, 2, 7, 56, ProgressBarStyle.Continuous);
         lblTotalReceived = new TCrtLabel(pnlMain, 2, 9, 56, "Total Recv: ", ContentAlignment.Left, Crt.YELLOW, Crt.BLUE);
         lblStatus = new TCrtLabel(pnlMain, 2, 11, 56, "Status: Transferring file(s)", ContentAlignment.Left, Crt.WHITE, Crt.BLUE);
     };
@@ -273,10 +273,8 @@ var TYModemReceive = function (ATelnet) {
                         lblFileName.Text = "File Name: " + FileName;
                         lblFileSize.Text = "File Size: " + StringUtils.AddCommas(FileSize) + " bytes";
                         lblFileReceived.Text = "File Recv: 0 bytes";
-                        /*TODO
                         pbFileReceived.Value = 0;
                         pbFileReceived.Maximum = FileSize;
-                        TODO*/
 
                         // Send a G to request file start
                         try {
@@ -293,7 +291,7 @@ var TYModemReceive = function (ATelnet) {
                         FTotalBytesReceived += BytesToWrite;
 
                         lblFileReceived.Text = "File Recv: " + StringUtils.AddCommas(FFile.data.length) + " bytes";
-                        //TODO pbFileReceived.Value = FFile.data.length;
+                        pbFileReceived.Value = FFile.data.length;
                         lblTotalReceived.Text = "Total Recv: " + StringUtils.AddCommas(FTotalBytesReceived) + " bytes";
                     }
 
