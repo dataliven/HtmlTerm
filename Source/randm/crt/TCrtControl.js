@@ -92,7 +92,9 @@ var TCrtControl = function (AParent, ALeft, ATop, AWidth, AHeight) {
             SaveBackground();
             Paint(true);
 
-            for (i = 0; i < FControls.length; i++) FControls[i].Paint(true);
+            for (i = 0; i < FControls.length; i++) {
+                FControls[i].Paint(true);
+            }
         }
     });
 
@@ -129,7 +131,9 @@ var TCrtControl = function (AParent, ALeft, ATop, AWidth, AHeight) {
 
     this.Show = function () {
         Paint(true);
-        for (var i = 0; i < FControls.length; i++) FControls[i].Paint(true);
+        for (i = 0; i < FControls.length; i++) {
+            FControls[i].Paint(true);
+        }
     };
 
     this.__defineGetter__("Top", function () {
@@ -143,7 +147,9 @@ var TCrtControl = function (AParent, ALeft, ATop, AWidth, AHeight) {
             SaveBackground();
             Paint(true);
 
-            for (var i = 0; i < FControls.length; i++) FControls[i].Paint(true);
+            for (i = 0; i < FControls.length; i++) {
+                FControls[i].Paint(true);
+            }
         }
     });
 
@@ -169,5 +175,7 @@ var TCrtControl = function (AParent, ALeft, ATop, AWidth, AHeight) {
 
     SaveBackground();
 
-    if (FParent !== null) AParent.AddControl(this);
+    if (FParent !== null) {
+        AParent.AddControl(this);
+    }
 };

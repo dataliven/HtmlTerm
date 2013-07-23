@@ -20,9 +20,11 @@
 var TCrtPanel = function (AParent, ALeft, ATop, AWidth, AHeight, ABorder, AForeColour, ABackColour, AText, ATextAlign) {
 
     var that = this;
+    var FBackColour = Crt.BLACK;
     var FBackground = null;
     var FBorder;
     var FControls = [];
+    var FForeColour = Crt.LIGHTGRAY;
     var FHeight;
     var FLeft;
     var FParent = null;
@@ -44,9 +46,9 @@ var TCrtPanel = function (AParent, ALeft, ATop, AWidth, AHeight, ABorder, AForeC
         return FBorder;
     });
 
-    this.__defineSetter__("Border", function (AText) {
-        if (value !== FBorder) {
-            FBorder = value;
+    this.__defineSetter__("Border", function (ABorder) {
+        if (ABorder !== FBorder) {
+            FBorder = ABorder;
             Paint(true);
         }
     });
@@ -68,12 +70,15 @@ var TCrtPanel = function (AParent, ALeft, ATop, AWidth, AHeight, ABorder, AForeC
             SaveBackground();
             Paint(true);
 
-            for (i = 0; i < FControls.length; i++) FControls[i].Paint(true);
+            for (i = 0; i < FControls.length; i++) {
+                FControls[i].Paint(true);
+            }
         }
     });
 
     Paint = function (AForce) {
         // Characters for the box
+        var Line;
         var TopLeft;
         var TopRight;
         var BottomLeft;
@@ -123,7 +128,7 @@ var TCrtPanel = function (AParent, ALeft, ATop, AWidth, AHeight, ABorder, AForeC
         Crt.FastWrite(TopLeft + StringUtils.NewString(TopBottom, FWidth - 2) + TopRight, that.ScreenLeft, that.ScreenTop, FForeColour + (FBackColour << 4));
 
         // Draw middle rows
-        for (var Line = that.ScreenTop + 1; Line < that.ScreenTop + FHeight - 1; Line++) {
+        for (Line = that.ScreenTop + 1; Line < that.ScreenTop + FHeight - 1; Line++) {
             Crt.FastWrite(LeftRight + StringUtils.NewString(' ', FWidth - 2) + LeftRight, that.ScreenLeft, Line, FForeColour + (FBackColour << 4));
         }
 
@@ -151,7 +156,7 @@ var TCrtPanel = function (AParent, ALeft, ATop, AWidth, AHeight, ABorder, AForeC
                 case ContentAlignment.BottomRight:
                 case ContentAlignment.MiddleRight:
                 case ContentAlignment.TopRight:
-                    TitleX = that.ScreenLeft + Width - WindowTitle.length - 2;
+                    TitleX = that.ScreenLeft + FWidth - WindowTitle.length - 2;
                     break;
             }
 
@@ -194,8 +199,12 @@ var TCrtPanel = function (AParent, ALeft, ATop, AWidth, AHeight, ABorder, AForeC
     });
 
     this.Show = function () {
+        var i;
+
         Paint(true);
-        for (var i = 0; i < FControls.length; i++) FControls[i].Paint(true);
+        for (i = 0; i < FControls.length; i++) {
+            FControls[i].Paint(true);
+        }
     };
 
     this.__defineGetter__("Text", function () {
@@ -223,13 +232,17 @@ var TCrtPanel = function (AParent, ALeft, ATop, AWidth, AHeight, ABorder, AForeC
     });
 
     this.__defineSetter__("Top", function (ATop) {
+        var i;
+
         if (ATop !== FTop) {
             RestoreBackground();
             FTop = ATop;
             SaveBackground();
             Paint(true);
 
-            for (var i = 0; i < FControls.length; i++) FControls[i].Paint(true);
+            for (i = 0; i < FControls.length; i++) {
+                FControls[i].Paint(true);
+            }
         }
     });
 
@@ -242,7 +255,9 @@ var TCrtPanel = function (AParent, ALeft, ATop, AWidth, AHeight, ABorder, AForeC
 
     SaveBackground();
 
-    if (FParent !== null) AParent.AddControl(this);
+    if (FParent !== null) {
+        AParent.AddControl(this);
+    }
 
     FBorder = ABorder;
     FForeColour = AForeColour;

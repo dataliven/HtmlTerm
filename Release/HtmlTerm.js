@@ -18,7 +18,7 @@
   You should have received a copy of the GNU General Public License
   along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
 */
-/*global document: false, navigator: false, console: false, setTimeout: false, setInterval: false, Image: false, window: false, WebSocket: false, MozWebSocket: false, XMLHttpRequest: false, confirm: false, clearInterval: false */
+/*global document: false, navigator: false, console: false, setTimeout: false, setInterval: false, Image: false, window: false, WebSocket: false, MozWebSocket: false, XMLHttpRequest: false, confirm: false, clearInterval: false, ArrayBuffer: false, DataView: false, Blob: false */
 /*
   HtmlTerm: An HTML5 WebSocket client
   Copyright (C) 2009-2013  Rick Parrish, R&M Software
@@ -94,12 +94,15 @@ var ByteArray = function () {
             throw "There is not sufficient data available to read.";
         }
 
+        var DestPosition = ADest.position;
         ADest.position = AOffset;
 
         var i;
         for (i = 0; i < ACount; i++) {
             ADest.writeByte(FBytes[FPosition++] & 0xFF);
         }
+
+        ADest.position = DestPosition;
     };
 
     this.readString = function () {
@@ -118,6 +121,14 @@ var ByteArray = function () {
         }
 
         return (FBytes[FPosition++] & 0xFF);
+    };
+
+    this.readUnsignedShort = function () {
+        if (FPosition >= (FLength - 1)) {
+            throw "There is not sufficient data available to read.";
+        }
+
+        return ((FBytes[FPosition++] & 0xFF) << 8) + (FBytes[FPosition++] & 0xFF);
     };
 
     this.toString = function () {
@@ -146,11 +157,15 @@ var ByteArray = function () {
         if (length > bytes.length) { length = bytes.length; }
         if (offset + length > bytes.length) { length = bytes.length - offset; }
 
+        var BytesPosition = bytes.position;
         bytes.position = offset;
+
         var i;
         for (i = 0; i < length; i++) {
-            FBytes.writeByte(bytes.readUnsignedByte());
+            that.writeByte(bytes.readUnsignedByte());
         }
+
+        bytes.position = BytesPosition;
     };
 
     this.writeString = function (AText) {
@@ -1154,6 +1169,95 @@ var TFont = function () {
   You should have received a copy of the GNU General Public License
   along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
 */
+var BorderStyle = 0;
+var TBorderStyle = function () {
+    /// <summary>
+    /// Single lines all around
+    /// </summary>
+    this.Single = 0;
+
+    /// <summary>
+    /// Double lines all around
+    /// </summary>
+    this.Double = 1;
+
+    /// <summary>
+    /// Single lines horizontally, double lines vertically
+    /// </summary>
+    /// <see>DoubleV</see>
+    this.SingleH = 2;
+
+    /// <summary>
+    /// Single lines vertically, double lines horizontally
+    /// </summary>
+    /// <see>DoubleH</see>
+    this.SingleV = 3;
+
+    /// <summary>
+    /// Double lines horizontally, single lines vertically
+    /// </summary>
+    /// <see>SingleV</see>
+    this.DoubleH = 4;
+
+    /// <summary>
+    /// Double lines vertically, single lines horizontally
+    /// </summary>
+    /// <see>SingleH</see>
+    this.DoubleV = 5;
+};
+BorderStyle = new TBorderStyle();/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
+var ContentAlignment = 0;
+var TContentAlignment = function () {
+    this.BottomLeft = 0;
+    this.BottomCenter = 1;
+    this.BottomRight = 2;
+    this.MiddleLeft = 3;
+    this.MiddleCenter = 4;
+    this.MiddleRight = 5;
+    this.TopLeft = 6;
+    this.TopCenter = 7;
+    this.TopRight = 8;
+    this.Left = 9;
+    this.Center = 10;
+    this.Right = 11;
+};
+ContentAlignment = new TContentAlignment();/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
 var KeyPressEvent = function (AKeyEvent, AKeyString) {
     // Constructor		
     this.altKey = AKeyEvent.altKey;
@@ -1163,6 +1267,32 @@ var KeyPressEvent = function (AKeyEvent, AKeyString) {
     this.keyString = AKeyString;
     this.shiftKey = AKeyEvent.shiftKey;
 };
+/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
+var ProgressBarStyle = 0;
+var TProgressBarStyle = function () {
+    this.Blocks = 254;
+    this.Continuous = 219;
+    this.Marquee = 0;
+};
+ProgressBarStyle = new TProgressBarStyle();
 /*
   HtmlTerm: An HTML5 WebSocket client
   Copyright (C) 2009-2013  Rick Parrish, R&M Software
@@ -2630,6 +2760,441 @@ Crt = new TCrt();
   You should have received a copy of the GNU General Public License
   along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
 */
+var TCrtLabel = function (AParent, ALeft, ATop, AWidth, AText, ATextAlign, AForeColour, ABackColour) {
+
+    var that = this;
+    var FBackColour = Crt.BLACK;
+    var FBackground;
+    var FControls = [];
+    var FForeColour = Crt.LIGHTGRAY;
+    var FHeight;
+    var FLeft;
+    var FParent = null;
+    var FText = "";
+    var FTextAlign;
+    var FTop;
+    var FWidth;
+
+    // Private methods
+    var Paint = function (AForce) { }; // Do nothing
+    var RestoreBackground = function () { }; // Do nothing
+    var SaveBackground = function () { }; // Do nothing
+
+    this.AddControl = function (AChild) {
+        FControls.push(AChild);
+    };
+
+    this.__defineGetter__("Left", function () {
+        return FLeft;
+    });
+
+    this.__defineSetter__("Left", function (ALeft) {
+        var i;
+
+        if (ALeft !== FLeft) {
+            RestoreBackground();
+            FLeft = ALeft;
+            SaveBackground();
+            Paint(true);
+
+            for (i = 0; i < FControls.length; i++) {
+                FControls[i].Paint(true);
+            }
+        }
+    });
+
+    Paint = function (AForce) {
+        // Draw the message
+        switch (FTextAlign) {
+            case ContentAlignment.Center:
+                if (FText.length >= FWidth) {
+                    // Text is greater than available space so chop it off with PadRight()
+                    Crt.FastWrite(FText.substring(0, FWidth), that.ScreenLeft, that.ScreenTop, FForeColour + (FBackColour << 4));
+                } else {
+                    // Text needs to be centered
+                    var i = 0;
+                    var LeftSpaces = "";
+                    for (i = 0; i < Math.floor((FWidth - FText.length) / 2) ; i++) {
+                        LeftSpaces += " ";
+                    }
+                    var RightSpaces = "";
+                    for (i = 0; i < FWidth - FText.length - LeftSpaces.length; i++) {
+                        RightSpaces += " ";
+                    }
+                    Crt.FastWrite(LeftSpaces + FText + RightSpaces, that.ScreenLeft, that.ScreenTop, FForeColour + (FBackColour << 4));
+                }
+                break;
+            case ContentAlignment.Left:
+                Crt.FastWrite(StringUtils.PadRight(FText, ' ', FWidth), that.ScreenLeft, that.ScreenTop, FForeColour + (FBackColour << 4));
+                break;
+            case ContentAlignment.Right:
+                Crt.FastWrite(StringUtils.PadLeft(FText, ' ', FWidth), that.ScreenLeft, that.ScreenTop, FForeColour + (FBackColour << 4));
+                break;
+        }
+    };
+
+    RestoreBackground = function () {
+        Crt.RestoreScreen(FBackground, FLeft, FTop, FLeft + FWidth - 1, FTop + FHeight - 1);
+    };
+
+    SaveBackground = function () {
+        FBackground = Crt.SaveScreen(FLeft, FTop, FLeft + FWidth - 1, FTop + FHeight - 1);
+    };
+
+    this.__defineGetter__("ScreenLeft", function () {
+        return FLeft + ((FParent === null) ? 0 : FParent.Left);
+    });
+
+    this.__defineGetter__("ScreenTop", function () {
+        return FTop + ((FParent === null) ? 0 : FParent.Top);
+    });
+
+    this.__defineGetter__("Text", function () {
+        return FBackColour;
+    });
+
+    this.__defineSetter__("Text", function (AText) {
+        FText = AText;
+        Paint(true);
+    });
+
+    this.__defineGetter__("TextAlign", function () {
+        return FTextAlign;
+    });
+
+    this.__defineSetter__("TextAlign", function (ATextAlign) {
+        if (ATextAlign !== FTextAlign) {
+            FTextAlign = ATextAlign;
+            Paint(true);
+        }
+    });
+
+    this.__defineGetter__("Top", function () {
+        return FTop;
+    });
+
+    this.__defineSetter__("Top", function (ATop) {
+        var i;
+
+        if (ATop !== FTop) {
+            RestoreBackground();
+            FTop = ATop;
+            SaveBackground();
+            Paint(true);
+
+            for (i = 0; i < FControls.length; i++) {
+                FControls[i].Paint(true);
+            }
+        }
+    });
+
+    // Constructor
+    //super(AParent, ALeft, ATop, AWidth, 1);
+    FParent = AParent;
+    FLeft = ALeft;
+    FTop = ATop;
+    FWidth = AWidth;
+    FHeight = 1;
+
+    SaveBackground();
+
+    if (FParent !== null) {
+        AParent.AddControl(this);
+    }
+
+    FText = AText;
+    FTextAlign = ATextAlign;
+    FForeColour = AForeColour;
+    FBackColour = ABackColour;
+
+    Paint(true);
+};/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
+var TCrtPanel = function (AParent, ALeft, ATop, AWidth, AHeight, ABorder, AForeColour, ABackColour, AText, ATextAlign) {
+
+    var that = this;
+    var FBackColour = Crt.BLACK;
+    var FBackground = null;
+    var FBorder;
+    var FControls = [];
+    var FForeColour = Crt.LIGHTGRAY;
+    var FHeight;
+    var FLeft;
+    var FParent = null;
+    var FText = "";
+    var FTextAlign;
+    var FTop;
+    var FWidth;
+
+    // Private methods
+    var Paint = function (AForce) { }; // Do nothing
+    var RestoreBackground = function () { }; // Do nothing
+    var SaveBackground = function () { }; // Do nothing
+
+    this.AddControl = function (AChild) {
+        FControls.push(AChild);
+    };
+
+    this.__defineGetter__("Border", function () {
+        return FBorder;
+    });
+
+    this.__defineSetter__("Border", function (ABorder) {
+        if (ABorder !== FBorder) {
+            FBorder = ABorder;
+            Paint(true);
+        }
+    });
+
+    this.Hide = function () {
+        RestoreBackground();
+    };
+
+    this.__defineGetter__("Left", function () {
+        return FLeft;
+    });
+
+    this.__defineSetter__("Left", function (ALeft) {
+        var i;
+
+        if (ALeft !== FLeft) {
+            RestoreBackground();
+            FLeft = ALeft;
+            SaveBackground();
+            Paint(true);
+
+            for (i = 0; i < FControls.length; i++) {
+                FControls[i].Paint(true);
+            }
+        }
+    });
+
+    Paint = function (AForce) {
+        // Characters for the box
+        var Line;
+        var TopLeft;
+        var TopRight;
+        var BottomLeft;
+        var BottomRight;
+        var TopBottom;
+        var LeftRight;
+
+        // Determine which character set to use
+        switch (FBorder) {
+            case BorderStyle.Single:
+                TopLeft = String.fromCharCode(218);
+                TopRight = String.fromCharCode(191);
+                BottomLeft = String.fromCharCode(192);
+                BottomRight = String.fromCharCode(217);
+                TopBottom = String.fromCharCode(196);
+                LeftRight = String.fromCharCode(179);
+                break;
+            case BorderStyle.Double:
+                TopLeft = String.fromCharCode(201);
+                TopRight = String.fromCharCode(187);
+                BottomLeft = String.fromCharCode(200);
+                BottomRight = String.fromCharCode(188);
+                TopBottom = String.fromCharCode(205);
+                LeftRight = String.fromCharCode(186);
+                break;
+            case BorderStyle.DoubleH:
+            case BorderStyle.SingleV:
+                TopLeft = String.fromCharCode(213);
+                TopRight = String.fromCharCode(184);
+                BottomLeft = String.fromCharCode(212);
+                BottomRight = String.fromCharCode(190);
+                TopBottom = String.fromCharCode(205);
+                LeftRight = String.fromCharCode(179);
+                break;
+            case BorderStyle.DoubleV:
+            case BorderStyle.SingleH:
+                TopLeft = String.fromCharCode(214);
+                TopRight = String.fromCharCode(183);
+                BottomLeft = String.fromCharCode(211);
+                BottomRight = String.fromCharCode(189);
+                TopBottom = String.fromCharCode(196);
+                LeftRight = String.fromCharCode(186);
+                break;
+        }
+
+        // Draw top row
+        Crt.FastWrite(TopLeft + StringUtils.NewString(TopBottom, FWidth - 2) + TopRight, that.ScreenLeft, that.ScreenTop, FForeColour + (FBackColour << 4));
+
+        // Draw middle rows
+        for (Line = that.ScreenTop + 1; Line < that.ScreenTop + FHeight - 1; Line++) {
+            Crt.FastWrite(LeftRight + StringUtils.NewString(' ', FWidth - 2) + LeftRight, that.ScreenLeft, Line, FForeColour + (FBackColour << 4));
+        }
+
+        // Draw bottom row
+        Crt.FastWrite(BottomLeft + StringUtils.NewString(TopBottom, FWidth - 2) + BottomRight, that.ScreenLeft, that.ScreenTop + FHeight - 1, FForeColour + (FBackColour << 4));
+
+        // Draw window title
+        if (StringUtils.Trim(FText).length > 0) {
+            var TitleX = 0;
+            var TitleY = 0;
+            var WindowTitle = " " + StringUtils.Trim(FText) + " ";
+
+            // Get X component
+            switch (FTextAlign) {
+                case ContentAlignment.BottomLeft:
+                case ContentAlignment.MiddleLeft:
+                case ContentAlignment.TopLeft:
+                    TitleX = that.ScreenLeft + 2;
+                    break;
+                case ContentAlignment.BottomCenter:
+                case ContentAlignment.MiddleCenter:
+                case ContentAlignment.TopCenter:
+                    TitleX = that.ScreenLeft + ((FWidth - WindowTitle.length) / 2);
+                    break;
+                case ContentAlignment.BottomRight:
+                case ContentAlignment.MiddleRight:
+                case ContentAlignment.TopRight:
+                    TitleX = that.ScreenLeft + FWidth - WindowTitle.length - 2;
+                    break;
+            }
+
+            // Get the Y component
+            switch (FTextAlign) {
+                case ContentAlignment.BottomCenter:
+                case ContentAlignment.BottomLeft:
+                case ContentAlignment.BottomRight:
+                    TitleY = that.ScreenTop + FHeight - 1;
+                    break;
+                case ContentAlignment.MiddleCenter:
+                case ContentAlignment.MiddleLeft:
+                case ContentAlignment.MiddleRight:
+                case ContentAlignment.TopCenter:
+                case ContentAlignment.TopLeft:
+                case ContentAlignment.TopRight:
+                    TitleY = that.ScreenTop;
+                    break;
+            }
+
+            // Draw title
+            Crt.FastWrite(WindowTitle, TitleX, TitleY, FForeColour + (FBackColour << 4));
+        }
+    };
+
+    RestoreBackground = function () {
+        Crt.RestoreScreen(FBackground, FLeft, FTop, FLeft + FWidth - 1, FTop + FHeight - 1);
+    };
+
+    SaveBackground = function () {
+        FBackground = Crt.SaveScreen(FLeft, FTop, FLeft + FWidth - 1, FTop + FHeight - 1);
+    };
+
+    this.__defineGetter__("ScreenLeft", function () {
+        return FLeft + ((FParent === null) ? 0 : FParent.Left);
+    });
+
+    this.__defineGetter__("ScreenTop", function () {
+        return FTop + ((FParent === null) ? 0 : FParent.Top);
+    });
+
+    this.Show = function () {
+        var i;
+
+        Paint(true);
+        for (i = 0; i < FControls.length; i++) {
+            FControls[i].Paint(true);
+        }
+    };
+
+    this.__defineGetter__("Text", function () {
+        return FBackColour;
+    });
+
+    this.__defineSetter__("Text", function (AText) {
+        FText = AText;
+        Paint(true);
+    });
+
+    this.__defineGetter__("TextAlign", function () {
+        return FTextAlign;
+    });
+
+    this.__defineSetter__("TextAlign", function (ATextAlign) {
+        if (ATextAlign !== FTextAlign) {
+            FTextAlign = ATextAlign;
+            Paint(true);
+        }
+    });
+
+    this.__defineGetter__("Top", function () {
+        return FTop;
+    });
+
+    this.__defineSetter__("Top", function (ATop) {
+        var i;
+
+        if (ATop !== FTop) {
+            RestoreBackground();
+            FTop = ATop;
+            SaveBackground();
+            Paint(true);
+
+            for (i = 0; i < FControls.length; i++) {
+                FControls[i].Paint(true);
+            }
+        }
+    });
+
+    // Constructor
+    FParent = AParent;
+    FLeft = ALeft;
+    FTop = ATop;
+    FWidth = AWidth;
+    FHeight = AHeight;
+
+    SaveBackground();
+
+    if (FParent !== null) {
+        AParent.AddControl(this);
+    }
+
+    FBorder = ABorder;
+    FForeColour = AForeColour;
+    FBackColour = ABackColour;
+    FText = AText;
+    FTextAlign = ATextAlign;
+
+    Paint(true);
+};/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
 var AnsiParserState = 0;
 /// <summary>
 /// The possible states the ANSI parser may find itself in
@@ -3352,8 +3917,8 @@ var TTelnet = function () {
   You should have received a copy of the GNU General Public License
   along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
 */
-// TODO This is still ActionScript, not JavaScript
-var CRC = function () {
+var CRC = function () { }; // Do nothing
+var TCRC = function () {
     // Private constants
     var CrcTable = [0x0000,  0x1021,  0x2042,  0x3063,  0x4084,  0x50a5,  0x60c6,  0x70e7,
                     0x8108,  0x9129,  0xa14a,  0xb16b,  0xc18c,  0xd1ad,  0xe1ce,  0xf1ef,
@@ -3428,7 +3993,8 @@ var CRC = function () {
         // Pascal code: UpdateCrc := CrcTable[((CurCrc shr 8) and 255)] xor (CurCrc shl 8) xor CurByte;
         return (CrcTable[(CurCrc >> 8) & 0x00FF] ^ (CurCrc << 8) ^ CurByte) & 0xFFFF;
     };
-};/*
+};
+CRC = new TCRC();/*
   HtmlTerm: An HTML5 WebSocket client
   Copyright (C) 2009-2013  Rick Parrish, R&M Software
 
@@ -3487,8 +4053,8 @@ var TFileRecord = function (AName, ASize) {
   along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
 */
 var TYModemReceive = function (ATelnet) {
-    // Public constants
-    this.TRANSFER_COMPLETE = "TransferComplete";
+    // Public events
+    this.ontransfercomplete = function () { }; // Do nothing
 
     // Private constants
     var SOH = 0x01;
@@ -3512,7 +4078,6 @@ var TYModemReceive = function (ATelnet) {
     var FTelnet;
     var FTimer;
     var FTotalBytesReceived = 0;
-    /*TODO
     var lblFileCount;
     var lblFileName;
     var lblFileSize;
@@ -3521,7 +4086,6 @@ var TYModemReceive = function (ATelnet) {
     var lblStatus;
     var pbFileReceived;
     var pnlMain;
-    TODO*/
 
     // Private methods
     var Cancel = function (AReason) { }; // Do nothing
@@ -3560,8 +4124,7 @@ var TYModemReceive = function (ATelnet) {
         clearInterval(FTimer);
 
         // Update status label
-        //TODO lblStatus.Text = "Status: " + AMessage;
-        Crt.WriteLn("Status: " + AMessage);
+        lblStatus.Text = "Status: " + AMessage;
 
         // Dispatch the event after 3 seconds
         setTimeout(Dispatch, 3000);
@@ -3569,13 +4132,11 @@ var TYModemReceive = function (ATelnet) {
 
     Dispatch = function () {
         // Remove the panel
-        //TODO pnlMain.Hide();
+        pnlMain.Hide();
         Crt.Blink = FBlink;
         Crt.ShowCursor();
 
-        var evObj = document.createEvent('Events');
-        evObj.initEvent(that.TRANSFER_COMPLETE, true, false);
-        document.dispatchEvent(evObj);
+        that.ontransfercomplete();
     };
 
     this.Download = function () {
@@ -3586,20 +4147,18 @@ var TYModemReceive = function (ATelnet) {
         FBlink = Crt.Blink;
         Crt.Blink = false;
         Crt.HideCursor();
-        /*TODO
         pnlMain = new TCrtPanel(null, 10, 5, 60, 14, BorderStyle.Single, Crt.WHITE, Crt.BLUE, "YModem-G Receive Status (Hit CTRL+X to abort)", ContentAlignment.TopLeft);
         lblFileCount = new TCrtLabel(pnlMain, 2, 2, 56, "Receiving file 1", ContentAlignment.Left, Crt.YELLOW, Crt.BLUE);
         lblFileName = new TCrtLabel(pnlMain, 2, 4, 56, "File Name: ", ContentAlignment.Left, Crt.YELLOW, Crt.BLUE);
         lblFileSize = new TCrtLabel(pnlMain, 2, 5, 56, "File Size: ", ContentAlignment.Left, Crt.YELLOW, Crt.BLUE);
         lblFileReceived = new TCrtLabel(pnlMain, 2, 6, 56, "File Recv: ", ContentAlignment.Left, Crt.YELLOW, Crt.BLUE);
-        pbFileReceived = new TCrtProgressBar(pnlMain, 2, 7, 56, ProgressBarStyle.Continuous);
+        //TODO pbFileReceived = new TCrtProgressBar(pnlMain, 2, 7, 56, ProgressBarStyle.Continuous);
         lblTotalReceived = new TCrtLabel(pnlMain, 2, 9, 56, "Total Recv: ", ContentAlignment.Left, Crt.YELLOW, Crt.BLUE);
         lblStatus = new TCrtLabel(pnlMain, 2, 11, 56, "Status: Transferring file(s)", ContentAlignment.Left, Crt.WHITE, Crt.BLUE);
-        TODO*/
     };
 
     this.FileAt = function (AIndex) {
-        return TFileRecord(FFiles[AIndex]);
+        return FFiles[AIndex];
     };
 
     this.__defineGetter__("FileCount", function () {
@@ -3627,17 +4186,12 @@ var TYModemReceive = function (ATelnet) {
 
         // Keep going until we don't have any more data to read
         while (true) {
-            trace("1");
             // Check if we've read a byte previously
             if (FNextByte === 0) {
-                trace("2");
                 // Nope, try to read one now
                 if (FTelnet.bytesAvailable === 0) {
-                    trace("3");
-                    trace((new Date()) - FLastGTime);
                     // No data -- check if we should send a G
                     if (FShouldSendG && ((new Date()) - FLastGTime > 3000)) {
-                        trace("4");
                         // Send a G after 3 quiet seconds	
                         try {
                             FTelnet.writeByte(CAPG);
@@ -3653,7 +4207,6 @@ var TYModemReceive = function (ATelnet) {
 
                     return;
                 } else {
-                    trace("5");
                     // Data available, so read the next byte
                     try {
                         FNextByte = FTelnet.readUnsignedByte();
@@ -3664,7 +4217,6 @@ var TYModemReceive = function (ATelnet) {
                 }
             }
 
-            trace("6");
             // See what to do
             switch (FNextByte) {
                 case CAN:
@@ -3752,18 +4304,14 @@ var TYModemReceive = function (ATelnet) {
 
                         // Header is good, setup a new file record
                         FFile = new TFileRecord(FileName, FileSize);
-                        /*TODO
                         lblFileCount.Text = "Receiving file " + (FFiles.length + 1).toString();
                         lblFileName.Text = "File Name: " + FileName;
                         lblFileSize.Text = "File Size: " + StringUtils.AddCommas(FileSize) + " bytes";
                         lblFileReceived.Text = "File Recv: 0 bytes";
+                        /*TODO
                         pbFileReceived.Value = 0;
                         pbFileReceived.Maximum = FileSize;
                         TODO*/
-                        Crt.WriteLn("Receiving file " + (FFiles.length + 1).toString());
-                        Crt.WriteLn("File Name: " + FileName);
-                        Crt.WriteLn("File Size: " + StringUtils.AddCommas(FileSize) + " bytes");
-                        Crt.WriteLn("File Recv: 0 bytes");
 
                         // Send a G to request file start
                         try {
@@ -3779,13 +4327,9 @@ var TYModemReceive = function (ATelnet) {
                         FFile.data.writeBytes(Packet, 0, BytesToWrite);
                         FTotalBytesReceived += BytesToWrite;
 
-                        /*TODO
                         lblFileReceived.Text = "File Recv: " + StringUtils.AddCommas(FFile.data.length) + " bytes";
-                        pbFileReceived.Value = FFile.data.length;
+                        //TODO pbFileReceived.Value = FFile.data.length;
                         lblTotalReceived.Text = "Total Recv: " + StringUtils.AddCommas(FTotalBytesReceived) + " bytes";
-                        TODO*/
-                        Crt.WriteLn("File Recv: " + StringUtils.AddCommas(FFile.data.length) + " bytes");
-                        Crt.WriteLn("Total Recv: " + StringUtils.AddCommas(FTotalBytesReceived) + " bytes");
                     }
 
                     break;
@@ -3894,7 +4438,7 @@ var THtmlTerm = function () {
     var OnCrtFontChanged = function (e) { }; // Do nothing    
     var OnCrtScreenSizeChanged = function (e) { }; // Do nothing
     var OnDonateMenuClick = function (cme) { }; // Do nothing
-    var OnDownloadComplete = function (e) { }; // Do nothing
+    var OnDownloadComplete = function () { }; // Do nothing
     var OnHelpMenuClick = function (cme) { }; // Do nothing
     var OnMaximizeButtonClick = function (me) { }; // Do nothing
     var OnMinimizeButtonClick = function (me) { }; // Do nothing
@@ -4082,7 +4626,7 @@ var THtmlTerm = function () {
 
         // Setup listeners for during transfer
         clearInterval(FTimer);
-        document.addEventListener('TRANSFER_COMPLETE', OnDownloadComplete, false);
+        FYModemReceive.ontransfercomplete = OnDownloadComplete;
 
         // Download the file
         FYModemReceive.Download();
@@ -4239,15 +4783,12 @@ var THtmlTerm = function () {
         //TODO
     };
 
-    OnDownloadComplete = function (e) {
+    OnDownloadComplete = function () {
         // Restart listeners for keyboard and connection data
         FTimer = setInterval(OnTimer, 50);
-        FYModemReceive.removeEventListener('TRANSFER_COMPLETE', OnDownloadComplete, false);
 
         // Display the save button (if files were completed)
         if (FYModemReceive.FileCount > 0) { ShowSaveFilesButton(); }
-
-        trace(FYModemReceive.FileAt[0].data);
     };
 
     OnHelpMenuClick = function (cme) {
@@ -4258,15 +4799,26 @@ var THtmlTerm = function () {
         if (FYModemReceive === null) { return; }
         if (FYModemReceive.FileCount === 0) { return; }
 
-        var FR = new FileReference();
+        var i;
+        var j;
+        var myBlob;
+        var fileSaver;
+
         if (FYModemReceive.FileCount === 1) {
             // If we have just one file, save it
-            FR.save(FYModemReceive.FileAt(0).data, FYModemReceive.FileAt(0).name);
-        }
-        else if (FYModemReceive.FileCount > 1) {
+            var ByteString = FYModemReceive.FileAt(0).data.toString();
+            trace(ByteString);
+
+            var buffer = new ArrayBuffer(ByteString.length);
+            var dataView = new DataView(buffer);
+            for (i = 0; i < ByteString.length; i++) {
+                dataView.setUint8(i, ByteString.charCodeAt(i));
+            }
+
+            myBlob = new Blob([buffer], { type: 'application/octet-binary' });
+            fileSaver = window.saveAs(myBlob, FYModemReceive.FileAt(0).name);
+        } else if (FYModemReceive.FileCount > 1) {
             // More than one requires bundling in a TAR archive
-            var i = 0;
-            var j = 0;
             var TAR = new ByteArray();
             for (i = 0; i < FYModemReceive.FileCount; i++) {
                 // Create header
@@ -4340,11 +4892,12 @@ var THtmlTerm = function () {
             }
 
             // Save the tar
-            FR.save(TAR, "HtmlTerm-BatchDownload.tar");
+            myBlob = new Blob([TAR.readString()], { "type": "application\/octet-stream" });
+            fileSaver = window.saveAs(myBlob, "HtmlTerm-BatchDownload.tar");
         }
 
         // Remove button
-        FSaveFilesButton.removeEventListener('click', OnSaveFilesButtonClick, false);
+        FSaveFilesButton.Image.removeEventListener('click', OnSaveFilesButtonClick, false);
         FSaveFilesButton.Hide();
 
         // Reset display
@@ -4481,7 +5034,7 @@ var THtmlTerm = function () {
     ShowSaveFilesButton = function () {
         Crt.Canvas.style.opacity = 0.4;
 
-        FSaveFilesButton.addEventListener('click', OnSaveFilesButtonClick, false);
+        FSaveFilesButton.Image.addEventListener('click', OnSaveFilesButtonClick, false);
         FSaveFilesButton.Show();
     };
 };

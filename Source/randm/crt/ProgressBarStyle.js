@@ -22,5 +22,5 @@ var TProgressBarStyle = function () {
     this.Blocks = 254;
     this.Continuous = 219;
     this.Marquee = 0;
-}
+};
 ProgressBarStyle = new TProgressBarStyle();

@@ -31,6 +31,5 @@ var TContentAlignment = function () {
     this.Left = 9;
     this.Center = 10;
     this.Right = 11;
-
-}
+};
 ContentAlignment = new TContentAlignment();

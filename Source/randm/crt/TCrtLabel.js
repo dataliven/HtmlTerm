@@ -20,8 +20,10 @@
 var TCrtLabel = function (AParent, ALeft, ATop, AWidth, AText, ATextAlign, AForeColour, ABackColour) {
 
     var that = this;
+    var FBackColour = Crt.BLACK;
     var FBackground;
     var FControls = [];
+    var FForeColour = Crt.LIGHTGRAY;
     var FHeight;
     var FLeft;
     var FParent = null;
@@ -52,7 +54,9 @@ var TCrtLabel = function (AParent, ALeft, ATop, AWidth, AText, ATextAlign, AFore
             SaveBackground();
             Paint(true);
 
-            for (i = 0; i < FControls.length; i++) FControls[i].Paint(true);
+            for (i = 0; i < FControls.length; i++) {
+                FControls[i].Paint(true);
+            }
         }
     });
 
@@ -67,9 +71,13 @@ var TCrtLabel = function (AParent, ALeft, ATop, AWidth, AText, ATextAlign, AFore
                     // Text needs to be centered
                     var i = 0;
                     var LeftSpaces = "";
-                    for (i = 0; i < int((FWidth - FText.length) / 2) ; i++) LeftSpaces += " ";
+                    for (i = 0; i < Math.floor((FWidth - FText.length) / 2) ; i++) {
+                        LeftSpaces += " ";
+                    }
                     var RightSpaces = "";
-                    for (i = 0; i < FWidth - FText.length - LeftSpaces.length; i++) RightSpaces += " ";
+                    for (i = 0; i < FWidth - FText.length - LeftSpaces.length; i++) {
+                        RightSpaces += " ";
+                    }
                     Crt.FastWrite(LeftSpaces + FText + RightSpaces, that.ScreenLeft, that.ScreenTop, FForeColour + (FBackColour << 4));
                 }
                 break;
@@ -123,13 +131,17 @@ var TCrtLabel = function (AParent, ALeft, ATop, AWidth, AText, ATextAlign, AFore
     });
 
     this.__defineSetter__("Top", function (ATop) {
+        var i;
+
         if (ATop !== FTop) {
             RestoreBackground();
             FTop = ATop;
             SaveBackground();
             Paint(true);
 
-            for (var i = 0; i < FControls.length; i++) FControls[i].Paint(true);
+            for (i = 0; i < FControls.length; i++) {
+                FControls[i].Paint(true);
+            }
         }
     });
 
@@ -143,7 +155,9 @@ var TCrtLabel = function (AParent, ALeft, ATop, AWidth, AText, ATextAlign, AFore
 
     SaveBackground();
 
-    if (FParent !== null) AParent.AddControl(this);
+    if (FParent !== null) {
+        AParent.AddControl(this);
+    }
 
     FText = AText;
     FTextAlign = ATextAlign;

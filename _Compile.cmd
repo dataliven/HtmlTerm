@@ -41,10 +41,10 @@ TYPE Source\randm\crt\BorderStyle.js >> Release\HtmlTerm.js
 TYPE Source\randm\crt\ContentAlignment.js >> Release\HtmlTerm.js
 TYPE Source\randm\crt\KeyPressEvent.js >> Release\HtmlTerm.js
 TYPE Source\randm\crt\ProgressBarStyle.js >> Release\HtmlTerm.js
+TYPE Source\randm\crt\Crt.js >> Release\HtmlTerm.js
 TYPE Source\randm\crt\TCrtLabel.js >> Release\HtmlTerm.js
 TYPE Source\randm\crt\TCrtPanel.js >> Release\HtmlTerm.js
-TYPE Source\randm\crt\TCrtProgressBar.js >> Release\HtmlTerm.js
-TYPE Source\randm\crt\Crt.js >> Release\HtmlTerm.js
+REM TYPE Source\randm\crt\TCrtProgressBar.js >> Release\HtmlTerm.js
 
 TYPE Source\randm\ansi\AnsiParserState.js >> Release\HtmlTerm.js
 TYPE Source\randm\ansi\ESCQEvent.js >> Release\HtmlTerm.js
