@@ -17,13 +17,10 @@
   You should have received a copy of the GNU General Public License
   along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
 */
-// TODO This is still ActionScript, not JavaScript
-package randm.crt
-{
-	public class ProgressBarStyle
-	{
-		static public const Blocks: int = 254;
-		static public const Continuous: int = 219;
-		static public const Marquee: int = 0;
-	}
+var ProgressBarStyle = 0;
+var TProgressBarStyle = function () {
+    this.Blocks = 254;
+    this.Continuous = 219;
+    this.Marquee = 0;
 }
+ProgressBarStyle = new TProgressBarStyle();

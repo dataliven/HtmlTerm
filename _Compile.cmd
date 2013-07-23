@@ -37,14 +37,13 @@ TYPE Source\randm\crt\font\TFont.js >> Release\HtmlTerm.js
 REM NO EXTRA FONTS IN THIS FILE TYPE Source\randm\crt\font\TFont2.js >> Release\HtmlTerm.js
 REM NO EXTRA FONTS IN THIS FILE TYPE Source\randm\crt\font\TFontAmiga.js >> Release\HtmlTerm.js
 REM NO EXTRA FONTS IN THIS FILE TYPE Source\randm\crt\font\TFontAtari.js >> Release\HtmlTerm.js
-REM TYPE Source\randm\crt\BorderStyle.js >> Release\HtmlTerm.js
-REM TYPE Source\randm\crt\ContentAlignment.js >> Release\HtmlTerm.js
+TYPE Source\randm\crt\BorderStyle.js >> Release\HtmlTerm.js
+TYPE Source\randm\crt\ContentAlignment.js >> Release\HtmlTerm.js
 TYPE Source\randm\crt\KeyPressEvent.js >> Release\HtmlTerm.js
-REM TYPE Source\randm\crt\ProgressBarStyle.js >> Release\HtmlTerm.js
-REM TYPE Source\randm\crt\TCrtControl.js >> Release\HtmlTerm.js
-REM TYPE Source\randm\crt\TCrtLabel.js >> Release\HtmlTerm.js
-REM TYPE Source\randm\crt\TCrtPanel.js >> Release\HtmlTerm.js
-REM TYPE Source\randm\crt\TCrtProgressBar.js >> Release\HtmlTerm.js
+TYPE Source\randm\crt\ProgressBarStyle.js >> Release\HtmlTerm.js
+TYPE Source\randm\crt\TCrtLabel.js >> Release\HtmlTerm.js
+TYPE Source\randm\crt\TCrtPanel.js >> Release\HtmlTerm.js
+TYPE Source\randm\crt\TCrtProgressBar.js >> Release\HtmlTerm.js
 TYPE Source\randm\crt\Crt.js >> Release\HtmlTerm.js
 
 TYPE Source\randm\ansi\AnsiParserState.js >> Release\HtmlTerm.js

@@ -17,46 +17,40 @@
   You should have received a copy of the GNU General Public License
   along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
 */
-// TODO This is still ActionScript, not JavaScript
-package randm.crt
-{
-	/// <summary>
-	/// Different border styles used by the CrtPanel class
-	/// </summary>
-	public class BorderStyle
-	{
-		/// <summary>
-		/// Single lines all around
-		/// </summary>
-		static public const Single: int = 0;
-		
-		/// <summary>
-		/// Double lines all around
-		/// </summary>
-		static public const Double: int = 1;
-		
-		/// <summary>
-		/// Single lines horizontally, double lines vertically
-		/// </summary>
-		/// <see>DoubleV</see>
-		static public const SingleH: int = 2;
-		
-		/// <summary>
-		/// Single lines vertically, double lines horizontally
-		/// </summary>
-		/// <see>DoubleH</see>
-		static public const SingleV: int = 3;
-		
-		/// <summary>
-		/// Double lines horizontally, single lines vertically
-		/// </summary>
-		/// <see>SingleV</see>
-		static public const DoubleH: int = 4;
-		
-		/// <summary>
-		/// Double lines vertically, single lines horizontally
-		/// </summary>
-		/// <see>SingleH</see>
-		static public const DoubleV: int = 5;
-	}
-}
+var BorderStyle = 0;
+var TBorderStyle = function () {
+    /// <summary>
+    /// Single lines all around
+    /// </summary>
+    this.Single = 0;
+
+    /// <summary>
+    /// Double lines all around
+    /// </summary>
+    this.Double = 1;
+
+    /// <summary>
+    /// Single lines horizontally, double lines vertically
+    /// </summary>
+    /// <see>DoubleV</see>
+    this.SingleH = 2;
+
+    /// <summary>
+    /// Single lines vertically, double lines horizontally
+    /// </summary>
+    /// <see>DoubleH</see>
+    this.SingleV = 3;
+
+    /// <summary>
+    /// Double lines horizontally, single lines vertically
+    /// </summary>
+    /// <see>SingleV</see>
+    this.DoubleH = 4;
+
+    /// <summary>
+    /// Double lines vertically, single lines horizontally
+    /// </summary>
+    /// <see>SingleH</see>
+    this.DoubleV = 5;
+};
+BorderStyle = new TBorderStyle();

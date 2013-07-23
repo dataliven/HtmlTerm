@@ -17,25 +17,20 @@
   You should have received a copy of the GNU General Public License
   along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
 */
-// TODO This is still ActionScript, not JavaScript
-package randm.crt
-{
-	/// <summary>
-	/// Different border styles used by the CrtPanel class
-	/// </summary>
-	public class ContentAlignment
-	{
-		static public const BottomLeft: int = 0;
-		static public const BottomCenter: int = 1;
-		static public const BottomRight: int = 2;
-		static public const MiddleLeft: int = 3;
-		static public const MiddleCenter: int = 4;
-		static public const MiddleRight: int = 5;
-		static public const TopLeft: int = 6;
-		static public const TopCenter: int = 7;
-		static public const TopRight: int = 8;
-		static public const Left: int = 9;
-		static public const Center: int = 10;
-		static public const Right: int = 11;
-	}
+var ContentAlignment = 0;
+var TContentAlignment = function () {
+    this.BottomLeft = 0;
+    this.BottomCenter = 1;
+    this.BottomRight = 2;
+    this.MiddleLeft = 3;
+    this.MiddleCenter = 4;
+    this.MiddleRight = 5;
+    this.TopLeft = 6;
+    this.TopCenter = 7;
+    this.TopRight = 8;
+    this.Left = 9;
+    this.Center = 10;
+    this.Right = 11;
+
 }
+ContentAlignment = new TContentAlignment();

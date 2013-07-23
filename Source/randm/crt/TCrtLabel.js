@@ -17,81 +17,141 @@
   You should have received a copy of the GNU General Public License
   along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
 */
-// TODO This is still ActionScript, not JavaScript
-package randm.crt
-{
-	import randm.StringUtils;
+var TCrtLabel = function (AParent, ALeft, ATop, AWidth, AText, ATextAlign, AForeColour, ABackColour) {
 
-	public class TCrtLabel extends TCrtControl
-	{
-		public function TCrtLabel(AParent: TCrtControl, ALeft: int, ATop: int, AWidth: int, AText: String, ATextAlign: int, AForeColour: int, ABackColour: int)
-		{
-			super(AParent, ALeft, ATop, AWidth, 1);
+    var that = this;
+    var FBackground;
+    var FControls = [];
+    var FHeight;
+    var FLeft;
+    var FParent = null;
+    var FText = "";
+    var FTextAlign;
+    var FTop;
+    var FWidth;
 
-			FText = AText;
-			FTextAlign = ATextAlign;
-			FForeColour = AForeColour;
-			FBackColour = ABackColour;
-			
-			Paint(true);
-		}
-		
-		protected override function Paint(AForce: Boolean): void
-		{
-			// Draw the message
-			switch (FTextAlign)
-			{
-				case ContentAlignment.Center:
-					if (Text.length >= Width)
-					{
-						// Text is greater than available space so chop it off with PadRight()
-						Crt.FastWrite(Text.substring(0, Width), ScreenLeft, ScreenTop, FForeColour + (FBackColour << 4));
-					}
-					else
-					{
-						// Text needs to be centered
-						var i: int = 0;
-						var LeftSpaces: String = "";
-						for (i = 0; i < int((Width - Text.length) / 2); i++) LeftSpaces += " ";
-						var RightSpaces: String = "";
-						for (i = 0; i < Width - Text.length - LeftSpaces.length; i++) RightSpaces += " ";
-						Crt.FastWrite(LeftSpaces + Text + RightSpaces, ScreenLeft, ScreenTop, FForeColour + (FBackColour << 4));
-					}
-					break;
-				case ContentAlignment.Left:
-					Crt.FastWrite(StringUtils.PadRight(Text, ' ', Width), ScreenLeft, ScreenTop, FForeColour + (FBackColour << 4));
-					break;
-				case ContentAlignment.Right:
-					Crt.FastWrite(StringUtils.PadLeft(Text, ' ', Width), ScreenLeft, ScreenTop, FForeColour + (FBackColour << 4));
-					break;
-			}
-		}
-		
-		public function get Text(): String
-		{
-			return FText;
-		}
-		
-		public function set Text(value: String): void
-		{
-			FText = value;
-			Paint(true);
-		}
-		private var FText: String = "";
-		
-		public function get TextAlign(): int
-		{
-			return FTextAlign;
-		}
-		
-		public function set TextAlign(value: int): void
-		{
-			if (value !== FTextAlign)
-			{
-				FTextAlign = value;
-				Paint(true);
-			}
-		}
-		private var FTextAlign: int;
-	}
-}
+    // Private methods
+    var Paint = function (AForce) { }; // Do nothing
+    var RestoreBackground = function () { }; // Do nothing
+    var SaveBackground = function () { }; // Do nothing
+
+    this.AddControl = function (AChild) {
+        FControls.push(AChild);
+    };
+
+    this.__defineGetter__("Left", function () {
+        return FLeft;
+    });
+
+    this.__defineSetter__("Left", function (ALeft) {
+        var i;
+
+        if (ALeft !== FLeft) {
+            RestoreBackground();
+            FLeft = ALeft;
+            SaveBackground();
+            Paint(true);
+
+            for (i = 0; i < FControls.length; i++) FControls[i].Paint(true);
+        }
+    });
+
+    Paint = function (AForce) {
+        // Draw the message
+        switch (FTextAlign) {
+            case ContentAlignment.Center:
+                if (FText.length >= FWidth) {
+                    // Text is greater than available space so chop it off with PadRight()
+                    Crt.FastWrite(FText.substring(0, FWidth), that.ScreenLeft, that.ScreenTop, FForeColour + (FBackColour << 4));
+                } else {
+                    // Text needs to be centered
+                    var i = 0;
+                    var LeftSpaces = "";
+                    for (i = 0; i < int((FWidth - FText.length) / 2) ; i++) LeftSpaces += " ";
+                    var RightSpaces = "";
+                    for (i = 0; i < FWidth - FText.length - LeftSpaces.length; i++) RightSpaces += " ";
+                    Crt.FastWrite(LeftSpaces + FText + RightSpaces, that.ScreenLeft, that.ScreenTop, FForeColour + (FBackColour << 4));
+                }
+                break;
+            case ContentAlignment.Left:
+                Crt.FastWrite(StringUtils.PadRight(FText, ' ', FWidth), that.ScreenLeft, that.ScreenTop, FForeColour + (FBackColour << 4));
+                break;
+            case ContentAlignment.Right:
+                Crt.FastWrite(StringUtils.PadLeft(FText, ' ', FWidth), that.ScreenLeft, that.ScreenTop, FForeColour + (FBackColour << 4));
+                break;
+        }
+    };
+
+    RestoreBackground = function () {
+        Crt.RestoreScreen(FBackground, FLeft, FTop, FLeft + FWidth - 1, FTop + FHeight - 1);
+    };
+
+    SaveBackground = function () {
+        FBackground = Crt.SaveScreen(FLeft, FTop, FLeft + FWidth - 1, FTop + FHeight - 1);
+    };
+
+    this.__defineGetter__("ScreenLeft", function () {
+        trace("FLeft=" + FLeft);
+        trace("FParent=" + FParent);
+        trace("FParent.Left=" + FParent.Left);
+        return FLeft + ((FParent === null) ? 0 : FParent.Left);
+    });
+
+    this.__defineGetter__("ScreenTop", function () {
+        return FTop + ((FParent === null) ? 0 : FParent.Top);
+    });
+
+    this.__defineGetter__("Text", function () {
+        return FBackColour;
+    });
+
+    this.__defineSetter__("Text", function (AText) {
+        FText = AText;
+        Paint(true);
+    });
+
+    this.__defineGetter__("TextAlign", function () {
+        return FTextAlign;
+    });
+
+    this.__defineSetter__("TextAlign", function (ATextAlign) {
+        if (ATextAlign !== FTextAlign) {
+            FTextAlign = ATextAlign;
+            Paint(true);
+        }
+    });
+
+    this.__defineGetter__("Top", function () {
+        return FTop;
+    });
+
+    this.__defineSetter__("Top", function (ATop) {
+        if (ATop !== FTop) {
+            RestoreBackground();
+            FTop = ATop;
+            SaveBackground();
+            Paint(true);
+
+            for (var i = 0; i < FControls.length; i++) FControls[i].Paint(true);
+        }
+    });
+
+    // Constructor
+    //super(AParent, ALeft, ATop, AWidth, 1);
+    FParent = AParent;
+    FLeft = ALeft;
+    FTop = ATop;
+    FWidth = AWidth;
+    FHeight = 1;
+
+    SaveBackground();
+
+    if (FParent !== null) AParent.AddControl(this);
+
+    FText = AText;
+    FTextAlign = ATextAlign;
+    FForeColour = AForeColour;
+    FBackColour = ABackColour;
+
+    Paint(true);
+};

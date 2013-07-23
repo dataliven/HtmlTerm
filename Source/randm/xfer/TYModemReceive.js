@@ -43,7 +43,6 @@ var TYModemReceive = function (ATelnet) {
     var FTelnet;
     var FTimer;
     var FTotalBytesReceived = 0;
-    /*TODO
     var lblFileCount;
     var lblFileName;
     var lblFileSize;
@@ -52,7 +51,6 @@ var TYModemReceive = function (ATelnet) {
     var lblStatus;
     var pbFileReceived;
     var pnlMain;
-    TODO*/
 
     // Private methods
     var Cancel = function (AReason) { }; // Do nothing
@@ -91,8 +89,7 @@ var TYModemReceive = function (ATelnet) {
         clearInterval(FTimer);
 
         // Update status label
-        //TODO lblStatus.Text = "Status: " + AMessage;
-        Crt.WriteLn("Status: " + AMessage);
+        lblStatus.Text = "Status: " + AMessage;
 
         // Dispatch the event after 3 seconds
         setTimeout(Dispatch, 3000);
@@ -100,7 +97,7 @@ var TYModemReceive = function (ATelnet) {
 
     Dispatch = function () {
         // Remove the panel
-        //TODO pnlMain.Hide();
+        pnlMain.Hide();
         Crt.Blink = FBlink;
         Crt.ShowCursor();
 
@@ -115,16 +112,14 @@ var TYModemReceive = function (ATelnet) {
         FBlink = Crt.Blink;
         Crt.Blink = false;
         Crt.HideCursor();
-        /*TODO
         pnlMain = new TCrtPanel(null, 10, 5, 60, 14, BorderStyle.Single, Crt.WHITE, Crt.BLUE, "YModem-G Receive Status (Hit CTRL+X to abort)", ContentAlignment.TopLeft);
         lblFileCount = new TCrtLabel(pnlMain, 2, 2, 56, "Receiving file 1", ContentAlignment.Left, Crt.YELLOW, Crt.BLUE);
         lblFileName = new TCrtLabel(pnlMain, 2, 4, 56, "File Name: ", ContentAlignment.Left, Crt.YELLOW, Crt.BLUE);
         lblFileSize = new TCrtLabel(pnlMain, 2, 5, 56, "File Size: ", ContentAlignment.Left, Crt.YELLOW, Crt.BLUE);
         lblFileReceived = new TCrtLabel(pnlMain, 2, 6, 56, "File Recv: ", ContentAlignment.Left, Crt.YELLOW, Crt.BLUE);
-        pbFileReceived = new TCrtProgressBar(pnlMain, 2, 7, 56, ProgressBarStyle.Continuous);
+        //TODO pbFileReceived = new TCrtProgressBar(pnlMain, 2, 7, 56, ProgressBarStyle.Continuous);
         lblTotalReceived = new TCrtLabel(pnlMain, 2, 9, 56, "Total Recv: ", ContentAlignment.Left, Crt.YELLOW, Crt.BLUE);
         lblStatus = new TCrtLabel(pnlMain, 2, 11, 56, "Status: Transferring file(s)", ContentAlignment.Left, Crt.WHITE, Crt.BLUE);
-        TODO*/
     };
 
     this.FileAt = function (AIndex) {
@@ -274,18 +269,14 @@ var TYModemReceive = function (ATelnet) {
 
                         // Header is good, setup a new file record
                         FFile = new TFileRecord(FileName, FileSize);
-                        /*TODO
                         lblFileCount.Text = "Receiving file " + (FFiles.length + 1).toString();
                         lblFileName.Text = "File Name: " + FileName;
                         lblFileSize.Text = "File Size: " + StringUtils.AddCommas(FileSize) + " bytes";
                         lblFileReceived.Text = "File Recv: 0 bytes";
+                        /*TODO
                         pbFileReceived.Value = 0;
                         pbFileReceived.Maximum = FileSize;
                         TODO*/
-                        Crt.WriteLn("Receiving file " + (FFiles.length + 1).toString());
-                        Crt.WriteLn("File Name: " + FileName);
-                        Crt.WriteLn("File Size: " + StringUtils.AddCommas(FileSize) + " bytes");
-                        Crt.WriteLn("File Recv: 0 bytes");
 
                         // Send a G to request file start
                         try {
@@ -301,13 +292,9 @@ var TYModemReceive = function (ATelnet) {
                         FFile.data.writeBytes(Packet, 0, BytesToWrite);
                         FTotalBytesReceived += BytesToWrite;
 
-                        /*TODO
                         lblFileReceived.Text = "File Recv: " + StringUtils.AddCommas(FFile.data.length) + " bytes";
-                        pbFileReceived.Value = FFile.data.length;
+                        //TODO pbFileReceived.Value = FFile.data.length;
                         lblTotalReceived.Text = "Total Recv: " + StringUtils.AddCommas(FTotalBytesReceived) + " bytes";
-                        TODO*/
-                        Crt.WriteLn("File Recv: " + StringUtils.AddCommas(FFile.data.length) + " bytes");
-                        Crt.WriteLn("Total Recv: " + StringUtils.AddCommas(FTotalBytesReceived) + " bytes");
                     }
 
                     break;
