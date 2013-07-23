@@ -91,9 +91,6 @@ var TCrtLabel = function (AParent, ALeft, ATop, AWidth, AText, ATextAlign, AFore
     };
 
     this.__defineGetter__("ScreenLeft", function () {
-        trace("FLeft=" + FLeft);
-        trace("FParent=" + FParent);
-        trace("FParent.Left=" + FParent.Left);
         return FLeft + ((FParent === null) ? 0 : FParent.Left);
     });
 
