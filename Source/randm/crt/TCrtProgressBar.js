@@ -17,7 +17,6 @@
   You should have received a copy of the GNU General Public License
   along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
 */
-// TODO This is still ActionScript, not JavaScript
 var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
     var that = this; 
     var FBackColour = Crt.BLACK;
@@ -180,7 +179,7 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
                 {
                     FLastPercentText = NewPercentText;
 						
-                    var ProgressStart = (FWidth - NewPercentText.length) / 2;
+                    var ProgressStart = Math.round((FWidth - NewPercentText.length) / 2);
                     if (ProgressStart >= NewBarWidth)
                     {
                         // Bar hasn't reached the percent text, so draw in the bar's empty color
@@ -190,7 +189,6 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
                     {
                         // Bar has passed the percent text, so draw in the bar's foreground colour (or still use background for Blocks)
                         Crt.FastWrite(NewPercentText, that.ScreenLeft + ProgressStart, that.ScreenTop, FBackColour + (FBarForeColour << 4));
-							
                     }
                     else
                     {
@@ -328,7 +326,7 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
     FStyle = AStyle;
 			
     FBackColour = Crt.BLUE;
-    FBarForeColour = Crt.YELLOW;
+    FBarForeColour = Crt.YELLOW; // TODO This causes blinking orange background behind percent text since Crt unit doesn't support high backgrounds unless you disable blink (so this note is to remind me to allow high backgrounds AND blink, like fTelnet)
     FBlankForeColour = Crt.LIGHTGRAY;
     FLastMarqueeUpdate = new Date();
     FMarqueeAnimationSpeed = 25;

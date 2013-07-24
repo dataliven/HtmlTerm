@@ -36,9 +36,7 @@ var TStringUtils = function () {
     };
 
     this.FormatPercent = function (ANumber, APrecision) {
-        ANumber *= 100;
-        if (APrecision === 0) { return Math.round(ANumber) + "%"; }
-        return Math.round(ANumber) + "." + Math.round(ANumber * Math.pow(10, APrecision)).toString().substr(-APrecision) + "%";
+        return (ANumber * 100).toFixed(APrecision) + "%";
     };
 
     this.NewString = function (AChar, ALength) {

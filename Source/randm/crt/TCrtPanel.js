@@ -151,7 +151,7 @@ var TCrtPanel = function (AParent, ALeft, ATop, AWidth, AHeight, ABorder, AForeC
                 case ContentAlignment.BottomCenter:
                 case ContentAlignment.MiddleCenter:
                 case ContentAlignment.TopCenter:
-                    TitleX = that.ScreenLeft + ((FWidth - WindowTitle.length) / 2);
+                    TitleX = that.ScreenLeft + Math.round((FWidth - WindowTitle.length) / 2);
                     break;
                 case ContentAlignment.BottomRight:
                 case ContentAlignment.MiddleRight:
