@@ -31,12 +31,11 @@ var TCrtControl = function (AParent, ALeft, ATop, AWidth, AHeight) {
     var FWidth;
 
     // Private methods
-    var AddControl = function (AChild) { }; // Do nothing
     var Paint = function (AForce) { }; // Do nothing
     var RestoreBackground = function () { }; // Do nothing
     var SaveBackground = function () { }; // Do nothing
 
-    AddControl = function (AChild) {
+    this.AddControl = function (AChild) {
         FControls.push(AChild);
     };
 
@@ -77,7 +76,7 @@ var TCrtControl = function (AParent, ALeft, ATop, AWidth, AHeight) {
 
     this.Hide = function () {
         RestoreBackground();
-    }
+    };
 
     this.__defineGetter__("Left", function () {
         return FLeft;
@@ -131,6 +130,8 @@ var TCrtControl = function (AParent, ALeft, ATop, AWidth, AHeight) {
 
     this.Show = function () {
         Paint(true);
+
+        var i;
         for (i = 0; i < FControls.length; i++) {
             FControls[i].Paint(true);
         }
@@ -147,6 +148,7 @@ var TCrtControl = function (AParent, ALeft, ATop, AWidth, AHeight) {
             SaveBackground();
             Paint(true);
 
+            var i;
             for (i = 0; i < FControls.length; i++) {
                 FControls[i].Paint(true);
             }
@@ -179,3 +181,6 @@ var TCrtControl = function (AParent, ALeft, ATop, AWidth, AHeight) {
         AParent.AddControl(this);
     }
 };
+
+var TCrtControlSurrogate = function () { };
+TCrtControlSurrogate.prototype = TCrtControl.prototype;

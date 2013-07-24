@@ -19,31 +19,20 @@
 */
 var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
     var that = this; 
-    var FBackColour = Crt.BLACK;
-    var FBackground = null;
     var FBarForeColour;
     var FBlankForeColour;
-    var FControls = [];
-    var FForeColour = Crt.LIGHTGRAY;
-    var FHeight;
     var FLastBarWidth = 9999;
     var FLastMarqueeUpdate = 0; 
     var FLastPercentText = "";
-    var FLeft;
     var FMarqueeAnimationSpeed;
     var FMaximum;
-    var FParent = null;
     var FPercentPrecision;
     var FPercentVisible;
     var FStyle;
-    var FTop;
     var FValue;
-    var FWidth;
 
     // Private methods
     var Paint = function (AForce) { }; // Do nothing
-    var RestoreBackground = function () { }; // Do nothing
-    var SaveBackground = function () { }; // Do nothing
 		
     this.__defineGetter__("BarForeColour", function () {
         return FBarForeColour;
@@ -69,25 +58,6 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
         }
     });
 		
-    this.__defineGetter__("Left", function () {
-        return FLeft;
-    });
-
-    this.__defineSetter__("Left", function (ALeft) {
-        var i;
-
-        if (ALeft !== FLeft) {
-            RestoreBackground();
-            FLeft = ALeft;
-            SaveBackground();
-            Paint(true);
-
-            for (i = 0; i < FControls.length; i++) {
-                FControls[i].Paint(true);
-            }
-        }
-    });
-
     this.__defineGetter__("MarqueeAnimationSpeed", function () {
         return FMarqueeAnimationSpeed;
     });
@@ -121,24 +91,24 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
             if (AForce)
             {
                 // Erase the old bar
-                Crt.FastWrite(StringUtils.NewString(String.fromCharCode(176), FWidth), that.ScreenLeft, that.ScreenTop, FBlankForeColour + (FBackColour << 4));
+                Crt.FastWrite(StringUtils.NewString(String.fromCharCode(176), that.Width), that.ScreenLeft, that.ScreenTop, FBlankForeColour + (that.BackColour << 4));
             }
 				
             // Draw the new bar
             if (FValue > 0)
             {
-                if (FValue > FWidth)
+                if (FValue > that.Width)
                 {
-                    Crt.FastWrite(String.fromCharCode(176), that.ScreenLeft + FWidth - (15 - Math.floor(FValue - FWidth)), that.ScreenTop, FBlankForeColour + (FBackColour << 4));
+                    Crt.FastWrite(String.fromCharCode(176), that.ScreenLeft + that.Width - (15 - Math.floor(FValue - that.Width)), that.ScreenTop, FBlankForeColour + (that.BackColour << 4));
                 }
                 else if (FValue >= 15)
                 {
-                    Crt.FastWrite(StringUtils.NewString(String.fromCharCode(219), Math.min(FValue, 15)), that.ScreenLeft + FValue - 15, that.ScreenTop, FBarForeColour + (FBackColour << 4));
-                    Crt.FastWrite(String.fromCharCode(176), that.ScreenLeft + FValue - 15, that.ScreenTop, FBlankForeColour + (FBackColour << 4));
+                    Crt.FastWrite(StringUtils.NewString(String.fromCharCode(219), Math.min(FValue, 15)), that.ScreenLeft + FValue - 15, that.ScreenTop, FBarForeColour + (that.BackColour << 4));
+                    Crt.FastWrite(String.fromCharCode(176), that.ScreenLeft + FValue - 15, that.ScreenTop, FBlankForeColour + (that.BackColour << 4));
                 }
                 else
                 {
-                    Crt.FastWrite(StringUtils.NewString(String.fromCharCode(219), Math.min(FValue, 15)), that.ScreenLeft, that.ScreenTop, FBarForeColour + (FBackColour << 4));
+                    Crt.FastWrite(StringUtils.NewString(String.fromCharCode(219), Math.min(FValue, 15)), that.ScreenLeft, that.ScreenTop, FBarForeColour + (that.BackColour << 4));
                 }
             }
         }
@@ -154,18 +124,18 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
 				
             var PaintPercentText = false;
             var Percent = FValue / FMaximum;
-            var NewBarWidth = Math.floor(Percent * FWidth);
+            var NewBarWidth = Math.floor(Percent * that.Width);
             if (NewBarWidth !== FLastBarWidth)
             {
                 // Check if the bar shrank (if so, we need to delete the old bar)
                 if (NewBarWidth < FLastBarWidth)
                 {
                     // Erase the old bar
-                    Crt.FastWrite(StringUtils.NewString(String.fromCharCode(176), FWidth), that.ScreenLeft, that.ScreenTop, FBlankForeColour + (FBackColour << 4));
+                    Crt.FastWrite(StringUtils.NewString(String.fromCharCode(176), that.Width), that.ScreenLeft, that.ScreenTop, FBlankForeColour + (that.BackColour << 4));
                 }
 					
                 // Draw the new bar
-                Crt.FastWrite(StringUtils.NewString(String.fromCharCode(FStyle), NewBarWidth), that.ScreenLeft, that.ScreenTop, FBarForeColour + (FBackColour << 4));
+                Crt.FastWrite(StringUtils.NewString(String.fromCharCode(FStyle), NewBarWidth), that.ScreenLeft, that.ScreenTop, FBarForeColour + (that.BackColour << 4));
 					
                 FLastBarWidth = NewBarWidth;
                 PaintPercentText = true;
@@ -179,16 +149,16 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
                 {
                     FLastPercentText = NewPercentText;
 						
-                    var ProgressStart = Math.round((FWidth - NewPercentText.length) / 2);
+                    var ProgressStart = Math.round((that.Width - NewPercentText.length) / 2);
                     if (ProgressStart >= NewBarWidth)
                     {
                         // Bar hasn't reached the percent text, so draw in the bar's empty color
-                        Crt.FastWrite(NewPercentText, that.ScreenLeft + ProgressStart, that.ScreenTop, FBlankForeColour + (FBackColour << 4));
+                        Crt.FastWrite(NewPercentText, that.ScreenLeft + ProgressStart, that.ScreenTop, FBlankForeColour + (that.BackColour << 4));
                     }
                     else if (ProgressStart + NewPercentText.length <= NewBarWidth)
                     {
                         // Bar has passed the percent text, so draw in the bar's foreground colour (or still use background for Blocks)
-                        Crt.FastWrite(NewPercentText, that.ScreenLeft + ProgressStart, that.ScreenTop, FBackColour + (FBarForeColour << 4));
+                        Crt.FastWrite(NewPercentText, that.ScreenLeft + ProgressStart, that.ScreenTop, that.BackColour + (FBarForeColour << 4));
                     }
                     else
                     {
@@ -197,8 +167,8 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
                         for (i = 0; i < NewPercentText.length; i++)
                         {
                             var LetterPosition = ProgressStart + i;
-                            var FG = (LetterPosition >= NewBarWidth) ? FBlankForeColour : FBackColour;
-                            var BG = (LetterPosition >= NewBarWidth) ? FBackColour : FBarForeColour;
+                            var FG = (LetterPosition >= NewBarWidth) ? FBlankForeColour : that.BackColour;
+                            var BG = (LetterPosition >= NewBarWidth) ? that.BackColour : FBarForeColour;
                             Crt.FastWrite(NewPercentText.charAt(i), that.ScreenLeft + LetterPosition, that.ScreenTop, FG + (BG << 4));
                         }
                     }
@@ -231,14 +201,6 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
         }
     });
 		
-    this.__defineGetter__("ScreenLeft", function () {
-        return FLeft + ((FParent === null) ? 0 : FParent.Left);
-    });
-
-    this.__defineGetter__("ScreenTop", function () {
-        return FTop + ((FParent === null) ? 0 : FParent.Top);
-    });
-		
     this.Step = function() {
         that.StepBy(1);
     };
@@ -259,25 +221,6 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
         }
     });
 
-    this.__defineGetter__("Top", function () {
-        return FTop;
-    });
-
-    this.__defineSetter__("Top", function (ATop) {
-        var i;
-
-        if (ATop !== FTop) {
-            RestoreBackground();
-            FTop = ATop;
-            SaveBackground();
-            Paint(true);
-
-            for (i = 0; i < FControls.length; i++) {
-                FControls[i].Paint(true);
-            }
-        }
-    });
-		
     this.__defineGetter__("Value", function () {
         return FValue;
     });
@@ -293,7 +236,7 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
                     if (AValue < 0) {
                         AValue = 0;
                     }
-                    if (AValue >= FWidth + 15) {
+                    if (AValue >= that.Width + 15) {
                         AValue = 0;
                     }
                     FValue = AValue;
@@ -310,22 +253,12 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
         }
     });
 
-    //super(AParent, ALeft, ATop, AWidth, 1);
-    FParent = AParent;
-    FLeft = ALeft;
-    FTop = ATop;
-    FWidth = AWidth;
-    FHeight = 1;
+    // Constructor
+    TCrtControl.call(this, AParent, ALeft, ATop, AWidth, 1);
 
-    SaveBackground();
-
-    if (FParent !== null) {
-        AParent.AddControl(this);
-    }
-		
     FStyle = AStyle;
 			
-    FBackColour = Crt.BLUE;
+    that.BackColour = Crt.BLUE;
     FBarForeColour = Crt.YELLOW; // TODO This causes blinking orange background behind percent text since Crt unit doesn't support high backgrounds unless you disable blink (so this note is to remind me to allow high backgrounds AND blink, like fTelnet)
     FBlankForeColour = Crt.LIGHTGRAY;
     FLastMarqueeUpdate = new Date();
@@ -337,3 +270,6 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
 			
     Paint(true);
 };
+
+TCrtProgressBar.prototype = new TCrtControlSurrogate();
+TCrtProgressBar.prototype.constructor = TCrtProgressBar;

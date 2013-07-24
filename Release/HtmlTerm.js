@@ -2758,186 +2758,16 @@ Crt = new TCrt();
   You should have received a copy of the GNU General Public License
   along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
 */
-var TCrtLabel = function (AParent, ALeft, ATop, AWidth, AText, ATextAlign, AForeColour, ABackColour) {
-
-    var that = this;
-    var FBackColour = Crt.BLACK;
-    var FBackground;
-    var FControls = [];
-    var FForeColour = Crt.LIGHTGRAY;
-    var FHeight;
-    var FLeft;
-    var FParent = null;
-    var FText = "";
-    var FTextAlign;
-    var FTop;
-    var FWidth;
-
-    // Private methods
-    var Paint = function (AForce) { }; // Do nothing
-    var RestoreBackground = function () { }; // Do nothing
-    var SaveBackground = function () { }; // Do nothing
-
-    this.AddControl = function (AChild) {
-        FControls.push(AChild);
-    };
-
-    this.__defineGetter__("Left", function () {
-        return FLeft;
-    });
-
-    this.__defineSetter__("Left", function (ALeft) {
-        var i;
-
-        if (ALeft !== FLeft) {
-            RestoreBackground();
-            FLeft = ALeft;
-            SaveBackground();
-            Paint(true);
-
-            for (i = 0; i < FControls.length; i++) {
-                FControls[i].Paint(true);
-            }
-        }
-    });
-
-    Paint = function (AForce) {
-        // Draw the message
-        switch (FTextAlign) {
-            case ContentAlignment.Center:
-                if (FText.length >= FWidth) {
-                    // Text is greater than available space so chop it off with PadRight()
-                    Crt.FastWrite(FText.substring(0, FWidth), that.ScreenLeft, that.ScreenTop, FForeColour + (FBackColour << 4));
-                } else {
-                    // Text needs to be centered
-                    var i = 0;
-                    var LeftSpaces = "";
-                    for (i = 0; i < Math.floor((FWidth - FText.length) / 2) ; i++) {
-                        LeftSpaces += " ";
-                    }
-                    var RightSpaces = "";
-                    for (i = 0; i < FWidth - FText.length - LeftSpaces.length; i++) {
-                        RightSpaces += " ";
-                    }
-                    Crt.FastWrite(LeftSpaces + FText + RightSpaces, that.ScreenLeft, that.ScreenTop, FForeColour + (FBackColour << 4));
-                }
-                break;
-            case ContentAlignment.Left:
-                Crt.FastWrite(StringUtils.PadRight(FText, ' ', FWidth), that.ScreenLeft, that.ScreenTop, FForeColour + (FBackColour << 4));
-                break;
-            case ContentAlignment.Right:
-                Crt.FastWrite(StringUtils.PadLeft(FText, ' ', FWidth), that.ScreenLeft, that.ScreenTop, FForeColour + (FBackColour << 4));
-                break;
-        }
-    };
-
-    RestoreBackground = function () {
-        Crt.RestoreScreen(FBackground, FLeft, FTop, FLeft + FWidth - 1, FTop + FHeight - 1);
-    };
-
-    SaveBackground = function () {
-        FBackground = Crt.SaveScreen(FLeft, FTop, FLeft + FWidth - 1, FTop + FHeight - 1);
-    };
-
-    this.__defineGetter__("ScreenLeft", function () {
-        return FLeft + ((FParent === null) ? 0 : FParent.Left);
-    });
-
-    this.__defineGetter__("ScreenTop", function () {
-        return FTop + ((FParent === null) ? 0 : FParent.Top);
-    });
-
-    this.__defineGetter__("Text", function () {
-        return FBackColour;
-    });
-
-    this.__defineSetter__("Text", function (AText) {
-        FText = AText;
-        Paint(true);
-    });
-
-    this.__defineGetter__("TextAlign", function () {
-        return FTextAlign;
-    });
-
-    this.__defineSetter__("TextAlign", function (ATextAlign) {
-        if (ATextAlign !== FTextAlign) {
-            FTextAlign = ATextAlign;
-            Paint(true);
-        }
-    });
-
-    this.__defineGetter__("Top", function () {
-        return FTop;
-    });
-
-    this.__defineSetter__("Top", function (ATop) {
-        var i;
-
-        if (ATop !== FTop) {
-            RestoreBackground();
-            FTop = ATop;
-            SaveBackground();
-            Paint(true);
-
-            for (i = 0; i < FControls.length; i++) {
-                FControls[i].Paint(true);
-            }
-        }
-    });
-
-    // Constructor
-    //super(AParent, ALeft, ATop, AWidth, 1);
-    FParent = AParent;
-    FLeft = ALeft;
-    FTop = ATop;
-    FWidth = AWidth;
-    FHeight = 1;
-
-    SaveBackground();
-
-    if (FParent !== null) {
-        AParent.AddControl(this);
-    }
-
-    FText = AText;
-    FTextAlign = ATextAlign;
-    FForeColour = AForeColour;
-    FBackColour = ABackColour;
-
-    Paint(true);
-};/*
-  HtmlTerm: An HTML5 WebSocket client
-  Copyright (C) 2009-2013  Rick Parrish, R&M Software
-
-  This file is part of HtmlTerm.
-
-  HtmlTerm is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  any later version.
-
-  HtmlTerm is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
-*/
-var TCrtPanel = function (AParent, ALeft, ATop, AWidth, AHeight, ABorder, AForeColour, ABackColour, AText, ATextAlign) {
-
+// TODO Ideally other controls should inherit from this, but have to check how
+var TCrtControl = function (AParent, ALeft, ATop, AWidth, AHeight) {
     var that = this;
     var FBackColour = Crt.BLACK;
     var FBackground = null;
-    var FBorder;
     var FControls = [];
     var FForeColour = Crt.LIGHTGRAY;
     var FHeight;
     var FLeft;
     var FParent = null;
-    var FText = "";
-    var FTextAlign;
     var FTop;
     var FWidth;
 
@@ -2950,13 +2780,37 @@ var TCrtPanel = function (AParent, ALeft, ATop, AWidth, AHeight, ABorder, AForeC
         FControls.push(AChild);
     };
 
-    this.__defineGetter__("Border", function () {
-        return FBorder;
+    this.__defineGetter__("BackColour", function () {
+        return FBackColour;
     });
 
-    this.__defineSetter__("Border", function (ABorder) {
-        if (ABorder !== FBorder) {
-            FBorder = ABorder;
+    this.__defineSetter__("BackColour", function (ABackColour) {
+        if (ABackColour !== FBackColour) {
+            FBackColour = ABackColour;
+            Paint(true);
+        }
+    });
+
+    this.__defineGetter__("ForeColour", function () {
+        return FForeColour;
+    });
+
+    this.__defineSetter__("ForeColour", function (AForeColour) {
+        if (AForeColour !== FForeColour) {
+            FForeColour = AForeColour;
+            Paint(true);
+        }
+    });
+
+    this.__defineGetter__("Height", function () {
+        return FHeight;
+    });
+
+    this.__defineSetter__("Height", function (AHeight) {
+        if (AHeight !== FHeight) {
+            RestoreBackground();
+            FHeight = AHeight;
+            SaveBackground();
             Paint(true);
         }
     });
@@ -2981,6 +2835,221 @@ var TCrtPanel = function (AParent, ALeft, ATop, AWidth, AHeight, ABorder, AForeC
             for (i = 0; i < FControls.length; i++) {
                 FControls[i].Paint(true);
             }
+        }
+    });
+
+    Paint = function (AForce) {
+        // Override in extended class
+    };
+
+    this.__defineGetter__("Parent", function () {
+        return FParent;
+    });
+
+    this.__defineSetter__("Parent", function (AParent) {
+        RestoreBackground();
+        FParent = AParent;
+        SaveBackground();
+        Paint(true);
+    });
+
+    RestoreBackground = function () {
+        Crt.RestoreScreen(FBackground, FLeft, FTop, FLeft + FWidth - 1, FTop + FHeight - 1);
+    };
+
+    SaveBackground = function () {
+        FBackground = Crt.SaveScreen(FLeft, FTop, FLeft + FWidth - 1, FTop + FHeight - 1);
+    };
+
+    this.__defineGetter__("ScreenLeft", function () {
+        return FLeft + ((FParent === null) ? 0 : FParent.Left);
+    });
+
+    this.__defineGetter__("ScreenTop", function () {
+        return FTop + ((FParent === null) ? 0 : FParent.Top);
+    });
+
+    this.Show = function () {
+        Paint(true);
+
+        var i;
+        for (i = 0; i < FControls.length; i++) {
+            FControls[i].Paint(true);
+        }
+    };
+
+    this.__defineGetter__("Top", function () {
+        return FTop;
+    });
+
+    this.__defineSetter__("Top", function (ATop) {
+        if (ATop !== FTop) {
+            RestoreBackground();
+            FTop = ATop;
+            SaveBackground();
+            Paint(true);
+
+            var i;
+            for (i = 0; i < FControls.length; i++) {
+                FControls[i].Paint(true);
+            }
+        }
+    });
+
+    this.__defineGetter__("Width", function () {
+        return FWidth;
+    });
+
+    this.__defineSetter__("Width", function (AWidth) {
+        if (AWidth !== FWidth) {
+            RestoreBackground();
+            FWidth = AWidth;
+            SaveBackground();
+            Paint(true);
+        }
+    });
+
+    // Constructor
+    FParent = AParent;
+    FLeft = ALeft;
+    FTop = ATop;
+    FWidth = AWidth;
+    FHeight = AHeight;
+
+    SaveBackground();
+
+    if (FParent !== null) {
+        AParent.AddControl(this);
+    }
+};
+
+var TCrtControlSurrogate = function () { };
+TCrtControlSurrogate.prototype = TCrtControl.prototype;/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
+var TCrtLabel = function (AParent, ALeft, ATop, AWidth, AText, ATextAlign, AForeColour, ABackColour) {
+
+    var that = this;
+    var FText = "";
+    var FTextAlign;
+
+    // Private methods
+    var Paint = function (AForce) { }; // Do nothing
+
+    Paint = function (AForce) {
+        // Draw the message
+        switch (FTextAlign) {
+            case ContentAlignment.Center:
+                if (FText.length >= that.Width) {
+                    // Text is greater than available space so chop it off with PadRight()
+                    Crt.FastWrite(FText.substring(0, that.Width), that.ScreenLeft, that.ScreenTop, that.ForeColour + (that.BackColour << 4));
+                } else {
+                    // Text needs to be centered
+                    var i = 0;
+                    var LeftSpaces = "";
+                    for (i = 0; i < Math.floor((that.Width - FText.length) / 2) ; i++) {
+                        LeftSpaces += " ";
+                    }
+                    var RightSpaces = "";
+                    for (i = 0; i < that.Width - FText.length - LeftSpaces.length; i++) {
+                        RightSpaces += " ";
+                    }
+                    Crt.FastWrite(LeftSpaces + FText + RightSpaces, that.ScreenLeft, that.ScreenTop, that.ForeColour + (that.BackColour << 4));
+                }
+                break;
+            case ContentAlignment.Left:
+                Crt.FastWrite(StringUtils.PadRight(FText, ' ', that.Width), that.ScreenLeft, that.ScreenTop, that.ForeColour + (that.BackColour << 4));
+                break;
+            case ContentAlignment.Right:
+                Crt.FastWrite(StringUtils.PadLeft(FText, ' ', that.Width), that.ScreenLeft, that.ScreenTop, that.ForeColour + (that.BackColour << 4));
+                break;
+        }
+    };
+
+    this.__defineGetter__("Text", function () {
+        return FText;
+    });
+
+    this.__defineSetter__("Text", function (AText) {
+        FText = AText;
+        Paint(true);
+    });
+
+    this.__defineGetter__("TextAlign", function () {
+        return FTextAlign;
+    });
+
+    this.__defineSetter__("TextAlign", function (ATextAlign) {
+        if (ATextAlign !== FTextAlign) {
+            FTextAlign = ATextAlign;
+            Paint(true);
+        }
+    });
+
+    // Constructor
+    TCrtControl.call(this, AParent, ALeft, ATop, AWidth, 1);
+
+    FText = AText;
+    FTextAlign = ATextAlign;
+    that.ForeColour = AForeColour;
+    that.BackColour = ABackColour;
+
+    Paint(true);
+};
+
+TCrtLabel.prototype = new TCrtControlSurrogate();
+TCrtLabel.prototype.constructor = TCrtLabel;/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
+var TCrtPanel = function (AParent, ALeft, ATop, AWidth, AHeight, ABorder, AForeColour, ABackColour, AText, ATextAlign) {
+    var that = this;
+    var FBorder;
+    var FText = "";
+    var FTextAlign;
+
+    // Private methods
+    var Paint = function (AForce) { }; // Do nothing
+
+    this.__defineGetter__("Border", function () {
+        return FBorder;
+    });
+
+    this.__defineSetter__("Border", function (ABorder) {
+        if (ABorder !== FBorder) {
+            FBorder = ABorder;
+            Paint(true);
         }
     });
 
@@ -3033,15 +3102,15 @@ var TCrtPanel = function (AParent, ALeft, ATop, AWidth, AHeight, ABorder, AForeC
         }
 
         // Draw top row
-        Crt.FastWrite(TopLeft + StringUtils.NewString(TopBottom, FWidth - 2) + TopRight, that.ScreenLeft, that.ScreenTop, FForeColour + (FBackColour << 4));
+        Crt.FastWrite(TopLeft + StringUtils.NewString(TopBottom, that.Width - 2) + TopRight, that.ScreenLeft, that.ScreenTop, that.ForeColour + (that.BackColour << 4));
 
         // Draw middle rows
-        for (Line = that.ScreenTop + 1; Line < that.ScreenTop + FHeight - 1; Line++) {
-            Crt.FastWrite(LeftRight + StringUtils.NewString(' ', FWidth - 2) + LeftRight, that.ScreenLeft, Line, FForeColour + (FBackColour << 4));
+        for (Line = that.ScreenTop + 1; Line < that.ScreenTop + that.Height - 1; Line++) {
+            Crt.FastWrite(LeftRight + StringUtils.NewString(' ', that.Width - 2) + LeftRight, that.ScreenLeft, Line, that.ForeColour + (that.BackColour << 4));
         }
 
         // Draw bottom row
-        Crt.FastWrite(BottomLeft + StringUtils.NewString(TopBottom, FWidth - 2) + BottomRight, that.ScreenLeft, that.ScreenTop + FHeight - 1, FForeColour + (FBackColour << 4));
+        Crt.FastWrite(BottomLeft + StringUtils.NewString(TopBottom, that.Width - 2) + BottomRight, that.ScreenLeft, that.ScreenTop + that.Height - 1, that.ForeColour + (that.BackColour << 4));
 
         // Draw window title
         if (StringUtils.Trim(FText).length > 0) {
@@ -3059,12 +3128,12 @@ var TCrtPanel = function (AParent, ALeft, ATop, AWidth, AHeight, ABorder, AForeC
                 case ContentAlignment.BottomCenter:
                 case ContentAlignment.MiddleCenter:
                 case ContentAlignment.TopCenter:
-                    TitleX = that.ScreenLeft + Math.round((FWidth - WindowTitle.length) / 2);
+                    TitleX = that.ScreenLeft + Math.round((that.Width - WindowTitle.length) / 2);
                     break;
                 case ContentAlignment.BottomRight:
                 case ContentAlignment.MiddleRight:
                 case ContentAlignment.TopRight:
-                    TitleX = that.ScreenLeft + FWidth - WindowTitle.length - 2;
+                    TitleX = that.ScreenLeft + that.Width - WindowTitle.length - 2;
                     break;
             }
 
@@ -3073,7 +3142,7 @@ var TCrtPanel = function (AParent, ALeft, ATop, AWidth, AHeight, ABorder, AForeC
                 case ContentAlignment.BottomCenter:
                 case ContentAlignment.BottomLeft:
                 case ContentAlignment.BottomRight:
-                    TitleY = that.ScreenTop + FHeight - 1;
+                    TitleY = that.ScreenTop + that.Height - 1;
                     break;
                 case ContentAlignment.MiddleCenter:
                 case ContentAlignment.MiddleLeft:
@@ -3086,37 +3155,12 @@ var TCrtPanel = function (AParent, ALeft, ATop, AWidth, AHeight, ABorder, AForeC
             }
 
             // Draw title
-            Crt.FastWrite(WindowTitle, TitleX, TitleY, FForeColour + (FBackColour << 4));
-        }
-    };
-
-    RestoreBackground = function () {
-        Crt.RestoreScreen(FBackground, FLeft, FTop, FLeft + FWidth - 1, FTop + FHeight - 1);
-    };
-
-    SaveBackground = function () {
-        FBackground = Crt.SaveScreen(FLeft, FTop, FLeft + FWidth - 1, FTop + FHeight - 1);
-    };
-
-    this.__defineGetter__("ScreenLeft", function () {
-        return FLeft + ((FParent === null) ? 0 : FParent.Left);
-    });
-
-    this.__defineGetter__("ScreenTop", function () {
-        return FTop + ((FParent === null) ? 0 : FParent.Top);
-    });
-
-    this.Show = function () {
-        var i;
-
-        Paint(true);
-        for (i = 0; i < FControls.length; i++) {
-            FControls[i].Paint(true);
+            Crt.FastWrite(WindowTitle, TitleX, TitleY, that.ForeColour + (that.BackColour << 4));
         }
     };
 
     this.__defineGetter__("Text", function () {
-        return FBackColour;
+        return that.BackColour;
     });
 
     this.__defineSetter__("Text", function (AText) {
@@ -3135,46 +3179,20 @@ var TCrtPanel = function (AParent, ALeft, ATop, AWidth, AHeight, ABorder, AForeC
         }
     });
 
-    this.__defineGetter__("Top", function () {
-        return FTop;
-    });
-
-    this.__defineSetter__("Top", function (ATop) {
-        var i;
-
-        if (ATop !== FTop) {
-            RestoreBackground();
-            FTop = ATop;
-            SaveBackground();
-            Paint(true);
-
-            for (i = 0; i < FControls.length; i++) {
-                FControls[i].Paint(true);
-            }
-        }
-    });
-
     // Constructor
-    FParent = AParent;
-    FLeft = ALeft;
-    FTop = ATop;
-    FWidth = AWidth;
-    FHeight = AHeight;
-
-    SaveBackground();
-
-    if (FParent !== null) {
-        AParent.AddControl(this);
-    }
+    TCrtControl.call(this, AParent, ALeft, ATop, AWidth, AHeight);
 
     FBorder = ABorder;
-    FForeColour = AForeColour;
-    FBackColour = ABackColour;
+    that.ForeColour = AForeColour;
+    that.BackColour = ABackColour;
     FText = AText;
     FTextAlign = ATextAlign;
 
     Paint(true);
-};/*
+};
+
+TCrtPanel.prototype = new TCrtControlSurrogate();
+TCrtPanel.prototype.constructor = TCrtPanel;/*
   HtmlTerm: An HTML5 WebSocket client
   Copyright (C) 2009-2013  Rick Parrish, R&M Software
 
@@ -3195,31 +3213,20 @@ var TCrtPanel = function (AParent, ALeft, ATop, AWidth, AHeight, ABorder, AForeC
 */
 var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
     var that = this; 
-    var FBackColour = Crt.BLACK;
-    var FBackground = null;
     var FBarForeColour;
     var FBlankForeColour;
-    var FControls = [];
-    var FForeColour = Crt.LIGHTGRAY;
-    var FHeight;
     var FLastBarWidth = 9999;
     var FLastMarqueeUpdate = 0; 
     var FLastPercentText = "";
-    var FLeft;
     var FMarqueeAnimationSpeed;
     var FMaximum;
-    var FParent = null;
     var FPercentPrecision;
     var FPercentVisible;
     var FStyle;
-    var FTop;
     var FValue;
-    var FWidth;
 
     // Private methods
     var Paint = function (AForce) { }; // Do nothing
-    var RestoreBackground = function () { }; // Do nothing
-    var SaveBackground = function () { }; // Do nothing
 		
     this.__defineGetter__("BarForeColour", function () {
         return FBarForeColour;
@@ -3245,25 +3252,6 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
         }
     });
 		
-    this.__defineGetter__("Left", function () {
-        return FLeft;
-    });
-
-    this.__defineSetter__("Left", function (ALeft) {
-        var i;
-
-        if (ALeft !== FLeft) {
-            RestoreBackground();
-            FLeft = ALeft;
-            SaveBackground();
-            Paint(true);
-
-            for (i = 0; i < FControls.length; i++) {
-                FControls[i].Paint(true);
-            }
-        }
-    });
-
     this.__defineGetter__("MarqueeAnimationSpeed", function () {
         return FMarqueeAnimationSpeed;
     });
@@ -3297,24 +3285,24 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
             if (AForce)
             {
                 // Erase the old bar
-                Crt.FastWrite(StringUtils.NewString(String.fromCharCode(176), FWidth), that.ScreenLeft, that.ScreenTop, FBlankForeColour + (FBackColour << 4));
+                Crt.FastWrite(StringUtils.NewString(String.fromCharCode(176), that.Width), that.ScreenLeft, that.ScreenTop, FBlankForeColour + (that.BackColour << 4));
             }
 				
             // Draw the new bar
             if (FValue > 0)
             {
-                if (FValue > FWidth)
+                if (FValue > that.Width)
                 {
-                    Crt.FastWrite(String.fromCharCode(176), that.ScreenLeft + FWidth - (15 - Math.floor(FValue - FWidth)), that.ScreenTop, FBlankForeColour + (FBackColour << 4));
+                    Crt.FastWrite(String.fromCharCode(176), that.ScreenLeft + that.Width - (15 - Math.floor(FValue - that.Width)), that.ScreenTop, FBlankForeColour + (that.BackColour << 4));
                 }
                 else if (FValue >= 15)
                 {
-                    Crt.FastWrite(StringUtils.NewString(String.fromCharCode(219), Math.min(FValue, 15)), that.ScreenLeft + FValue - 15, that.ScreenTop, FBarForeColour + (FBackColour << 4));
-                    Crt.FastWrite(String.fromCharCode(176), that.ScreenLeft + FValue - 15, that.ScreenTop, FBlankForeColour + (FBackColour << 4));
+                    Crt.FastWrite(StringUtils.NewString(String.fromCharCode(219), Math.min(FValue, 15)), that.ScreenLeft + FValue - 15, that.ScreenTop, FBarForeColour + (that.BackColour << 4));
+                    Crt.FastWrite(String.fromCharCode(176), that.ScreenLeft + FValue - 15, that.ScreenTop, FBlankForeColour + (that.BackColour << 4));
                 }
                 else
                 {
-                    Crt.FastWrite(StringUtils.NewString(String.fromCharCode(219), Math.min(FValue, 15)), that.ScreenLeft, that.ScreenTop, FBarForeColour + (FBackColour << 4));
+                    Crt.FastWrite(StringUtils.NewString(String.fromCharCode(219), Math.min(FValue, 15)), that.ScreenLeft, that.ScreenTop, FBarForeColour + (that.BackColour << 4));
                 }
             }
         }
@@ -3330,18 +3318,18 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
 				
             var PaintPercentText = false;
             var Percent = FValue / FMaximum;
-            var NewBarWidth = Math.floor(Percent * FWidth);
+            var NewBarWidth = Math.floor(Percent * that.Width);
             if (NewBarWidth !== FLastBarWidth)
             {
                 // Check if the bar shrank (if so, we need to delete the old bar)
                 if (NewBarWidth < FLastBarWidth)
                 {
                     // Erase the old bar
-                    Crt.FastWrite(StringUtils.NewString(String.fromCharCode(176), FWidth), that.ScreenLeft, that.ScreenTop, FBlankForeColour + (FBackColour << 4));
+                    Crt.FastWrite(StringUtils.NewString(String.fromCharCode(176), that.Width), that.ScreenLeft, that.ScreenTop, FBlankForeColour + (that.BackColour << 4));
                 }
 					
                 // Draw the new bar
-                Crt.FastWrite(StringUtils.NewString(String.fromCharCode(FStyle), NewBarWidth), that.ScreenLeft, that.ScreenTop, FBarForeColour + (FBackColour << 4));
+                Crt.FastWrite(StringUtils.NewString(String.fromCharCode(FStyle), NewBarWidth), that.ScreenLeft, that.ScreenTop, FBarForeColour + (that.BackColour << 4));
 					
                 FLastBarWidth = NewBarWidth;
                 PaintPercentText = true;
@@ -3355,16 +3343,16 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
                 {
                     FLastPercentText = NewPercentText;
 						
-                    var ProgressStart = Math.round((FWidth - NewPercentText.length) / 2);
+                    var ProgressStart = Math.round((that.Width - NewPercentText.length) / 2);
                     if (ProgressStart >= NewBarWidth)
                     {
                         // Bar hasn't reached the percent text, so draw in the bar's empty color
-                        Crt.FastWrite(NewPercentText, that.ScreenLeft + ProgressStart, that.ScreenTop, FBlankForeColour + (FBackColour << 4));
+                        Crt.FastWrite(NewPercentText, that.ScreenLeft + ProgressStart, that.ScreenTop, FBlankForeColour + (that.BackColour << 4));
                     }
                     else if (ProgressStart + NewPercentText.length <= NewBarWidth)
                     {
                         // Bar has passed the percent text, so draw in the bar's foreground colour (or still use background for Blocks)
-                        Crt.FastWrite(NewPercentText, that.ScreenLeft + ProgressStart, that.ScreenTop, FBackColour + (FBarForeColour << 4));
+                        Crt.FastWrite(NewPercentText, that.ScreenLeft + ProgressStart, that.ScreenTop, that.BackColour + (FBarForeColour << 4));
                     }
                     else
                     {
@@ -3373,8 +3361,8 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
                         for (i = 0; i < NewPercentText.length; i++)
                         {
                             var LetterPosition = ProgressStart + i;
-                            var FG = (LetterPosition >= NewBarWidth) ? FBlankForeColour : FBackColour;
-                            var BG = (LetterPosition >= NewBarWidth) ? FBackColour : FBarForeColour;
+                            var FG = (LetterPosition >= NewBarWidth) ? FBlankForeColour : that.BackColour;
+                            var BG = (LetterPosition >= NewBarWidth) ? that.BackColour : FBarForeColour;
                             Crt.FastWrite(NewPercentText.charAt(i), that.ScreenLeft + LetterPosition, that.ScreenTop, FG + (BG << 4));
                         }
                     }
@@ -3407,14 +3395,6 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
         }
     });
 		
-    this.__defineGetter__("ScreenLeft", function () {
-        return FLeft + ((FParent === null) ? 0 : FParent.Left);
-    });
-
-    this.__defineGetter__("ScreenTop", function () {
-        return FTop + ((FParent === null) ? 0 : FParent.Top);
-    });
-		
     this.Step = function() {
         that.StepBy(1);
     };
@@ -3435,25 +3415,6 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
         }
     });
 
-    this.__defineGetter__("Top", function () {
-        return FTop;
-    });
-
-    this.__defineSetter__("Top", function (ATop) {
-        var i;
-
-        if (ATop !== FTop) {
-            RestoreBackground();
-            FTop = ATop;
-            SaveBackground();
-            Paint(true);
-
-            for (i = 0; i < FControls.length; i++) {
-                FControls[i].Paint(true);
-            }
-        }
-    });
-		
     this.__defineGetter__("Value", function () {
         return FValue;
     });
@@ -3469,7 +3430,7 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
                     if (AValue < 0) {
                         AValue = 0;
                     }
-                    if (AValue >= FWidth + 15) {
+                    if (AValue >= that.Width + 15) {
                         AValue = 0;
                     }
                     FValue = AValue;
@@ -3486,22 +3447,12 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
         }
     });
 
-    //super(AParent, ALeft, ATop, AWidth, 1);
-    FParent = AParent;
-    FLeft = ALeft;
-    FTop = ATop;
-    FWidth = AWidth;
-    FHeight = 1;
+    // Constructor
+    TCrtControl.call(this, AParent, ALeft, ATop, AWidth, 1);
 
-    SaveBackground();
-
-    if (FParent !== null) {
-        AParent.AddControl(this);
-    }
-		
     FStyle = AStyle;
 			
-    FBackColour = Crt.BLUE;
+    that.BackColour = Crt.BLUE;
     FBarForeColour = Crt.YELLOW; // TODO This causes blinking orange background behind percent text since Crt unit doesn't support high backgrounds unless you disable blink (so this note is to remind me to allow high backgrounds AND blink, like fTelnet)
     FBlankForeColour = Crt.LIGHTGRAY;
     FLastMarqueeUpdate = new Date();
@@ -3513,7 +3464,9 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
 			
     Paint(true);
 };
-/*
+
+TCrtProgressBar.prototype = new TCrtControlSurrogate();
+TCrtProgressBar.prototype.constructor = TCrtProgressBar;/*
   HtmlTerm: An HTML5 WebSocket client
   Copyright (C) 2009-2013  Rick Parrish, R&M Software
 
