@@ -466,9 +466,7 @@ var TStringUtils = function () {
     };
 
     this.FormatPercent = function (ANumber, APrecision) {
-        ANumber *= 100;
-        if (APrecision === 0) { return Math.round(ANumber) + "%"; }
-        return Math.round(ANumber) + "." + Math.round(ANumber * Math.pow(10, APrecision)).toString().substr(-APrecision) + "%";
+        return (ANumber * 100).toFixed(APrecision) + "%";
     };
 
     this.NewString = function (AChar, ALength) {
@@ -3061,7 +3059,7 @@ var TCrtPanel = function (AParent, ALeft, ATop, AWidth, AHeight, ABorder, AForeC
                 case ContentAlignment.BottomCenter:
                 case ContentAlignment.MiddleCenter:
                 case ContentAlignment.TopCenter:
-                    TitleX = that.ScreenLeft + ((FWidth - WindowTitle.length) / 2);
+                    TitleX = that.ScreenLeft + Math.round((FWidth - WindowTitle.length) / 2);
                     break;
                 case ContentAlignment.BottomRight:
                 case ContentAlignment.MiddleRight:
@@ -3195,7 +3193,6 @@ var TCrtPanel = function (AParent, ALeft, ATop, AWidth, AHeight, ABorder, AForeC
   You should have received a copy of the GNU General Public License
   along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
 */
-// TODO This is still ActionScript, not JavaScript
 var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
     var that = this; 
     var FBackColour = Crt.BLACK;
@@ -3358,7 +3355,7 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
                 {
                     FLastPercentText = NewPercentText;
 						
-                    var ProgressStart = (FWidth - NewPercentText.length) / 2;
+                    var ProgressStart = Math.round((FWidth - NewPercentText.length) / 2);
                     if (ProgressStart >= NewBarWidth)
                     {
                         // Bar hasn't reached the percent text, so draw in the bar's empty color
@@ -3368,7 +3365,6 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
                     {
                         // Bar has passed the percent text, so draw in the bar's foreground colour (or still use background for Blocks)
                         Crt.FastWrite(NewPercentText, that.ScreenLeft + ProgressStart, that.ScreenTop, FBackColour + (FBarForeColour << 4));
-							
                     }
                     else
                     {
@@ -3506,7 +3502,7 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
     FStyle = AStyle;
 			
     FBackColour = Crt.BLUE;
-    FBarForeColour = Crt.YELLOW;
+    FBarForeColour = Crt.YELLOW; // TODO This causes blinking orange background behind percent text since Crt unit doesn't support high backgrounds unless you disable blink (so this note is to remind me to allow high backgrounds AND blink, like fTelnet)
     FBlankForeColour = Crt.LIGHTGRAY;
     FLastMarqueeUpdate = new Date();
     FMarqueeAnimationSpeed = 25;
@@ -5140,16 +5136,18 @@ var THtmlTerm = function () {
 
         var i;
         var j;
+        var ByteString;
+        var buffer;
+        var dataView;
         var myBlob;
         var fileSaver;
 
         if (FYModemReceive.FileCount === 1) {
             // If we have just one file, save it
-            var ByteString = FYModemReceive.FileAt(0).data.toString();
-            trace(ByteString);
+            ByteString = FYModemReceive.FileAt(0).data.toString();
 
-            var buffer = new ArrayBuffer(ByteString.length);
-            var dataView = new DataView(buffer);
+            buffer = new ArrayBuffer(ByteString.length);
+            dataView = new DataView(buffer);
             for (i = 0; i < ByteString.length; i++) {
                 dataView.setUint8(i, ByteString.charCodeAt(i));
             }
@@ -5231,7 +5229,15 @@ var THtmlTerm = function () {
             }
 
             // Save the tar
-            myBlob = new Blob([TAR.readString()], { "type": "application\/octet-stream" });
+            ByteString = TAR.toString();
+
+            buffer = new ArrayBuffer(ByteString.length);
+            dataView = new DataView(buffer);
+            for (i = 0; i < ByteString.length; i++) {
+                dataView.setUint8(i, ByteString.charCodeAt(i));
+            }
+
+            myBlob = new Blob([buffer], { type: 'application/octet-binary' });
             fileSaver = window.saveAs(myBlob, "HtmlTerm-BatchDownload.tar");
         }
 

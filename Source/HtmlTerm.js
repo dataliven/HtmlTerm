@@ -434,15 +434,18 @@ var THtmlTerm = function () {
 
         var i;
         var j;
+        var ByteString;
+        var buffer;
+        var dataView;
         var myBlob;
         var fileSaver;
 
         if (FYModemReceive.FileCount === 1) {
             // If we have just one file, save it
-            var ByteString = FYModemReceive.FileAt(0).data.toString();
+            ByteString = FYModemReceive.FileAt(0).data.toString();
 
-            var buffer = new ArrayBuffer(ByteString.length);
-            var dataView = new DataView(buffer);
+            buffer = new ArrayBuffer(ByteString.length);
+            dataView = new DataView(buffer);
             for (i = 0; i < ByteString.length; i++) {
                 dataView.setUint8(i, ByteString.charCodeAt(i));
             }
@@ -524,10 +527,10 @@ var THtmlTerm = function () {
             }
 
             // Save the tar
-            var ByteString = TAR.toString();
+            ByteString = TAR.toString();
 
-            var buffer = new ArrayBuffer(ByteString.length);
-            var dataView = new DataView(buffer);
+            buffer = new ArrayBuffer(ByteString.length);
+            dataView = new DataView(buffer);
             for (i = 0; i < ByteString.length; i++) {
                 dataView.setUint8(i, ByteString.charCodeAt(i));
             }
