@@ -440,7 +440,6 @@ var THtmlTerm = function () {
         if (FYModemReceive.FileCount === 1) {
             // If we have just one file, save it
             var ByteString = FYModemReceive.FileAt(0).data.toString();
-            trace(ByteString);
 
             var buffer = new ArrayBuffer(ByteString.length);
             var dataView = new DataView(buffer);
@@ -525,7 +524,15 @@ var THtmlTerm = function () {
             }
 
             // Save the tar
-            myBlob = new Blob([TAR.readString()], { "type": "application\/octet-stream" });
+            var ByteString = TAR.toString();
+
+            var buffer = new ArrayBuffer(ByteString.length);
+            var dataView = new DataView(buffer);
+            for (i = 0; i < ByteString.length; i++) {
+                dataView.setUint8(i, ByteString.charCodeAt(i));
+            }
+
+            myBlob = new Blob([buffer], { type: 'application/octet-binary' });
             fileSaver = window.saveAs(myBlob, "HtmlTerm-BatchDownload.tar");
         }
 
