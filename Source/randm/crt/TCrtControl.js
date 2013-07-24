@@ -17,7 +17,6 @@
   You should have received a copy of the GNU General Public License
   along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
 */
-// TODO Ideally other controls should inherit from this, but have to check how
 var TCrtControl = function (AParent, ALeft, ATop, AWidth, AHeight) {
     var that = this;
     var FBackColour = Crt.BLACK;
