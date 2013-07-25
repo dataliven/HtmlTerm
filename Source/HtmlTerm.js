@@ -617,6 +617,7 @@ var THtmlTerm = function () {
                 return function (e) {
                     var FR = new TFileRecord(theFile.name, theFile.size);
                     FR.data.writeString(e.target.result);
+                    FR.data.position = 0;
                     FYModemSend.Upload(FR, AFiles.length);
                 };
             })(AFiles[i]);
