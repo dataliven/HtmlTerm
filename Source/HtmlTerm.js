@@ -56,6 +56,7 @@ var THtmlTerm = function () {
     // Private methods
     var CenterConnectButton = function () { }; // Do nothing
     var CenterSaveFilesButton = function () { }; // Do nothing
+    var LoadFile = function (f, len) { }; // Do nothing
     var LoadSettings = function (AClientVars) { }; // Do nothing
     var OnAnsiESC5n = function (AEvent) { }; // Do nothing
     var OnAnsiESC6n = function (AEvent) { }; // Do nothing
@@ -596,6 +597,21 @@ var THtmlTerm = function () {
         FTimer = setInterval(OnTimer, 50);
     };
 
+    LoadFile = function (AFile, AFileCount) {
+        var reader = new FileReader();
+
+        // Closure to capture the file information.
+        reader.onload = function (e) {
+            var FR = new TFileRecord(AFile.name, AFile.size);
+            FR.data.writeString(e.target.result);
+            FR.data.position = 0;
+            FYModemSend.Upload(FR, AFileCount);
+        };
+
+        // Read in the image file as a data URL.
+        reader.readAsBinaryString(AFile);
+    };
+
     this.Upload = function (AFiles) {
         if (FConnection === null) { return; }
         if (!FConnection.connected) { return; }
@@ -610,20 +626,7 @@ var THtmlTerm = function () {
         // Loop through the FileList and prep them for upload
         var i;
         for (i = 0; i < AFiles.length; i++) {
-            var reader = new FileReader();
-
-            // Closure to capture the file information.
-            reader.onload = (function (theFile) {
-                return function (e) {
-                    var FR = new TFileRecord(theFile.name, theFile.size);
-                    FR.data.writeString(e.target.result);
-                    FR.data.position = 0;
-                    FYModemSend.Upload(FR, AFiles.length);
-                };
-            })(AFiles[i]);
-
-            // Read in the image file as a data URL.
-            reader.readAsBinaryString(AFiles[i]);
+            LoadFile(AFiles[i], AFiles.length);
         }
     };
 
