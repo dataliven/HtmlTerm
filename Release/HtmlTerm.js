@@ -1315,8 +1315,6 @@ ProgressBarStyle = new TProgressBarStyle();
   You should have received a copy of the GNU General Public License
   along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
 */
-/// <reference path="cursor/TCursor.js" />
-
 var Crt = function () { }; // Do nothing
 var TCrt = function () {
     /// <summary>
@@ -1379,10 +1377,10 @@ var TCrt = function () {
     var OnKeyDown = function (ke) { }; // Do nothing
     var OnKeyPress = function (ke) { }; // Do nothing
 
-    Array.prototype.InitTwoDimensions = function (x, y) {
+    Array.prototype.InitTwoDimensions = function (y, x) {
         var i;
-        for (i = 0; i <= x; i++) {
-            this[i] = [y + 1];
+        for (i = 0; i <= y; i++) {
+            this[i] = [x + 1];
         }
     };
 
@@ -1594,7 +1592,7 @@ var TCrt = function () {
 
         var i;
         for (i = that.WhereXA() ; i <= that.WindMinX + that.WindCols - AChars; i++) {
-            that.FastWrite(String.fromCharCode(FBuffer[i + AChars][that.WhereYA()].x), i, that.WhereYA(), FBuffer[i + AChars][that.WhereYA()].y);
+            that.FastWrite(String.fromCharCode(FBuffer[that.WhereYA()][i + AChars].x), i, that.WhereYA(), FBuffer[that.WhereYA()][i + AChars].y);
         }
         for (i = that.WindMinX + that.WindCols + 1 - AChars; i <= that.WindMinX + that.WindCols; i++) {
             that.FastWrite(" ", i, that.WhereYA(), FTextAttr);
@@ -1640,8 +1638,8 @@ var TCrt = function () {
                 if (Char) { FContext.putImageData(Char, (AX - 1 + i) * FFont.Width, (AY - 1) * FFont.Height); }
 
                 if (AUpdateBuffer) {
-                    FBuffer[AX + i][AY].x = AText.charCodeAt(i);
-                    FBuffer[AX + i][AY].y = AAttr;
+                    FBuffer[AY][AX + i].x = AText.charCodeAt(i);
+                    FBuffer[AY][AX + i].y = AAttr;
                 }
 
                 if (AX + i >= FScreenSize.x) { break; }
@@ -1693,13 +1691,13 @@ var TCrt = function () {
     // Have to do this here because the static constructor doesn't seem to like the X and Y variables
     InitBuffer = function () {
         FBuffer = [];
-        FBuffer.InitTwoDimensions(FScreenSize.x, FScreenSize.y);
+        FBuffer.InitTwoDimensions(FScreenSize.y, FScreenSize.x);
 
         var X;
         var Y;
         for (Y = 1; Y <= FScreenSize.y; Y++) {
             for (X = 1; X <= FScreenSize.x; X++) {
-                FBuffer[X][Y] = new Point(32, 7);
+                FBuffer[Y][X] = new Point(32, 7);
             }
         }
     };
@@ -1709,7 +1707,7 @@ var TCrt = function () {
 
         var i;
         for (i = that.WindMinX + that.WindCols; i >= that.WhereXA() + AChars; i--) {
-            that.FastWrite(String.fromCharCode(FBuffer[i - AChars][that.WhereYA()].x), i, that.WhereYA(), FBuffer[i - AChars][that.WhereYA()].y);
+            that.FastWrite(String.fromCharCode(FBuffer[that.WhereYA()][i - AChars].x), i, that.WhereYA(), FBuffer[that.WhereYA()][i - AChars].y);
         }
         for (i = that.WhereXA() ; i < that.WhereXA() + AChars; i++) {
             that.FastWrite(" ", i, that.WhereYA(), FTextAttr);
@@ -1776,9 +1774,9 @@ var TCrt = function () {
             var Y;
             for (Y = 1; Y <= FScreenSize.y; Y++) {
                 for (X = 1; X <= FScreenSize.x; X++) {
-                    if ((FBuffer[X][Y].y & that.BLINK) === that.BLINK) {
-                        if (FBuffer[X][Y].x !== 32) {
-                            that.FastWrite(" ", X, Y, FBuffer[X][Y].y, false);
+                    if ((FBuffer[Y][X].y & that.BLINK) === that.BLINK) {
+                        if (FBuffer[Y][X].x !== 32) {
+                            that.FastWrite(" ", X, Y, FBuffer[Y][X].y, false);
                         }
                     }
                 }
@@ -1798,9 +1796,9 @@ var TCrt = function () {
             var Y;
             for (Y = 1; Y <= FScreenSize.y; Y++) {
                 for (X = 1; X <= FScreenSize.x; X++) {
-                    if ((FBuffer[X][Y].y & that.BLINK) === that.BLINK) {
-                        if (FBuffer[X][Y].x !== 32) {
-                            that.FastWrite(String.fromCharCode(FBuffer[X][Y].x), X, Y, FBuffer[X][Y].y, false);
+                    if ((FBuffer[Y][X].y & that.BLINK) === that.BLINK) {
+                        if (FBuffer[Y][X].x !== 32) {
+                            that.FastWrite(String.fromCharCode(FBuffer[Y][X].x), X, Y, FBuffer[Y][X].y, false);
                         }
                     }
                 }
@@ -1828,7 +1826,7 @@ var TCrt = function () {
         if (FBuffer !== null) {
             for (Y = 1; Y <= FScreenSize.y; Y++) {
                 for (X = 1; X <= FScreenSize.x; X++) {
-                    that.FastWrite(String.fromCharCode(FBuffer[X][Y].x), X, Y, FBuffer[X][Y].y, false);
+                    that.FastWrite(String.fromCharCode(FBuffer[Y][X].x), X, Y, FBuffer[Y][X].y, false);
                 }
             }
         }
@@ -1936,7 +1934,7 @@ var TCrt = function () {
         var Y;
         for (Y = 1; Y <= FScreenSize.y; Y++) {
             for (X = 1; X <= FScreenSize.x; X++) {
-                that.FastWrite(String.fromCharCode(FBuffer[X][Y].x), X, Y, FBuffer[X][Y].y, false);
+                that.FastWrite(String.fromCharCode(FBuffer[Y][X].x), X, Y, FBuffer[Y][X].y, false);
             }
         }
     };
@@ -1966,13 +1964,13 @@ var TCrt = function () {
     // TODO This doesn't match Crt.as -- which is correct?
     this.SaveScreen = function (ALeft, ATop, ARight, ABottom) {
         var Result = [];
-        Result.InitTwoDimensions(FScreenSize.x, FScreenSize.y);
+        Result.InitTwoDimensions(FScreenSize.y, FScreenSize.x);
 
         var X;
         var Y;
         for (Y = ATop; Y <= ABottom; Y++) {
             for (X = ALeft; X <= ARight; X++) {
-                Result[X][Y] = new Point(FBuffer[X][Y].x, FBuffer[X][Y].y);
+                Result[Y][X] = new Point(FBuffer[Y][X].x, FBuffer[Y][X].y);
             }
         }
 
@@ -2033,16 +2031,16 @@ var TCrt = function () {
         // First, shuffle the contents that are still visible
         for (Y = AY2; Y > ALines; Y--) {
             for (X = AX1; X <= AX2; X++) {
-                FBuffer[X][Y].x = FBuffer[X][Y - ALines].x;
-                FBuffer[X][Y].y = FBuffer[X][Y - ALines].y;
+                FBuffer[Y][X].x = FBuffer[Y - ALines][X].x;
+                FBuffer[Y][X].y = FBuffer[Y - ALines][X].y;
             }
         }
 
         // Then, blank the contents that are not
         for (Y = AY1; Y <= ALines; Y++) {
             for (X = AX1; X <= AX2; X++) {
-                FBuffer[X][Y].x = 32; // Blank
-                FBuffer[X][Y].y = AAttr;
+                FBuffer[Y][X].x = 32; // Blank
+                FBuffer[Y][X].y = AAttr;
             }
         }
     };
@@ -2109,16 +2107,16 @@ var TCrt = function () {
         // First, shuffle the contents that are still visible
         for (Y = AY1; Y <= (AY2 - ALines) ; Y++) {
             for (X = AX1; X <= AX2; X++) {
-                FBuffer[X][Y].x = FBuffer[X][Y + ALines].x;
-                FBuffer[X][Y].y = FBuffer[X][Y + ALines].y;
+                FBuffer[Y][X].x = FBuffer[Y + ALines][X].x;
+                FBuffer[Y][X].y = FBuffer[Y + ALines][X].y;
             }
         }
 
         // Then, blank the contents that are not
         for (Y = AY2; Y > (AY2 - ALines) ; Y--) {
             for (X = AX1; X <= AX2; X++) {
-                FBuffer[X][Y].x = 32; // Blank
-                FBuffer[X][Y].y = AAttr;
+                FBuffer[Y][X].x = 32; // Blank
+                FBuffer[Y][X].y = AAttr;
             }
         }
     };
@@ -2172,7 +2170,7 @@ var TCrt = function () {
             FOldBuffer.InitTwoDimensions(FScreenSize.x, FScreenSize.y);
             for (Y = 1; Y <= FScreenSize.y; Y++) {
                 for (X = 1; X <= FScreenSize.x; X++) {
-                    FOldBuffer[X][Y] = new Point(FBuffer[X][Y].x, FBuffer[X][Y].y);
+                    FOldBuffer[Y][X] = new Point(FBuffer[Y][X].x, FBuffer[Y][X].y);
                 }
             }
         }
@@ -2188,10 +2186,10 @@ var TCrt = function () {
 
         // Reset the screen buffer 
         FBuffer = [];
-        FBuffer.InitTwoDimensions(FScreenSize.x, FScreenSize.y);
+        FBuffer.InitTwoDimensions(FScreenSize.y, FScreenSize.x);
         for (Y = 1; Y <= FScreenSize.y; Y++) {
             for (X = 1; X <= FScreenSize.x; X++) {
-                FBuffer[X][Y] = new Point(32, 7);
+                FBuffer[Y][X] = new Point(32, 7);
             }
         }
 
@@ -2206,7 +2204,7 @@ var TCrt = function () {
         if (FOldBuffer !== null) {
             for (Y = 1; Y <= Math.min(FScreenSize.y, FOldScreenSize.y) ; Y++) {
                 for (X = 1; X <= Math.min(FScreenSize.x, FOldScreenSize.x) ; X++) {
-                    that.FastWrite(String.fromCharCode(FOldBuffer[X][Y].x), X, Y, FOldBuffer[X][Y].y);
+                    that.FastWrite(String.fromCharCode(FOldBuffer[Y][X].x), X, Y, FOldBuffer[Y][X].y);
                 }
             }
         }
@@ -5136,8 +5134,6 @@ var TYModemSend = function (ATelnet) {
   You should have received a copy of the GNU General Public License
   along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
 */
-/// <reference path="randm/crt/Crt.js" />
-
 var HtmlTerm = function () { }; // Do nothing
 var THtmlTerm = function () {
     // Private variables
@@ -5716,19 +5712,19 @@ var THtmlTerm = function () {
         FTimer = setInterval(OnTimer, 50);
     };
 
-    LoadFile = function (f, len) {
+    LoadFile = function (AFile, AFileCount) {
         var reader = new FileReader();
 
         // Closure to capture the file information.
         reader.onload = function (e) {
-            var FR = new TFileRecord(f.name, f.size);
+            var FR = new TFileRecord(AFile.name, AFile.size);
             FR.data.writeString(e.target.result);
             FR.data.position = 0;
-            FYModemSend.Upload(FR, len);
+            FYModemSend.Upload(FR, AFileCount);
         };
 
         // Read in the image file as a data URL.
-        reader.readAsBinaryString(f);
+        reader.readAsBinaryString(AFile);
     };
 
     this.Upload = function (AFiles) {

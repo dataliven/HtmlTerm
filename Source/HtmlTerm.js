@@ -17,8 +17,6 @@
   You should have received a copy of the GNU General Public License
   along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
 */
-/// <reference path="randm/crt/Crt.js" />
-
 var HtmlTerm = function () { }; // Do nothing
 var THtmlTerm = function () {
     // Private variables
