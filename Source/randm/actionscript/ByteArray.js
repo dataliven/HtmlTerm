@@ -147,6 +147,11 @@ var ByteArray = function () {
         bytes.position = BytesPosition;
     };
 
+    this.writeShort = function (value) {
+        that.writeByte((value & 0xFF00) >> 8);
+        that.writeByte(value & 0x00FF);
+    };
+
     this.writeString = function (AText) {
         var i;
         var ATextlength = AText.length;

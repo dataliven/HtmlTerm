@@ -594,43 +594,36 @@ var THtmlTerm = function () {
     OnUploadComplete = function (e) {
         // Restart listeners for keyboard and connection data
         FTimer = setInterval(OnTimer, 50);
-        FYModemSend.removeEventListener('TRANSFER_COMPLETE', OnUploadComplete, false);
     };
 
-    OnUploadListFileLoad = function (e) {
-        // Upload the file
-        FYModemSend.Upload(FileReference(e.target), FUploadList.fileList.length);
-    };
-
-    OnUploadListFileSelect = function (e) {
-        // Get the YModemSend class ready to go
-        //TODO FYModemSend = new TYModemSend(FConnection);
-
-        // Setup the listeners
-        clearInterval(FTimer);
-        FYModemSend.addEventListener('TRANSFER_COMPLETE', OnUploadComplete, false);
-
-        /*TODO
-        FUploadList.removeEventListener(Event.SELECT, OnUploadListFileSelect, false);
-
-        var i;
-        for (i = 0; i < FUploadList.fileList.length; i++) {
-        FileReference(FUploadList.fileList[i]).addEventListener(Event.COMPLETE, OnUploadListFileLoad, false);
-        FileReference(FUploadList.fileList[i]).load();
-        }
-        */
-    };
-
-    OnUploadMenuClick = function (cme) {
+    this.Upload = function (AFiles) {
         if (FConnection === null) { return; }
         if (!FConnection.connected) { return; }
 
-        // Create the upload reference
-        /*TODO
-        FUploadList = new FileReferenceList();
-        FUploadList.addEventListener(Event.SELECT, OnUploadListFileSelect, false);
-        FUploadList.browse();
-        */
+        // Get the YModemSend class ready to go
+        FYModemSend = new TYModemSend(FConnection);
+
+        // Setup the listeners
+        clearInterval(FTimer);
+        FYModemSend.ontransfercomplete = OnUploadComplete;
+
+        // Loop through the FileList and prep them for upload
+        var i;
+        for (i = 0; i < AFiles.length; i++) {
+            var reader = new FileReader();
+
+            // Closure to capture the file information.
+            reader.onload = (function (theFile) {
+                return function (e) {
+                    var FR = new TFileRecord(theFile.name, theFile.size);
+                    FR.data.writeString(e.target.result);
+                    FYModemSend.Upload(FR, AFiles.length);
+                };
+            })(AFiles[i]);
+
+            // Read in the image file as a data URL.
+            reader.readAsBinaryString(AFiles[i]);
+        }
     };
 
     OnWebPageMenuClick = function (cme) {
