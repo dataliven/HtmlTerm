@@ -2167,6 +2167,10 @@ var TCrt = function () {
         that.ScrollUpCustom(that.WindMinX + 1, that.WindMinY + 1, that.WindMaxX + 1, that.WindMaxY + 1, ALines, FCharInfo);
     };
 
+    this.SetBlink = function (ABlink) {
+        FCharInfo.Blink = ABlink;
+    };
+
     this.SetBlinkRate = function (AMS) {
         FCursor.BlinkRate = AMS;
     };
