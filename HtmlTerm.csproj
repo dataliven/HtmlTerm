@@ -77,6 +77,7 @@
     <Content Include="Source\randm\ansi\ESCQEvent.js" />
     <Content Include="Source\randm\crt\BorderStyle.js" />
     <Content Include="Source\randm\crt\ContentAlignment.js" />
+    <Content Include="Source\randm\crt\TCharInfo.js" />
     <Content Include="Source\randm\crt\Crt.js" />
     <Content Include="Source\randm\crt\cursor\BlinkState.js" />
     <Content Include="Source\randm\crt\cursor\TCursor.js" />

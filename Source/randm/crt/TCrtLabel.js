@@ -32,7 +32,7 @@ var TCrtLabel = function (AParent, ALeft, ATop, AWidth, AText, ATextAlign, AFore
             case ContentAlignment.Center:
                 if (FText.length >= that.Width) {
                     // Text is greater than available space so chop it off with PadRight()
-                    Crt.FastWrite(FText.substring(0, that.Width), that.ScreenLeft, that.ScreenTop, that.ForeColour + (that.BackColour << 4));
+                    Crt.FastWrite(FText.substring(0, that.Width), that.ScreenLeft, that.ScreenTop, new TCharInfo(" ", that.ForeColour + (that.BackColour << 4)));
                 } else {
                     // Text needs to be centered
                     var i = 0;
@@ -44,14 +44,14 @@ var TCrtLabel = function (AParent, ALeft, ATop, AWidth, AText, ATextAlign, AFore
                     for (i = 0; i < that.Width - FText.length - LeftSpaces.length; i++) {
                         RightSpaces += " ";
                     }
-                    Crt.FastWrite(LeftSpaces + FText + RightSpaces, that.ScreenLeft, that.ScreenTop, that.ForeColour + (that.BackColour << 4));
+                    Crt.FastWrite(LeftSpaces + FText + RightSpaces, that.ScreenLeft, that.ScreenTop, new TCharInfo(" ", that.ForeColour + (that.BackColour << 4)));
                 }
                 break;
             case ContentAlignment.Left:
-                Crt.FastWrite(StringUtils.PadRight(FText, ' ', that.Width), that.ScreenLeft, that.ScreenTop, that.ForeColour + (that.BackColour << 4));
+                Crt.FastWrite(StringUtils.PadRight(FText, ' ', that.Width), that.ScreenLeft, that.ScreenTop, new TCharInfo(" ", that.ForeColour + (that.BackColour << 4)));
                 break;
             case ContentAlignment.Right:
-                Crt.FastWrite(StringUtils.PadLeft(FText, ' ', that.Width), that.ScreenLeft, that.ScreenTop, that.ForeColour + (that.BackColour << 4));
+                Crt.FastWrite(StringUtils.PadLeft(FText, ' ', that.Width), that.ScreenLeft, that.ScreenTop, new TCharInfo(" ", that.ForeColour + (that.BackColour << 4)));
                 break;
         }
     };

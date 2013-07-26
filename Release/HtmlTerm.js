@@ -1315,6 +1315,35 @@ ProgressBarStyle = new TProgressBarStyle();
   You should have received a copy of the GNU General Public License
   along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
 */
+var TCharInfo = function (ACh, AAttr, ABlink, AUnderline) {
+    // Handle optional parameters
+    if (typeof ABlink === "undefined") { ABlink = false; }
+    if (typeof AUnderline === "undefined") { AUnderline = false; }
+
+    // Constructor
+    this.Ch = ACh;
+    this.Attr = AAttr;
+    this.Blink = ABlink;
+    this.Underline = AUnderline;
+};/*
+  HtmlTerm: An HTML5 WebSocket client
+  Copyright (C) 2009-2013  Rick Parrish, R&M Software
+
+  This file is part of HtmlTerm.
+
+  HtmlTerm is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  any later version.
+
+  HtmlTerm is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
+*/
 var Crt = function () { }; // Do nothing
 var TCrt = function () {
     /// <summary>
@@ -1354,6 +1383,7 @@ var TCrt = function () {
     var FBlinkHidden;
     var FBuffer;
     var FCanvas;
+    var FCharInfo;
     var FContext;
     var FCursor;
     var FFont;
@@ -1361,7 +1391,6 @@ var TCrt = function () {
     var FLastChar;
     var FLocalEcho;
     var FScreenSize;
-    var FTextAttr;
     var FWindMin;
     var FWindMax;
 
@@ -1393,6 +1422,7 @@ var TCrt = function () {
         FBlinkHidden = false;
         // FBuffer
         // FCanvas
+        FCharInfo = new TCharInfo(" ", that.LIGHTGRAY, false, false);
         // FCursor
         FFont = new TFont();
         FFont.onchange = OnFontChanged;
@@ -1400,7 +1430,6 @@ var TCrt = function () {
         FLastChar = 0;
         FLocalEcho = false;
         FScreenSize = new Point(80, 25);
-        FTextAttr = 7;
         // FWindMin
         // FWindMax
 
@@ -1485,7 +1514,7 @@ var TCrt = function () {
         ///
         /// ClrBol is window-relative.
         /// </remarks>
-        that.FastWrite(StringUtils.NewString(' ', that.WhereX()), that.WindMinX + 1, that.WhereYA(), FTextAttr);
+        that.FastWrite(StringUtils.NewString(' ', that.WhereX()), that.WindMinX + 1, that.WhereYA(), FCharInfo);
     };
 
     this.ClrBos = function () {
@@ -1519,7 +1548,7 @@ var TCrt = function () {
         ///
         /// ClrEol is window-relative.
         /// </remarks>
-        that.FastWrite(StringUtils.NewString(' ', (that.WindMaxX + 1) - that.WhereX() + 1), that.WhereXA(), that.WhereYA(), FTextAttr);
+        that.FastWrite(StringUtils.NewString(' ', (that.WindMaxX + 1) - that.WhereX() + 1), that.WhereXA(), that.WhereYA(), FCharInfo);
     };
 
     this.ClrEos = function () {
@@ -1553,7 +1582,7 @@ var TCrt = function () {
         ///
         /// ClrLine is window-relative.
         /// </remarks>
-        that.FastWrite(StringUtils.NewString(' ', that.WindCols), that.WindMinX + 1, that.WhereYA(), FTextAttr);
+        that.FastWrite(StringUtils.NewString(' ', that.WindCols), that.WindMinX + 1, that.WhereYA(), FCharInfo);
     };
 
     this.ClrScr = function () {
@@ -1574,13 +1603,7 @@ var TCrt = function () {
 
     this.Conceal = function () {
         // Set the foreground to the background
-        var BG = 0;
-        if (FBlink) {
-            BG = ((FTextAttr & 0x70) >> 4);
-        } else {
-            BG = ((FTextAttr & 0xF0) >> 4);
-        }
-        that.TextColor(BG);
+        that.TextColor((that.TextAttr & 0xF0) >> 4);
     };
 
     this.__defineGetter__("Cursor", function () {
@@ -1592,10 +1615,10 @@ var TCrt = function () {
 
         var i;
         for (i = that.WhereXA() ; i <= that.WindMinX + that.WindCols - AChars; i++) {
-            that.FastWrite(String.fromCharCode(FBuffer[that.WhereYA()][i + AChars].x), i, that.WhereYA(), FBuffer[that.WhereYA()][i + AChars].y);
+            that.FastWrite(FBuffer[that.WhereYA()][i + AChars].Ch, i, that.WhereYA(), FBuffer[that.WhereYA()][i + AChars]);
         }
         for (i = that.WindMinX + that.WindCols + 1 - AChars; i <= that.WindMinX + that.WindCols; i++) {
-            that.FastWrite(" ", i, that.WhereYA(), FTextAttr);
+            that.FastWrite(" ", i, that.WhereYA(), FCharInfo);
         }
     };
 
@@ -1612,10 +1635,10 @@ var TCrt = function () {
         /// background color.
         /// </remarks>
         if (ALines === undefined) { ALines = 1; }
-        that.ScrollUpCustom(that.WindMinX + 1, that.WhereYA(), that.WindMaxX + 1, that.WindMaxY + 1, ALines, FTextAttr);
+        that.ScrollUpCustom(that.WindMinX + 1, that.WhereYA(), that.WindMaxX + 1, that.WindMaxY + 1, ALines, FCharInfo);
     };
 
-    this.FastWrite = function (AText, AX, AY, AAttr, AUpdateBuffer) {
+    this.FastWrite = function (AText, AX, AY, ACharInfo, AUpdateBuffer) {
         /// <summary>
         /// Writes a string of text at the desired X/Y coordinate with the given text attribute.
         /// 
@@ -1624,22 +1647,21 @@ var TCrt = function () {
         /// <param name="AText" type="String">The text to write</param>
         /// <param name="AX" type="Number" integer="true">The 1-based column to start the text</param>
         /// <param name="AY" type="Number" integer="true">The 1-based row to start the text</param>
-        /// <param name="AAttr" type="Number" integer="true">The text attribute to colour the text</param>
+        /// <param name="ACharInfo" type="TCharInfo">The text attribute to colour the text</param>
         /// <param name="AUpdateBuffer" type="Boolean" optional="true">Whether to update the internal buffer or not (default is true)</param>
         if (AUpdateBuffer === undefined) { AUpdateBuffer = true; }
 
         if ((AX <= FScreenSize.x) && (AY <= FScreenSize.y)) {
-            // Remove high background if blinking is enabled
-            var CharAttr = (FBlink) ? AAttr & 0x7F : AAttr;
-
             var i;
             for (i = 0; i < AText.length; i++) {
-                var Char = FFont.GetChar(AText.charCodeAt(i), CharAttr);
+                var Char = FFont.GetChar(AText.charCodeAt(i), ACharInfo.Attr);
                 if (Char) { FContext.putImageData(Char, (AX - 1 + i) * FFont.Width, (AY - 1) * FFont.Height); }
 
                 if (AUpdateBuffer) {
-                    FBuffer[AY][AX + i].x = AText.charCodeAt(i);
-                    FBuffer[AY][AX + i].y = AAttr;
+                    FBuffer[AY][AX + i].Ch = AText.charAt(i);
+                    FBuffer[AY][AX + i].Attr = ACharInfo.Attr;
+                    FBuffer[AY][AX + i].Blink = ACharInfo.Blink;
+                    FBuffer[AY][AX + i].Underline = ACharInfo.Underline;
                 }
 
                 if (AX + i >= FScreenSize.x) { break; }
@@ -1652,8 +1674,12 @@ var TCrt = function () {
 
         var Y;
         for (Y = 1; Y <= that.ScreenRows; Y++) {
-            that.FastWrite(Line, 1, Y, FTextAttr);
+            that.FastWrite(Line, 1, Y, FCharInfo);
         }
+    };
+
+    this.GetCharInfo = function () {
+        return FCharInfo;
     };
 
     this.GotoXY = function (AX, AY) {
@@ -1685,7 +1711,7 @@ var TCrt = function () {
         /// video attribute. HighVideo sets the high intensity bit of TextAttr's
         /// fore-ground color, thus mapping colors 0-7 onto colors 8-15.
         /// </remarks>
-        FTextAttr |= 0x08;
+        that.TextAttr |= 0x08;
     };
 
     // Have to do this here because the static constructor doesn't seem to like the X and Y variables
@@ -1697,7 +1723,7 @@ var TCrt = function () {
         var Y;
         for (Y = 1; Y <= FScreenSize.y; Y++) {
             for (X = 1; X <= FScreenSize.x; X++) {
-                FBuffer[Y][X] = new Point(32, 7);
+                FBuffer[Y][X] = new TCharInfo(" ", that.LIGHTGRAY, false, false);
             }
         }
     };
@@ -1707,10 +1733,10 @@ var TCrt = function () {
 
         var i;
         for (i = that.WindMinX + that.WindCols; i >= that.WhereXA() + AChars; i--) {
-            that.FastWrite(String.fromCharCode(FBuffer[that.WhereYA()][i - AChars].x), i, that.WhereYA(), FBuffer[that.WhereYA()][i - AChars].y);
+            that.FastWrite(FBuffer[that.WhereYA()][i - AChars].Ch, i, that.WhereYA(), FBuffer[that.WhereYA()][i - AChars]);
         }
         for (i = that.WhereXA() ; i < that.WhereXA() + AChars; i++) {
-            that.FastWrite(" ", i, that.WhereYA(), FTextAttr);
+            that.FastWrite(" ", i, that.WhereYA(), FCharInfo);
         }
     };
 
@@ -1729,7 +1755,7 @@ var TCrt = function () {
         /// InsLine is window-relative.
         /// </remarks>
         if (ALines === undefined) { ALines = 1; }
-        that.ScrollDownCustom(that.WindMinX + 1, that.WhereYA(), that.WindMaxX + 1, that.WindMaxY + 1, ALines, FTextAttr);
+        that.ScrollDownCustom(that.WindMinX + 1, that.WhereYA(), that.WindMaxX + 1, that.WindMaxY + 1, ALines, FCharInfo);
 
     };
 
@@ -1750,7 +1776,7 @@ var TCrt = function () {
         /// attribute. LowVideo clears the high-intensity bit of TextAttr's foreground
         /// color, thus mapping colors 8 to 15 onto colors 0 to 7.
         /// </remarks>
-        FTextAttr &= 0xF7;
+        that.TextAttr &= 0xF7;
     };
 
     this.NormVideo = function () {
@@ -1762,7 +1788,9 @@ var TCrt = function () {
         /// attribute. NormVideo restores TextAttr to the value it had when the program
         /// was started.
         /// </remarks>
-        FTextAttr = that.LIGHTGRAY;
+        FCharInfo.Attr = that.LIGHTGRAY;
+        FCharInfo.Blink = false;
+        FCharInfo.Underline = false;
     };
 
     OnBlinkHide = function (e) {
@@ -1774,9 +1802,9 @@ var TCrt = function () {
             var Y;
             for (Y = 1; Y <= FScreenSize.y; Y++) {
                 for (X = 1; X <= FScreenSize.x; X++) {
-                    if ((FBuffer[Y][X].y & that.BLINK) === that.BLINK) {
-                        if (FBuffer[Y][X].x !== 32) {
-                            that.FastWrite(" ", X, Y, FBuffer[Y][X].y, false);
+                    if (FBuffer[Y][X].Blink) {
+                        if (FBuffer[Y][X].Ch !== " ") {
+                            that.FastWrite(" ", X, Y, FBuffer[Y][X], false);
                         }
                     }
                 }
@@ -1796,9 +1824,9 @@ var TCrt = function () {
             var Y;
             for (Y = 1; Y <= FScreenSize.y; Y++) {
                 for (X = 1; X <= FScreenSize.x; X++) {
-                    if ((FBuffer[Y][X].y & that.BLINK) === that.BLINK) {
-                        if (FBuffer[Y][X].x !== 32) {
-                            that.FastWrite(String.fromCharCode(FBuffer[Y][X].x), X, Y, FBuffer[Y][X].y, false);
+                    if (FBuffer[Y][X].Blink) {
+                        if (FBuffer[Y][X].Ch !== " ") {
+                            that.FastWrite(FBuffer[Y][X].Ch, X, Y, FBuffer[Y][X], false);
                         }
                     }
                 }
@@ -1826,7 +1854,7 @@ var TCrt = function () {
         if (FBuffer !== null) {
             for (Y = 1; Y <= FScreenSize.y; Y++) {
                 for (X = 1; X <= FScreenSize.x; X++) {
-                    that.FastWrite(String.fromCharCode(FBuffer[Y][X].x), X, Y, FBuffer[Y][X].y, false);
+                    that.FastWrite(FBuffer[Y][X].Ch, X, Y, FBuffer[Y][X], false);
                 }
             }
         }
@@ -1934,7 +1962,7 @@ var TCrt = function () {
         var Y;
         for (Y = 1; Y <= FScreenSize.y; Y++) {
             for (X = 1; X <= FScreenSize.x; X++) {
-                that.FastWrite(String.fromCharCode(FBuffer[Y][X].x), X, Y, FBuffer[Y][X].y, false);
+                that.FastWrite(FBuffer[Y][X].Ch, X, Y, FBuffer[Y][X], false);
             }
         }
     };
@@ -1945,7 +1973,7 @@ var TCrt = function () {
         var Y;
         for (Y = ATop; Y <= ABottom; Y++) {
             for (X = ALeft; X <= ARight; X++) {
-                that.FastWrite(String.fromCharCode(ABuffer[X][Y].x), X, Y, ABuffer[X][Y].y);
+                that.FastWrite(ABuffer[Y][X].Ch, X, Y, ABuffer[Y][X]);
             }
         }
     };
@@ -1954,11 +1982,7 @@ var TCrt = function () {
         /// <summary>
         /// Reverses the foreground and background text attributes
         /// </summary>
-        if (FBlink) {
-            FTextAttr = ((FTextAttr & 0x70) >> 4) | ((FTextAttr & 0x07) << 4);
-        } else {
-            FTextAttr = ((FTextAttr & 0xF0) >> 4) | ((FTextAttr & 0x0F) << 4);
-        }
+        that.TextAttr = ((that.TextAttr & 0xF0) >> 4) | ((that.TextAttr & 0x0F) << 4);
     };
 
     // TODO This doesn't match Crt.as -- which is correct?
@@ -1970,7 +1994,7 @@ var TCrt = function () {
         var Y;
         for (Y = ATop; Y <= ABottom; Y++) {
             for (X = ALeft; X <= ARight; X++) {
-                Result[Y][X] = new Point(FBuffer[Y][X].x, FBuffer[Y][X].y);
+                Result[Y][X] = new TCharInfo(FBuffer[Y][X].Ch, FBuffer[Y][X].Attr, FBuffer[Y][X].Blink, FBuffer[Y][X].Underline);
             }
         }
 
@@ -1985,7 +2009,7 @@ var TCrt = function () {
         return FScreenSize.y;
     });
 
-    this.ScrollDownCustom = function (AX1, AY1, AX2, AY2, ALines, AAttr) {
+    this.ScrollDownCustom = function (AX1, AY1, AX2, AY2, ALines, ACharInfo) {
         /// <summary>
         /// Scrolls the given window down the given number of lines (leaving blank lines at the top), filling the void with the given character with the given text attribute
         /// </summary>
@@ -1995,14 +2019,13 @@ var TCrt = function () {
         /// <param name="AY2">The 1-based bottom row of the window</param>
         /// <param name="ALines">The number of lines to scroll</param>
         /// <param name="ACh">The character to fill the void with</param>
-        /// <param name="AAttr">The text attribute to fill the void with</param>
+        /// <param name="ACharInfo">The text attribute to fill the void with</param>
 
         // Validate the ALines parameter
         var MaxLines = AY2 - AY1 + 1;
         if (ALines > MaxLines) { ALines = MaxLines; }
 
-        var Back = (AAttr & 0xF0) >> 4;
-        if (FBlink) { Back &= 0x07; }
+        var Back = (ACharInfo.Attr & 0xF0) >> 4;
 
         // Scroll -- TODO Hasn't been tested yet
         var Left = (AX1 - 1) * FFont.Width;
@@ -2017,7 +2040,7 @@ var TCrt = function () {
         }
 
         // Blank -- TODO Hasn't been tested yet
-        FContext.fillStyle = (FBlink) ? FFont.HTML_COLOURS[(AAttr & 0x70) >> 4] : FFont.HTML_COLOURS[(AAttr & 0xF0) >> 4];
+        FContext.fillStyle = FFont.HTML_COLOURS[(ACharInfo.Attr & 0xF0) >> 4];
         Left = (AX1 - 1) * FFont.Width;
         Top = (AY1 - 1) * FFont.Height;
         Width = (AX2 - AX1 + 1) * FFont.Width;
@@ -2031,16 +2054,20 @@ var TCrt = function () {
         // First, shuffle the contents that are still visible
         for (Y = AY2; Y > ALines; Y--) {
             for (X = AX1; X <= AX2; X++) {
-                FBuffer[Y][X].x = FBuffer[Y - ALines][X].x;
-                FBuffer[Y][X].y = FBuffer[Y - ALines][X].y;
+                FBuffer[Y][X].Ch = FBuffer[Y - ALines][X].Ch;
+                FBuffer[Y][X].Attr = FBuffer[Y - ALines][X].Attr;
+                FBuffer[Y][X].Blink = FBuffer[Y - ALines][X].Blink;
+                FBuffer[Y][X].Underline = FBuffer[Y - ALines][X].Underline;
             }
         }
 
         // Then, blank the contents that are not
         for (Y = AY1; Y <= ALines; Y++) {
             for (X = AX1; X <= AX2; X++) {
-                FBuffer[Y][X].x = 32; // Blank
-                FBuffer[Y][X].y = AAttr;
+                FBuffer[Y][X].Ch = ACharInfo.Ch;
+                FBuffer[Y][X].Attr = ACharInfo.Attr;
+                FBuffer[Y][X].Blink = ACharInfo.Blink;
+                FBuffer[Y][X].Underline = ACharInfo.Underline;
             }
         }
     };
@@ -2050,7 +2077,7 @@ var TCrt = function () {
         /// Scrolls the screen down the given number of lines (leaving blanks at the top)
         /// </summary>
         /// <param name="ALines">The number of lines to scroll</param>
-        that.ScrollDownCustom(1, 1, FScreenSize.x, FScreenSize.y, ALines, FTextAttr);
+        that.ScrollDownCustom(1, 1, FScreenSize.x, FScreenSize.y, ALines, FCharInfo);
     };
 
     this.ScrollDownWindow = function (ALines) {
@@ -2058,10 +2085,10 @@ var TCrt = function () {
         /// Scrolls the current window down the given number of lines (leaving blanks at the top)
         /// </summary>
         /// <param name="ALines">The number of lines to scroll</param>
-        that.ScrollDownCustom(that.WindMinX + 1, that.WindMinY + 1, that.WindMaxX + 1, that.WindMaxY + 1, ALines, FTextAttr);
+        that.ScrollDownCustom(that.WindMinX + 1, that.WindMinY + 1, that.WindMaxX + 1, that.WindMaxY + 1, ALines, FCharInfo);
     };
 
-    this.ScrollUpCustom = function (AX1, AY1, AX2, AY2, ALines, AAttr) {
+    this.ScrollUpCustom = function (AX1, AY1, AX2, AY2, ALines, ACharInfo) {
         /// <summary>
         /// Scrolls the given window up the given number of lines (leaving blank lines at the bottom), filling the void with the given character with the given text attribute
         /// </summary>
@@ -2071,14 +2098,13 @@ var TCrt = function () {
         /// <param name="AY2">The 1-based bottom row of the window</param>
         /// <param name="ALines">The number of lines to scroll</param>
         /// <param name="ACh">The character to fill the void with</param>
-        /// <param name="AAttr">The text attribute to fill the void with</param>
+        /// <param name="ACharInfo">The text attribute to fill the void with</param>
 
         // Validate the ALines parameter
         var MaxLines = AY2 - AY1 + 1;
         if (ALines > MaxLines) { ALines = MaxLines; }
 
-        var Back = (AAttr & 0xF0) >> 4;
-        if (FBlink) { Back &= 0x07; }
+        var Back = (ACharInfo.Attr & 0xF0) >> 4;
 
         // Scroll
         var Left = (AX1 - 1) * FFont.Width;
@@ -2093,7 +2119,7 @@ var TCrt = function () {
         }
 
         // Blank
-        FContext.fillStyle = (FBlink) ? FFont.HTML_COLOURS[(AAttr & 0x70) >> 4] : FFont.HTML_COLOURS[(AAttr & 0xF0) >> 4];
+        FContext.fillStyle = FFont.HTML_COLOURS[(ACharInfo.Attr & 0xF0) >> 4];
         Left = (AX1 - 1) * FFont.Width;
         Top = (AY2 - ALines) * FFont.Height;
         Width = (AX2 - AX1 + 1) * FFont.Width;
@@ -2107,16 +2133,20 @@ var TCrt = function () {
         // First, shuffle the contents that are still visible
         for (Y = AY1; Y <= (AY2 - ALines) ; Y++) {
             for (X = AX1; X <= AX2; X++) {
-                FBuffer[Y][X].x = FBuffer[Y + ALines][X].x;
-                FBuffer[Y][X].y = FBuffer[Y + ALines][X].y;
+                FBuffer[Y][X].Ch = FBuffer[Y + ALines][X].Ch;
+                FBuffer[Y][X].Attr = FBuffer[Y + ALines][X].Attr;
+                FBuffer[Y][X].Blink = FBuffer[Y + ALines][X].Blink;
+                FBuffer[Y][X].Underline = FBuffer[Y + ALines][X].Underline;
             }
         }
 
         // Then, blank the contents that are not
         for (Y = AY2; Y > (AY2 - ALines) ; Y--) {
             for (X = AX1; X <= AX2; X++) {
-                FBuffer[Y][X].x = 32; // Blank
-                FBuffer[Y][X].y = AAttr;
+                FBuffer[Y][X].Ch = ACharInfo.Ch;
+                FBuffer[Y][X].Attr = ACharInfo.Attr;
+                FBuffer[Y][X].Blink = ACharInfo.Blink;
+                FBuffer[Y][X].Underline = ACharInfo.Underline;
             }
         }
     };
@@ -2126,7 +2156,7 @@ var TCrt = function () {
         /// Scrolls the screen up the given number of lines (leaving blanks at the bottom)
         /// </summary>
         /// <param name="ALines">The number of lines to scroll</param>
-        that.ScrollUpCustom(1, 1, FScreenSize.x, FScreenSize.y, ALines, FTextAttr);
+        that.ScrollUpCustom(1, 1, FScreenSize.x, FScreenSize.y, ALines, FCharInfo);
     };
 
     this.ScrollUpWindow = function (ALines) {
@@ -2134,11 +2164,15 @@ var TCrt = function () {
         /// Scrolls the current window up the given number of lines (leaving blanks at the bottom)
         /// </summary>
         /// <param name="ALines">The number of lines to scroll</param>
-        that.ScrollUpCustom(that.WindMinX + 1, that.WindMinY + 1, that.WindMaxX + 1, that.WindMaxY + 1, ALines, FTextAttr);
+        that.ScrollUpCustom(that.WindMinX + 1, that.WindMinY + 1, that.WindMaxX + 1, that.WindMaxY + 1, ALines, FCharInfo);
     };
 
     this.SetBlinkRate = function (AMS) {
         FCursor.BlinkRate = AMS;
+    };
+
+    this.SetCharInfo = function (ACharInfo) {
+        FCharInfo = new TCharInfo(ACharInfo.Ch, ACharInfo.Attr, ACharInfo.Blink, ACharInfo.Underline);
     };
 
     this.SetFont = function (ACodePage, AWidth, AHeight) {
@@ -2170,7 +2204,7 @@ var TCrt = function () {
             FOldBuffer.InitTwoDimensions(FScreenSize.x, FScreenSize.y);
             for (Y = 1; Y <= FScreenSize.y; Y++) {
                 for (X = 1; X <= FScreenSize.x; X++) {
-                    FOldBuffer[Y][X] = new Point(FBuffer[Y][X].x, FBuffer[Y][X].y);
+                    FOldBuffer[Y][X] = new TCharInfo(FBuffer[Y][X].Ch, FBuffer[Y][X].Attr, FBuffer[Y][X].Blink, FBuffer[Y][X].Underline);
                 }
             }
         }
@@ -2185,13 +2219,7 @@ var TCrt = function () {
         FWindMax = (FScreenSize.x - 1) | ((FScreenSize.y - 1) << 8);
 
         // Reset the screen buffer 
-        FBuffer = [];
-        FBuffer.InitTwoDimensions(FScreenSize.y, FScreenSize.x);
-        for (Y = 1; Y <= FScreenSize.y; Y++) {
-            for (X = 1; X <= FScreenSize.x; X++) {
-                FBuffer[Y][X] = new Point(32, 7);
-            }
-        }
+        InitBuffer();
 
         // Update the bitmap
         // TODO Why is this commented out?
@@ -2204,7 +2232,7 @@ var TCrt = function () {
         if (FOldBuffer !== null) {
             for (Y = 1; Y <= Math.min(FScreenSize.y, FOldScreenSize.y) ; Y++) {
                 for (X = 1; X <= Math.min(FScreenSize.x, FOldScreenSize.x) ; X++) {
-                    that.FastWrite(String.fromCharCode(FOldBuffer[Y][X].x), X, Y, FOldBuffer[Y][X].y);
+                    that.FastWrite(FOldBuffer[Y][X].Ch, X, Y, FOldBuffer[Y][X]);
                 }
             }
         }
@@ -2231,11 +2259,11 @@ var TCrt = function () {
         ///
         /// However, you can also set them by directly storing a value in TextAttr.
         /// </remarks>
-        return FTextAttr;
+        return FCharInfo.Attr;
     });
 
     this.__defineSetter__("TextAttr", function (AAttr) {
-        FTextAttr = AAttr;
+        FCharInfo.Attr = AAttr;
     });
 
     this.TextBackground = function (AColor) {
@@ -2252,11 +2280,7 @@ var TCrt = function () {
         /// specified color.
         /// </remarks>
         /// <param name="AColor">The colour to set the background to</param>
-        if (FBlink) {
-            FTextAttr = (FTextAttr & 0x8F) | ((AColor & 0x07) << 4);
-        } else {
-            FTextAttr = (FTextAttr & 0x0F) | ((AColor & 0x0F) << 4);
-        }
+        that.TextAttr = (that.TextAttr & 0x0F) | ((AColor & 0x0F) << 4);
     };
 
     this.TextColor = function (AColor) {
@@ -2279,7 +2303,7 @@ var TCrt = function () {
         /// color.
         /// </remarks>
         /// <param name="AColor">The colour to set the foreground to</param>
-        FTextAttr = (FTextAttr & 0xF0) | (AColor & 0x0F);
+        that.TextAttr = (that.TextAttr & 0xF0) | (AColor & 0x0F);
     };
 
     this.WhereX = function () {
@@ -2456,7 +2480,7 @@ var TCrt = function () {
             }
             else if (AText.charCodeAt(i) === 0x08) {
                 // Backspace, need to flush buffer before moving cursor
-                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FTextAttr);
+                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FCharInfo);
                 X += Buf.length;
                 if (X > 1) { X -= 1; }
                 DoGoto = true;
@@ -2465,7 +2489,7 @@ var TCrt = function () {
             }
             else if (AText.charCodeAt(i) === 0x09) {
                 // Tab, need to flush buffer before moving cursor
-                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FTextAttr);
+                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FCharInfo);
                 X += Buf.length;
                 Buf = "";
 
@@ -2485,7 +2509,7 @@ var TCrt = function () {
             }
             else if (AText.charCodeAt(i) === 0x0A) {
                 // Line feed, need to flush buffer before moving cursor
-                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FTextAttr);
+                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FCharInfo);
                 X += Buf.length;
                 Y += 1;
                 DoGoto = true;
@@ -2503,7 +2527,7 @@ var TCrt = function () {
             }
             else if (AText.charCodeAt(i) === 0x0D) {
                 // Carriage return, need to flush buffer before moving cursor
-                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FTextAttr);
+                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FCharInfo);
                 X = 1;
                 DoGoto = true;
 
@@ -2516,7 +2540,7 @@ var TCrt = function () {
                 // Check if we've passed the right edge of the window
                 if ((X + Buf.length) > that.WindCols) {
                     // We have, need to flush buffer before moving cursor
-                    that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FTextAttr);
+                    that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FCharInfo);
                     Buf = "";
 
                     X = 1;
@@ -2538,7 +2562,7 @@ var TCrt = function () {
 
         // Flush remaining text in buffer if we have any
         if (Buf.length > 0) {
-            that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FTextAttr);
+            that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FCharInfo);
             X += Buf.length;
             that.GotoXY(X, Y);
         }
@@ -2566,7 +2590,7 @@ var TCrt = function () {
             }
             else if ((AText.charCodeAt(i) === 0x1C) && (!FATASCIIEscaped)) {
                 // Cursor up, need to flush buffer before moving cursor
-                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FTextAttr);
+                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FCharInfo);
                 X += Buf.length;
                 Y = (Y > 1) ? Y - 1 : that.WindRows;
                 DoGoto = true;
@@ -2575,7 +2599,7 @@ var TCrt = function () {
             }
             else if ((AText.charCodeAt(i) === 0x1D) && (!FATASCIIEscaped)) {
                 // Cursor down, need to flush buffer before moving cursor
-                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FTextAttr);
+                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FCharInfo);
                 X += Buf.length;
                 Y = (Y < that.WindRows) ? Y + 1 : 1;
                 DoGoto = true;
@@ -2584,7 +2608,7 @@ var TCrt = function () {
             }
             else if ((AText.charCodeAt(i) === 0x1E) && (!FATASCIIEscaped)) {
                 // Cursor left, need to flush buffer before moving cursor
-                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FTextAttr);
+                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FCharInfo);
                 X += Buf.length;
                 X = (X > 1) ? X - 1 : that.WindCols;
                 DoGoto = true;
@@ -2593,7 +2617,7 @@ var TCrt = function () {
             }
             else if ((AText.charCodeAt(i) === 0x1F) && (!FATASCIIEscaped)) {
                 // Cursor right, need to flush buffer before moving cursor
-                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FTextAttr);
+                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FCharInfo);
                 X += Buf.length;
                 X = (X < that.WindCols) ? X + 1 : 1;
                 DoGoto = true;
@@ -2611,19 +2635,19 @@ var TCrt = function () {
             }
             else if ((AText.charCodeAt(i) === 0x7E) && (!FATASCIIEscaped)) {
                 // Backspace, need to flush buffer before moving cursor
-                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FTextAttr);
+                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FCharInfo);
                 X += Buf.length;
                 Buf = "";
                 DoGoto = true;
 
                 if (X > 1) {
                     X -= 1;
-                    that.FastWrite(" ", X, that.WhereYA(), FTextAttr);
+                    that.FastWrite(" ", X, that.WhereYA(), FCharInfo);
                 }
             }
             else if ((AText.charCodeAt(i) === 0x7F) && (!FATASCIIEscaped)) {
                 // Tab, need to flush buffer before moving cursor
-                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FTextAttr);
+                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FCharInfo);
                 X += Buf.length;
                 Buf = "";
 
@@ -2640,7 +2664,7 @@ var TCrt = function () {
             }
             else if ((AText.charCodeAt(i) === 0x9B) && (!FATASCIIEscaped)) {
                 // Line feed, need to flush buffer before moving cursor
-                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FTextAttr);
+                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FCharInfo);
                 X = 1;
                 Y += 1;
                 DoGoto = true;
@@ -2649,7 +2673,7 @@ var TCrt = function () {
             }
             else if ((AText.charCodeAt(i) === 0x9C) && (!FATASCIIEscaped)) {
                 // Delete line, need to flush buffer before doing so
-                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FTextAttr);
+                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FCharInfo);
                 X = 1;
                 Buf = "";
 
@@ -2658,7 +2682,7 @@ var TCrt = function () {
             }
             else if ((AText.charCodeAt(i) === 0x9D) && (!FATASCIIEscaped)) {
                 // Insert line, need to flush buffer before doing so
-                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FTextAttr);
+                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FCharInfo);
                 X = 1;
                 Buf = "";
 
@@ -2670,7 +2694,7 @@ var TCrt = function () {
             }
             else if ((AText.charCodeAt(i) === 0xFE) && (!FATASCIIEscaped)) {
                 // Delete character, need to flush buffer before doing so
-                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FTextAttr);
+                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FCharInfo);
                 X += Buf.length;
                 Buf = "";
 
@@ -2679,7 +2703,7 @@ var TCrt = function () {
             }
             else if ((AText.charCodeAt(i) === 0xFF) && (!FATASCIIEscaped)) {
                 // Insert character, need to flush buffer before doing so
-                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FTextAttr);
+                that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FCharInfo);
                 X += Buf.length;
                 Buf = "";
 
@@ -2701,7 +2725,7 @@ var TCrt = function () {
                 // Check if we've passed the right edge of the window
                 if ((X + Buf.length) > that.WindCols) {
                     // We have, need to flush buffer before moving cursor
-                    that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FTextAttr);
+                    that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FCharInfo);
                     Buf = "";
 
                     X = 1;
@@ -2723,7 +2747,7 @@ var TCrt = function () {
 
         // Flush remaining text in buffer if we have any
         if (Buf.length > 0) {
-            that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FTextAttr);
+            that.FastWrite(Buf, that.WhereXA(), that.WhereYA(), FCharInfo);
             X += Buf.length;
             that.GotoXY(X, Y);
         }
@@ -2960,7 +2984,7 @@ var TCrtLabel = function (AParent, ALeft, ATop, AWidth, AText, ATextAlign, AFore
             case ContentAlignment.Center:
                 if (FText.length >= that.Width) {
                     // Text is greater than available space so chop it off with PadRight()
-                    Crt.FastWrite(FText.substring(0, that.Width), that.ScreenLeft, that.ScreenTop, that.ForeColour + (that.BackColour << 4));
+                    Crt.FastWrite(FText.substring(0, that.Width), that.ScreenLeft, that.ScreenTop, new TCharInfo(" ", that.ForeColour + (that.BackColour << 4)));
                 } else {
                     // Text needs to be centered
                     var i = 0;
@@ -2972,14 +2996,14 @@ var TCrtLabel = function (AParent, ALeft, ATop, AWidth, AText, ATextAlign, AFore
                     for (i = 0; i < that.Width - FText.length - LeftSpaces.length; i++) {
                         RightSpaces += " ";
                     }
-                    Crt.FastWrite(LeftSpaces + FText + RightSpaces, that.ScreenLeft, that.ScreenTop, that.ForeColour + (that.BackColour << 4));
+                    Crt.FastWrite(LeftSpaces + FText + RightSpaces, that.ScreenLeft, that.ScreenTop, new TCharInfo(" ", that.ForeColour + (that.BackColour << 4)));
                 }
                 break;
             case ContentAlignment.Left:
-                Crt.FastWrite(StringUtils.PadRight(FText, ' ', that.Width), that.ScreenLeft, that.ScreenTop, that.ForeColour + (that.BackColour << 4));
+                Crt.FastWrite(StringUtils.PadRight(FText, ' ', that.Width), that.ScreenLeft, that.ScreenTop, new TCharInfo(" ", that.ForeColour + (that.BackColour << 4)));
                 break;
             case ContentAlignment.Right:
-                Crt.FastWrite(StringUtils.PadLeft(FText, ' ', that.Width), that.ScreenLeft, that.ScreenTop, that.ForeColour + (that.BackColour << 4));
+                Crt.FastWrite(StringUtils.PadLeft(FText, ' ', that.Width), that.ScreenLeft, that.ScreenTop, new TCharInfo(" ", that.ForeColour + (that.BackColour << 4)));
                 break;
         }
     };
@@ -3104,15 +3128,15 @@ var TCrtPanel = function (AParent, ALeft, ATop, AWidth, AHeight, ABorder, AForeC
         }
 
         // Draw top row
-        Crt.FastWrite(TopLeft + StringUtils.NewString(TopBottom, that.Width - 2) + TopRight, that.ScreenLeft, that.ScreenTop, that.ForeColour + (that.BackColour << 4));
+        Crt.FastWrite(TopLeft + StringUtils.NewString(TopBottom, that.Width - 2) + TopRight, that.ScreenLeft, that.ScreenTop, new TCharInfo(" ", that.ForeColour + (that.BackColour << 4)));
 
         // Draw middle rows
         for (Line = that.ScreenTop + 1; Line < that.ScreenTop + that.Height - 1; Line++) {
-            Crt.FastWrite(LeftRight + StringUtils.NewString(' ', that.Width - 2) + LeftRight, that.ScreenLeft, Line, that.ForeColour + (that.BackColour << 4));
+            Crt.FastWrite(LeftRight + StringUtils.NewString(' ', that.Width - 2) + LeftRight, that.ScreenLeft, Line, new TCharInfo(" ", that.ForeColour + (that.BackColour << 4)));
         }
 
         // Draw bottom row
-        Crt.FastWrite(BottomLeft + StringUtils.NewString(TopBottom, that.Width - 2) + BottomRight, that.ScreenLeft, that.ScreenTop + that.Height - 1, that.ForeColour + (that.BackColour << 4));
+        Crt.FastWrite(BottomLeft + StringUtils.NewString(TopBottom, that.Width - 2) + BottomRight, that.ScreenLeft, that.ScreenTop + that.Height - 1, new TCharInfo(" ", that.ForeColour + (that.BackColour << 4)));
 
         // Draw window title
         if (StringUtils.Trim(FText).length > 0) {
@@ -3157,7 +3181,7 @@ var TCrtPanel = function (AParent, ALeft, ATop, AWidth, AHeight, ABorder, AForeC
             }
 
             // Draw title
-            Crt.FastWrite(WindowTitle, TitleX, TitleY, that.ForeColour + (that.BackColour << 4));
+            Crt.FastWrite(WindowTitle, TitleX, TitleY, new TCharInfo(" ", that.ForeColour + (that.BackColour << 4)));
         }
     };
 
@@ -3287,7 +3311,7 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
             if (AForce)
             {
                 // Erase the old bar
-                Crt.FastWrite(StringUtils.NewString(String.fromCharCode(176), that.Width), that.ScreenLeft, that.ScreenTop, FBlankForeColour + (that.BackColour << 4));
+                Crt.FastWrite(StringUtils.NewString(String.fromCharCode(176), that.Width), that.ScreenLeft, that.ScreenTop, new TCharInfo(" ", FBlankForeColour + (that.BackColour << 4)));
             }
 				
             // Draw the new bar
@@ -3295,16 +3319,16 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
             {
                 if (FValue > that.Width)
                 {
-                    Crt.FastWrite(String.fromCharCode(176), that.ScreenLeft + that.Width - (15 - Math.floor(FValue - that.Width)), that.ScreenTop, FBlankForeColour + (that.BackColour << 4));
+                    Crt.FastWrite(String.fromCharCode(176), that.ScreenLeft + that.Width - (15 - Math.floor(FValue - that.Width)), that.ScreenTop, new TCharInfo(" ", FBlankForeColour + (that.BackColour << 4)));
                 }
                 else if (FValue >= 15)
                 {
-                    Crt.FastWrite(StringUtils.NewString(String.fromCharCode(219), Math.min(FValue, 15)), that.ScreenLeft + FValue - 15, that.ScreenTop, FBarForeColour + (that.BackColour << 4));
-                    Crt.FastWrite(String.fromCharCode(176), that.ScreenLeft + FValue - 15, that.ScreenTop, FBlankForeColour + (that.BackColour << 4));
+                    Crt.FastWrite(StringUtils.NewString(String.fromCharCode(219), Math.min(FValue, 15)), that.ScreenLeft + FValue - 15, that.ScreenTop, new TCharInfo(" ", FBarForeColour + (that.BackColour << 4)));
+                    Crt.FastWrite(String.fromCharCode(176), that.ScreenLeft + FValue - 15, that.ScreenTop, new TCharInfo(" ", FBlankForeColour + (that.BackColour << 4)));
                 }
                 else
                 {
-                    Crt.FastWrite(StringUtils.NewString(String.fromCharCode(219), Math.min(FValue, 15)), that.ScreenLeft, that.ScreenTop, FBarForeColour + (that.BackColour << 4));
+                    Crt.FastWrite(StringUtils.NewString(String.fromCharCode(219), Math.min(FValue, 15)), that.ScreenLeft, that.ScreenTop, new TCharInfo(" ", FBarForeColour + (that.BackColour << 4)));
                 }
             }
         }
@@ -3327,11 +3351,11 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
                 if (NewBarWidth < FLastBarWidth)
                 {
                     // Erase the old bar
-                    Crt.FastWrite(StringUtils.NewString(String.fromCharCode(176), that.Width), that.ScreenLeft, that.ScreenTop, FBlankForeColour + (that.BackColour << 4));
+                    Crt.FastWrite(StringUtils.NewString(String.fromCharCode(176), that.Width), that.ScreenLeft, that.ScreenTop, new TCharInfo(" ", FBlankForeColour + (that.BackColour << 4)));
                 }
 					
                 // Draw the new bar
-                Crt.FastWrite(StringUtils.NewString(String.fromCharCode(FStyle), NewBarWidth), that.ScreenLeft, that.ScreenTop, FBarForeColour + (that.BackColour << 4));
+                Crt.FastWrite(StringUtils.NewString(String.fromCharCode(FStyle), NewBarWidth), that.ScreenLeft, that.ScreenTop, new TCharInfo(" ", FBarForeColour + (that.BackColour << 4)));
 					
                 FLastBarWidth = NewBarWidth;
                 PaintPercentText = true;
@@ -3349,12 +3373,12 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
                     if (ProgressStart >= NewBarWidth)
                     {
                         // Bar hasn't reached the percent text, so draw in the bar's empty color
-                        Crt.FastWrite(NewPercentText, that.ScreenLeft + ProgressStart, that.ScreenTop, FBlankForeColour + (that.BackColour << 4));
+                        Crt.FastWrite(NewPercentText, that.ScreenLeft + ProgressStart, that.ScreenTop, new TCharInfo(" ", FBlankForeColour + (that.BackColour << 4)));
                     }
                     else if (ProgressStart + NewPercentText.length <= NewBarWidth)
                     {
                         // Bar has passed the percent text, so draw in the bar's foreground colour (or still use background for Blocks)
-                        Crt.FastWrite(NewPercentText, that.ScreenLeft + ProgressStart, that.ScreenTop, that.BackColour + (FBarForeColour << 4));
+                        Crt.FastWrite(NewPercentText, that.ScreenLeft + ProgressStart, that.ScreenTop, new TCharInfo(" ", that.BackColour + (FBarForeColour << 4)));
                     }
                     else
                     {
@@ -3365,7 +3389,7 @@ var TCrtProgressBar = function(AParent, ALeft, ATop, AWidth, AStyle) {
                             var LetterPosition = ProgressStart + i;
                             var FG = (LetterPosition >= NewBarWidth) ? FBlankForeColour : that.BackColour;
                             var BG = (LetterPosition >= NewBarWidth) ? that.BackColour : FBarForeColour;
-                            Crt.FastWrite(NewPercentText.charAt(i), that.ScreenLeft + LetterPosition, that.ScreenTop, FG + (BG << 4));
+                            Crt.FastWrite(NewPercentText.charAt(i), that.ScreenLeft + LetterPosition, that.ScreenTop, new TCharInfo(" ", FG + (BG << 4)));
                         }
                     }
                 }

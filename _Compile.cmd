@@ -41,6 +41,7 @@ TYPE Source\randm\crt\BorderStyle.js >> Release\HtmlTerm.js
 TYPE Source\randm\crt\ContentAlignment.js >> Release\HtmlTerm.js
 TYPE Source\randm\crt\KeyPressEvent.js >> Release\HtmlTerm.js
 TYPE Source\randm\crt\ProgressBarStyle.js >> Release\HtmlTerm.js
+TYPE Source\randm\crt\TCharInfo.js >> Release\HtmlTerm.js
 TYPE Source\randm\crt\Crt.js >> Release\HtmlTerm.js
 TYPE Source\randm\crt\TCrtControl.js >> Release\HtmlTerm.js
 TYPE Source\randm\crt\TCrtLabel.js >> Release\HtmlTerm.js
