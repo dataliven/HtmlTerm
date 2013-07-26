@@ -3582,6 +3582,9 @@ var TAnsi = function () {
     this.onesc6n = function () { }; // Do nothing
     this.onesc255n = function () { }; // Do nothing
     this.onescQ = function () { }; // Do nothing
+    this.onripdetect = function () { }; // Do nothing
+    this.onripdisable = function () { }; // Do nothing
+    this.onripenable = function () { }; // Do nothing
 
     var ANSI_COLORS = [0, 4, 2, 6, 1, 5, 3, 7];
 
@@ -3599,6 +3602,21 @@ var TAnsi = function () {
         var Z = 0;
 
         switch (ACommand) {
+            case "!": // CSI ! - RIP detect
+                // n = 0 performs RIP detect
+                // n = 1 disables RIP parsing (treat RIPscrip commands as raw text)
+                // n = 2 enables RIP parsing
+                switch (parseInt(FAnsiParams.shift(), 10)) {
+                    case 0: that.onripdetect(); break;
+                    case 1: that.onripdisable(); break;
+                    case 2: that.onripenable(); break;
+                    default: trace("ANSI Escape " + X + "! is not implemented");
+                }
+                break;
+            case "@": // CSI n @ - Moves text from the current position to the right edge p1 characters to the right, with rightmost charaters going off-screen and the resulting hole being filled with the current attribute.
+                X = Math.max(1, parseInt(FAnsiParams.shift(), 10));
+                Crt.InsChar(" ", X);
+                break;
             case "A": // CSI n A - Moves the cursor n (default 1) cells up. If the cursor is already at the edge of the screen, this has no effect.
                 Y = Math.max(1, parseInt(FAnsiParams.shift(), 10));
                 Y = Math.max(1, Crt.WhereY() - Y);
@@ -3619,6 +3637,7 @@ var TAnsi = function () {
                 X = Math.max(1, Crt.WhereX() - X);
                 Crt.GotoXY(X, Crt.WhereY());
                 break;
+                //TODO E AND F CAME FROM WHERE?				
             case "E": // CSI n E - Moves cursor to beginning of the line n (default 1) lines down.
                 Y = Math.max(1, parseInt(FAnsiParams.shift(), 10));
                 Y = Math.min(Crt.WindRows, Crt.WhereY() + Y);
@@ -3698,17 +3717,18 @@ var TAnsi = function () {
                             Crt.HighVideo();
                             break;
                         case 2: // Intensity: Faint (not widely supported)
+                            Crt.LowVideo();
                             break;
                         case 3: // Italic: on (not widely supported)
                             break;
                         case 4: // Underline: Single
                             break;
                         case 5: // Blink: Slow (< 150 per minute)
-                            Crt.TextAttr |= Crt.BLINK;
+                            Crt.SetBlink(true);
                             Crt.SetBlinkRate(500);
                             break;
                         case 6: // Blink: Rapid (>= 150 per minute)
-                            Crt.TextAttr |= Crt.BLINK;
+                            Crt.SetBlink(true);
                             Crt.SetBlinkRate(250);
                             break;
                         case 7: // Image: Negative (swap foreground and background)
@@ -3726,9 +3746,9 @@ var TAnsi = function () {
                         case 24: // Underline: None
                             break;
                         case 25: // Blink: off
-                            Crt.TextAttr &= ~Crt.BLINK;
+                            Crt.SetBlink(false);
                             break;
-                        case 27: // Image: Positive (handle the same as negative
+                        case 27: // Image: Positive (handle the same as negative)
                             Crt.ReverseVideo();
                             break;
                         case 28: // Reveal (conceal off)
@@ -3771,6 +3791,10 @@ var TAnsi = function () {
                     default: trace("ANSI Escape " + X + "n is not implemented");
                 }
                 break;
+            case "P": // CSI n P - Deletes the character at the current position by shifting all characters from the current column + p1 left to the current column. Opened blanks at the end of the line are filled with the current attribute.
+                X = Math.max(1, parseInt(FAnsiParams.shift(), 10));
+                Crt.DelChar(X);
+                break;
             case "Q": // CSI cp ; x ; y Q - NON-STANDARD fTelnet EXTENSION - Changes the current font to CodePage=cp, Width=x, Height=y
                 while (FAnsiParams.length < 3) { FAnsiParams.push("0"); } // Make sure we have enough parameters
                 X = parseInt(FAnsiParams.shift(), 10);
@@ -3792,6 +3816,12 @@ var TAnsi = function () {
             case "u": // CSI u - Restores the cursor position.
                 Crt.GotoXY(FAnsiXY.x, FAnsiXY.y);
                 break;
+            case "X": // CSI n X - Erases p1 characters starting at the corrent position. Will not go past the end of the line.
+                X = Math.max(1, parseInt(FAnsiParams.shift(), 10));
+                Crt.DelChar(X);
+                break;
+                //TODO case "Z": // CSI n Z - Move the cursor to the p1th preceeding tab stop. Will not go past the start of the line.
+                //TODO	break;
             default:
                 trace("Unknown ESC sequence: " + ACommand + " (" + FAnsiParams.toString() + ")");
                 break;
@@ -3935,22 +3965,24 @@ var TAnsi = function () {
                 if (AText.charAt(i) === "\x1B") {
                     FAnsiParserState = AnsiParserState.Escape;
                 }
-                else if ((FAnsiParserState === AnsiParserState.Escape) && (AText.charAt(i) === '[')) {
-                    FAnsiParserState = AnsiParserState.Bracket;
-                    FAnsiBuffer = "0";
+                else if (FAnsiParserState === AnsiParserState.Escape) {
+                    if (AText.charAt(i) === '[') {
+                        FAnsiParserState = AnsiParserState.Bracket;
+                        FAnsiBuffer = "0";
 
-                    while (FAnsiParams.length > 0) { FAnsiParams.pop(); }
+                        while (FAnsiParams.length > 0) { FAnsiParams.pop(); }
+                    } else {
+                        Buffer += AText.charAt(i);
+                        FAnsiParserState = AnsiParserState.None;
+                    }
                 }
                 else if (FAnsiParserState === AnsiParserState.Bracket) {
                     if ("0123456789".indexOf(AText.charAt(i)) !== -1) {
                         FAnsiBuffer += AText.charAt(i);
-                    }
-                    else if (AText.charAt(i) === ';') {
+                    } else if (AText.charAt(i) === ';') {
                         FAnsiParams.push(FAnsiBuffer);
                         FAnsiBuffer = "0";
-                    }
-                    else if ("?=<> \r\n".indexOf(AText.charAt(i)) === -1) {
-                        // TODO At some point we should handle "?=<> "
+                    } else {
                         Crt.Write(Buffer);
                         Buffer = "";
 
@@ -3958,14 +3990,17 @@ var TAnsi = function () {
                         AnsiCommand(AText.charAt(i));
                         FAnsiParserState = AnsiParserState.None;
                     }
-                }
-                else {
+                } else {
                     Buffer += AText.charAt(i);
                 }
             }
 
             Crt.Write(Buffer);
         }
+    };
+
+    this.WriteLn = function (AText) {
+        that.Write(AText + "\r\n");
     };
 
     // Constructor
