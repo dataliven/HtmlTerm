@@ -572,11 +572,7 @@ var THtmlTerm = function () {
 
                 // Check for upload/download
                 if (KPE !== null) {
-                    if ((KPE.ctrlKey) && (KPE.keyCode === Keyboard.PAGE_DOWN)) {
-                        that.Download();
-                    } else if ((KPE.ctrlKey) && (KPE.keyCode === Keyboard.PAGE_UP)) {
-                        OnUploadMenuClick();
-                    } else if (KPE.keyString.length > 0) {
+                    if (KPE.keyString.length > 0) {
                         // Handle translating Enter key
                         if (KPE.keyString === "\r\n") {
                             FConnection.writeString(FEnter);

@@ -18,7 +18,7 @@
   You should have received a copy of the GNU General Public License
   along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
 */
-/*global document: false, navigator: false, console: false, setTimeout: false, setInterval: false, Image: false, window: false, WebSocket: false, MozWebSocket: false, XMLHttpRequest: false, confirm: false, clearInterval: false, ArrayBuffer: false, DataView: false, Blob: false, FileReader: false */
+/*global document: false, navigator: false, console: false, setTimeout: false, setInterval: false, Image: false, window: false, WebSocket: false, MozWebSocket: false, XMLHttpRequest: false, confirm: false, clearInterval: false, ArrayBuffer: false, DataView: false, Blob: false, FileReader: false, KeyboardEvent: false */
 /*
   HtmlTerm: An HTML5 WebSocket client
   Copyright (C) 2009-2013  Rick Parrish, R&M Software
@@ -1376,7 +1376,7 @@ var TCrt = function () {
 
     /* Private variables */
     var that = this;
-    var FAtari = false;
+    var FAtari;
     var FATASCIIEscaped;
     var FBitmap;
     var FBlink;
@@ -1387,10 +1387,15 @@ var TCrt = function () {
     var FContext;
     var FCursor;
     var FFont;
+    var FInScrollBack;
     var FKeyBuf;
     var FLastChar;
     var FLocalEcho;
     var FScreenSize;
+    var FScrollBack;
+    var FScrollBackPosition;
+    var FScrollBackSize;
+    var FScrollBackTemp;
     var FWindMin;
     var FWindMax;
 
@@ -1399,7 +1404,7 @@ var TCrt = function () {
     var brokenCanvasUpdate = (navigator.userAgent.toLowerCase().indexOf("chrome/7.0.517") !== -1);
 
     // Private methods
-    var InitBuffer = function () { }; // Do nothing
+    var InitBuffers = function () { }; // Do nothing
     var OnBlinkHide = function (e) { }; // Do nothing
     var OnBlinkShow = function (e) { }; // Do nothing
     var OnFontChanged = function (e) { }; // Do nothing
@@ -1415,7 +1420,7 @@ var TCrt = function () {
 
     this.Init = function (AParent) {
         // Init variables
-        // FAtari
+        FAtari = false;
         FATASCIIEscaped = false;
         // FBitmap
         FBlink = true;
@@ -1426,10 +1431,15 @@ var TCrt = function () {
         // FCursor
         FFont = new TFont();
         FFont.onchange = OnFontChanged;
+        FInScrollBack = false;
         FKeyBuf = [];
         FLastChar = 0;
         FLocalEcho = false;
         FScreenSize = new Point(80, 25);
+        // FScrollBack
+        FScrollBackPosition = -1;
+        FScrollBackSize = 1000;
+        // FScrollBackTemp
         // FWindMin
         // FWindMax
 
@@ -1450,7 +1460,7 @@ var TCrt = function () {
         window.addEventListener("keypress", OnKeyPress, false); // For regular keys
 
         // Reset the screen buffer
-        InitBuffer();
+        InitBuffers(true);
 
         // Create the cursor
         FCursor = new TCursor(AParent, FFont.HTML_COLOURS[that.LIGHTGRAY], FFont.Size);
@@ -1638,6 +1648,43 @@ var TCrt = function () {
         that.ScrollUpCustom(that.WindMinX + 1, that.WhereYA(), that.WindMaxX + 1, that.WindMaxY + 1, ALines, FCharInfo);
     };
 
+    this.EnterScrollBack = function () {
+        if (!FInScrollBack) {
+            FInScrollBack = true;
+
+            var NewRow;
+            var X;
+            var Y;
+
+            // Make copy of current scrollback buffer in temp scrollback buffer
+            FScrollBackTemp = [];
+            for (Y = 0; Y < FScrollBack.length; Y++) {
+                NewRow = [];
+                for (X = 0; X < FScrollBack[Y].length; X++) {
+                    NewRow.push(new TCharInfo(FScrollBack[Y][X].Ch, FScrollBack[Y][X].Attr, FScrollBack[Y][X].Blink, FScrollBack[Y][X].Underline));
+                }
+                FScrollBackTemp.push(NewRow);
+            }
+
+            // Add current screen to temp scrollback buffer
+            var YOffset = FScrollBackTemp.length - 1;
+            for (Y = 1; Y <= FScreenSize.y; Y++) {
+                NewRow = [];
+                for (X = 1; X <= FScreenSize.x; X++) {
+                    NewRow.push(new TCharInfo(FBuffer[Y][X].Ch, FBuffer[Y][X].Attr, FBuffer[Y][X].Blink, FBuffer[Y][X].Underline));
+                }
+                FScrollBackTemp.push(NewRow);
+            }
+
+            // Set our position in the scrollback
+            FScrollBackPosition = FScrollBackTemp.length;
+
+            // Display footer showing we're in scrollback mode 
+            that.ScrollUpCustom(1, 1, FScreenSize.x, FScreenSize.y, 1, new TCharInfo(" ", 31, false, false), false);
+            that.FastWrite("SCROLLBACK (" + (FScrollBackPosition - (FScreenSize.y - 1) + 1) + "/" + (FScrollBackTemp.length - (FScreenSize.y - 1) + 1) + "): Use Up/Down or PgUp/PgDn to navigate and Esc when done", 1, FScreenSize.y, new TCharInfo(" ", 31, false, false), false);
+        }
+    };
+
     this.FastWrite = function (AText, AX, AY, ACharInfo, AUpdateBuffer) {
         /// <summary>
         /// Writes a string of text at the desired X/Y coordinate with the given text attribute.
@@ -1655,7 +1702,11 @@ var TCrt = function () {
             var i;
             for (i = 0; i < AText.length; i++) {
                 var Char = FFont.GetChar(AText.charCodeAt(i), ACharInfo.Attr);
-                if (Char) { FContext.putImageData(Char, (AX - 1 + i) * FFont.Width, (AY - 1) * FFont.Height); }
+                if (Char) {
+                    if ((!FInScrollBack) || (FInScrollBack && !AUpdateBuffer)) {
+                        FContext.putImageData(Char, (AX - 1 + i) * FFont.Width, (AY - 1) * FFont.Height);
+                    }
+                }
 
                 if (AUpdateBuffer) {
                     FBuffer[AY][AX + i].Ch = AText.charAt(i);
@@ -1715,7 +1766,7 @@ var TCrt = function () {
     };
 
     // Have to do this here because the static constructor doesn't seem to like the X and Y variables
-    InitBuffer = function () {
+    InitBuffers = function (AInitScrollBack) {
         FBuffer = [];
         FBuffer.InitTwoDimensions(FScreenSize.y, FScreenSize.x);
 
@@ -1725,6 +1776,10 @@ var TCrt = function () {
             for (X = 1; X <= FScreenSize.x; X++) {
                 FBuffer[Y][X] = new TCharInfo(" ", that.LIGHTGRAY, false, false);
             }
+        }
+
+        if (AInitScrollBack) {
+            FScrollBack = [];
         }
     };
 
@@ -1861,6 +1916,68 @@ var TCrt = function () {
     };
 
     OnKeyDown = function (ke) {
+        if (FInScrollBack) {
+            var i;
+            var X;
+            var XEnd;
+            var Y;
+            var YDest;
+            var YSource;
+				
+            if (ke.keyCode === Keyboard.DOWN) {
+                if (FScrollBackPosition < FScrollBackTemp.length) {
+                    FScrollBackPosition += 1;
+                    that.ScrollUpCustom(1, 1, FScreenSize.x, FScreenSize.y - 1, 1, new TCharInfo(' ', 7), false);
+                    that.FastWrite("SCROLLBACK (" + (FScrollBackPosition - (FScreenSize.y - 1) + 1) + "/" + (FScrollBackTemp.length - (FScreenSize.y - 1) + 1) + "): Use Up/Down or PgUp/PgDn to navigate and Esc when done ", 1, FScreenSize.y, new TCharInfo(' ', 31), false);
+						
+                    YDest = FScreenSize.y - 1;
+                    YSource = FScrollBackPosition - 1;
+                    XEnd = Math.min(FScreenSize.x, FScrollBackTemp[YSource].length);
+                    for (X = 0; X < XEnd; X++) {
+                        that.FastWrite(FScrollBackTemp[YSource][X].Ch, X + 1, YDest, FScrollBackTemp[YSource][X], false);
+                    }
+                }
+            } else if (ke.keyCode === Keyboard.ESCAPE) {
+                // Restore the screen contents
+                if (FBuffer !== null) {
+                    for (Y = 1; Y <= FScreenSize.y; Y++) {
+                        for (X = 1; X <= FScreenSize.x; X++) {
+                            that.FastWrite(FBuffer[Y][X].Ch, X, Y, FBuffer[Y][X], false);
+                        }
+                    }
+                }
+					
+                FInScrollBack = false;
+            } else if (ke.keyCode === Keyboard.PAGE_DOWN) {
+                for (i = 0; i < (FScreenSize.y - 1) ; i++) {
+                    // TODO Not working
+                    OnKeyDown(new KeyboardEvent("keydown", true, false, 0, Keyboard.DOWN));
+                }
+            } else if (ke.keyCode === Keyboard.PAGE_UP) {
+                for (i = 0; i < (FScreenSize.y - 1); i++) {
+                    // TODO Not working
+                    OnKeyDown(new KeyboardEvent("keydown", true, false, 0, Keyboard.UP));
+                }
+            } else if (ke.keyCode === Keyboard.UP) {
+                if (FScrollBackPosition > (FScreenSize.y - 1)) {
+                    FScrollBackPosition -= 1;
+                    that.ScrollDownCustom(1, 1, FScreenSize.x, FScreenSize.y - 1, 1, new TCharInfo(" ", 7, false, false), false);
+                    that.FastWrite("SCROLLBACK (" + (FScrollBackPosition - (FScreenSize.y - 1) + 1) + "/" + (FScrollBackTemp.length - (FScreenSize.y - 1) + 1) + "): Use Up/Down or PgUp/PgDn to navigate and Esc when done ", 1, FScreenSize.y, new TCharInfo(' ', 31), false);
+						
+                    YDest = 1;
+                    YSource = FScrollBackPosition - (FScreenSize.y - 1);
+                    XEnd = Math.min(FScreenSize.x, FScrollBackTemp[YSource].length);
+                    for (X = 0; X < XEnd; X++) {
+                        that.FastWrite(FScrollBackTemp[YSource][X].Ch, X + 1, YDest, FScrollBackTemp[YSource][X], false);
+                    }
+                }
+            }
+
+            ke.preventDefault();
+
+            return;
+        }
+        
         var keyString = "";
 
         if (ke.ctrlKey) {
@@ -1930,6 +2047,8 @@ var TCrt = function () {
     };
 
     OnKeyPress = function (ke) {
+        if (FInScrollBack) { return; }
+
         var keyString = "";
 
         if (ke.ctrlKey) { return; } // This is only meant for regular keypresses
@@ -2009,7 +2128,7 @@ var TCrt = function () {
         return FScreenSize.y;
     });
 
-    this.ScrollDownCustom = function (AX1, AY1, AX2, AY2, ALines, ACharInfo) {
+    this.ScrollDownCustom = function (AX1, AY1, AX2, AY2, ALines, ACharInfo, AUpdateBuffer) {
         /// <summary>
         /// Scrolls the given window down the given number of lines (leaving blank lines at the top), filling the void with the given character with the given text attribute
         /// </summary>
@@ -2020,6 +2139,9 @@ var TCrt = function () {
         /// <param name="ALines">The number of lines to scroll</param>
         /// <param name="ACh">The character to fill the void with</param>
         /// <param name="ACharInfo">The text attribute to fill the void with</param>
+
+        // Handle optional parameters
+        if (typeof AUpdateBuffer === "undefined") { AUpdateBuffer = true; }
 
         // Validate the ALines parameter
         var MaxLines = AY2 - AY1 + 1;
@@ -2034,7 +2156,7 @@ var TCrt = function () {
         var Height = ((AY2 - AY1 + 1 - ALines) * FFont.Height);
         if (Height > 0) {
             var Buf = FContext.getImageData(Left, Top, Width, Height);
-            Left = (AX1 - 1 + ALines) * FFont.Width;
+            Left = (AX1 - 1) * FFont.Width;
             Top = (AY1 - 1 + ALines) * FFont.Height;
             FContext.putImageData(Buf, Left, Top);
         }
@@ -2047,27 +2169,29 @@ var TCrt = function () {
         Height = (ALines * FFont.Height);
         FContext.fillRect(Left, Top, Width, Height);
 
-        // Now to adjust the buffer
-        var X = 0;
-        var Y = 0;
+        if (AUpdateBuffer) {
+            // Now to adjust the buffer
+            var X = 0;
+            var Y = 0;
 
-        // First, shuffle the contents that are still visible
-        for (Y = AY2; Y > ALines; Y--) {
-            for (X = AX1; X <= AX2; X++) {
-                FBuffer[Y][X].Ch = FBuffer[Y - ALines][X].Ch;
-                FBuffer[Y][X].Attr = FBuffer[Y - ALines][X].Attr;
-                FBuffer[Y][X].Blink = FBuffer[Y - ALines][X].Blink;
-                FBuffer[Y][X].Underline = FBuffer[Y - ALines][X].Underline;
+            // First, shuffle the contents that are still visible
+            for (Y = AY2; Y > ALines; Y--) {
+                for (X = AX1; X <= AX2; X++) {
+                    FBuffer[Y][X].Ch = FBuffer[Y - ALines][X].Ch;
+                    FBuffer[Y][X].Attr = FBuffer[Y - ALines][X].Attr;
+                    FBuffer[Y][X].Blink = FBuffer[Y - ALines][X].Blink;
+                    FBuffer[Y][X].Underline = FBuffer[Y - ALines][X].Underline;
+                }
             }
-        }
 
-        // Then, blank the contents that are not
-        for (Y = AY1; Y <= ALines; Y++) {
-            for (X = AX1; X <= AX2; X++) {
-                FBuffer[Y][X].Ch = ACharInfo.Ch;
-                FBuffer[Y][X].Attr = ACharInfo.Attr;
-                FBuffer[Y][X].Blink = ACharInfo.Blink;
-                FBuffer[Y][X].Underline = ACharInfo.Underline;
+            // Then, blank the contents that are not
+            for (Y = AY1; Y <= ALines; Y++) {
+                for (X = AX1; X <= AX2; X++) {
+                    FBuffer[Y][X].Ch = ACharInfo.Ch;
+                    FBuffer[Y][X].Attr = ACharInfo.Attr;
+                    FBuffer[Y][X].Blink = ACharInfo.Blink;
+                    FBuffer[Y][X].Underline = ACharInfo.Underline;
+                }
             }
         }
     };
@@ -2088,7 +2212,7 @@ var TCrt = function () {
         that.ScrollDownCustom(that.WindMinX + 1, that.WindMinY + 1, that.WindMaxX + 1, that.WindMaxY + 1, ALines, FCharInfo);
     };
 
-    this.ScrollUpCustom = function (AX1, AY1, AX2, AY2, ALines, ACharInfo) {
+    this.ScrollUpCustom = function (AX1, AY1, AX2, AY2, ALines, ACharInfo, AUpdateBuffer) {
         /// <summary>
         /// Scrolls the given window up the given number of lines (leaving blank lines at the bottom), filling the void with the given character with the given text attribute
         /// </summary>
@@ -2100,53 +2224,76 @@ var TCrt = function () {
         /// <param name="ACh">The character to fill the void with</param>
         /// <param name="ACharInfo">The text attribute to fill the void with</param>
 
+        // Handle optional parameters
+        if (typeof AUpdateBuffer === "undefined") { AUpdateBuffer = true; }
+
         // Validate the ALines parameter
         var MaxLines = AY2 - AY1 + 1;
         if (ALines > MaxLines) { ALines = MaxLines; }
 
         var Back = (ACharInfo.Attr & 0xF0) >> 4;
 
-        // Scroll
-        var Left = (AX1 - 1) * FFont.Width;
-        var Top = (AY1 - 1 + ALines) * FFont.Height;
-        var Width = (AX2 - AX1 + 1) * FFont.Width;
-        var Height = ((AY2 - AY1 + 1 - ALines) * FFont.Height);
-        if (Height > 0) {
-            var Buf = FContext.getImageData(Left, Top, Width, Height);
-            Left = (AX1 - 1) * FFont.Width;
-            Top = (AY1 - 1) * FFont.Height;
-            FContext.putImageData(Buf, Left, Top);
-        }
-
-        // Blank
-        FContext.fillStyle = FFont.HTML_COLOURS[(ACharInfo.Attr & 0xF0) >> 4];
-        Left = (AX1 - 1) * FFont.Width;
-        Top = (AY2 - ALines) * FFont.Height;
-        Width = (AX2 - AX1 + 1) * FFont.Width;
-        Height = (ALines * FFont.Height);
-        FContext.fillRect(Left, Top, Width, Height);
-
-        // Now to adjust the buffer
-        var X = 0;
-        var Y = 0;
-
-        // First, shuffle the contents that are still visible
-        for (Y = AY1; Y <= (AY2 - ALines) ; Y++) {
-            for (X = AX1; X <= AX2; X++) {
-                FBuffer[Y][X].Ch = FBuffer[Y + ALines][X].Ch;
-                FBuffer[Y][X].Attr = FBuffer[Y + ALines][X].Attr;
-                FBuffer[Y][X].Blink = FBuffer[Y + ALines][X].Blink;
-                FBuffer[Y][X].Underline = FBuffer[Y + ALines][X].Underline;
+        if ((!FInScrollBack) || (FInScrollBack && !AUpdateBuffer)) {
+            // Scroll
+            var Left = (AX1 - 1) * FFont.Width;
+            var Top = (AY1 - 1 + ALines) * FFont.Height;
+            var Width = (AX2 - AX1 + 1) * FFont.Width;
+            var Height = ((AY2 - AY1 + 1 - ALines) * FFont.Height);
+            if (Height > 0) {
+                var Buf = FContext.getImageData(Left, Top, Width, Height);
+                Left = (AX1 - 1) * FFont.Width;
+                Top = (AY1 - 1) * FFont.Height;
+                FContext.putImageData(Buf, Left, Top);
             }
+
+            // Blank
+            FContext.fillStyle = FFont.HTML_COLOURS[(ACharInfo.Attr & 0xF0) >> 4];
+            Left = (AX1 - 1) * FFont.Width;
+            Top = (AY2 - ALines) * FFont.Height;
+            Width = (AX2 - AX1 + 1) * FFont.Width;
+            Height = (ALines * FFont.Height);
+            FContext.fillRect(Left, Top, Width, Height);
         }
 
-        // Then, blank the contents that are not
-        for (Y = AY2; Y > (AY2 - ALines) ; Y--) {
-            for (X = AX1; X <= AX2; X++) {
-                FBuffer[Y][X].Ch = ACharInfo.Ch;
-                FBuffer[Y][X].Attr = ACharInfo.Attr;
-                FBuffer[Y][X].Blink = ACharInfo.Blink;
-                FBuffer[Y][X].Underline = ACharInfo.Underline;
+        if (AUpdateBuffer) {
+            // Now to adjust the buffer
+            var NewRow ;
+            var X;
+            var Y;
+
+            // First, store the contents of the scrolled lines in the scrollback buffer
+            for (Y = 0; Y < ALines; Y++) {
+                NewRow = [];
+                for (X = AX1; X <= AX2; X++) {
+                    NewRow.push(new TCharInfo(FBuffer[Y + AY1][X].Ch, FBuffer[Y + AY1][X].Attr, FBuffer[Y + AY1][X].Blink, FBuffer[Y + AY1][X].Underline));
+                }
+                FScrollBack.push(NewRow);
+            }
+            // Trim the scrollback to 1000 lines, if necessary
+            var FScrollBackLength = FScrollBack.length;
+            while (FScrollBackLength > (FScrollBackSize - 2)) {
+                FScrollBack.shift();
+                FScrollBackLength -= 1;
+            }
+
+            // Then, shuffle the contents that are still visible
+            for (Y = AY1; Y <= (AY2 - ALines) ; Y++) {
+                for (X = AX1; X <= AX2; X++) {
+                    FBuffer[Y][X].Ch = FBuffer[Y + ALines][X].Ch;
+                    FBuffer[Y][X].Attr = FBuffer[Y + ALines][X].Attr;
+                    FBuffer[Y][X].Blink = FBuffer[Y + ALines][X].Blink;
+                    FBuffer[Y][X].Underline = FBuffer[Y + ALines][X].Underline;
+                }
+            }
+
+            // Then, blank the contents that are not
+            for (Y = AY2; Y > (AY2 - ALines) ; Y--) {
+                for (X = AX1; X <= AX2; X++) {
+                    FBuffer[Y][X].Ch = ACharInfo.Ch;
+                    FBuffer[Y][X].Attr = ACharInfo.Attr;
+                    FBuffer[Y][X].Blink = ACharInfo.Blink;
+                    FBuffer[Y][X].Underline = ACharInfo.Underline;
+                }
             }
         }
     };
@@ -2195,6 +2342,9 @@ var TCrt = function () {
     };
 
     this.SetScreenSize = function (AColumns, ARows) {
+        // Check if we're in scrollback
+        if (FInScrollBack) { return; }
+
         // Check if the requested size is already in use
         if ((AColumns === FScreenSize.x) && (ARows === FScreenSize.y)) { return; }
 
@@ -2223,7 +2373,7 @@ var TCrt = function () {
         FWindMax = (FScreenSize.x - 1) | ((FScreenSize.y - 1) << 8);
 
         // Reset the screen buffer 
-        InitBuffer();
+        InitBuffers(false);
 
         // Update the bitmap
         // TODO Why is this commented out?
@@ -5752,11 +5902,7 @@ var THtmlTerm = function () {
 
                 // Check for upload/download
                 if (KPE !== null) {
-                    if ((KPE.ctrlKey) && (KPE.keyCode === Keyboard.PAGE_DOWN)) {
-                        that.Download();
-                    } else if ((KPE.ctrlKey) && (KPE.keyCode === Keyboard.PAGE_UP)) {
-                        OnUploadMenuClick();
-                    } else if (KPE.keyString.length > 0) {
+                    if (KPE.keyString.length > 0) {
                         // Handle translating Enter key
                         if (KPE.keyString === "\r\n") {
                             FConnection.writeString(FEnter);
