@@ -18,7 +18,123 @@
   You should have received a copy of the GNU General Public License
   along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
 */
-/*global document: false, navigator: false, console: false, setTimeout: false, setInterval: false, Image: false, window: false, WebSocket: false, MozWebSocket: false, XMLHttpRequest: false, confirm: false, clearInterval: false, ArrayBuffer: false, DataView: false, Blob: false, FileReader: false, KeyboardEvent: false */
+/*global document: false, navigator: false, console: false, setTimeout: false, setInterval: false, Image: false, window: false, WebSocket: false, MozWebSocket: false, XMLHttpRequest: false, confirm: false, clearInterval: false, ArrayBuffer: false, DataView: false, Blob: false, FileReader: false, KeyboardEvent: false, Uint8Array: false */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+// From: http://hg.mozilla.org/mozilla-central/raw-file/ec10630b1a54/js/src/devtools/jint/sunspider/string-base64.js
+
+/*jslint white: false, bitwise: false, plusplus: false */
+/*global console */
+
+var Base64 = {
+
+    /* Convert data (an array of integers) to a Base64 string. */
+    toBase64Table: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'.split(''),
+    base64Pad: '=',
+
+    encode: function (data) {
+        "use strict";
+        var result = '';
+        var toBase64Table = Base64.toBase64Table;
+        var base64Pad = Base64.base64Pad;
+        var length = data.length;
+        var i;
+        // Convert every three bytes to 4 ascii characters.
+        /* BEGIN LOOP */
+        for (i = 0; i < (length - 2) ; i += 3) {
+            result += toBase64Table[data[i] >> 2];
+            result += toBase64Table[((data[i] & 0x03) << 4) + (data[i + 1] >> 4)];
+            result += toBase64Table[((data[i + 1] & 0x0f) << 2) + (data[i + 2] >> 6)];
+            result += toBase64Table[data[i + 2] & 0x3f];
+        }
+        /* END LOOP */
+
+        // Convert the remaining 1 or 2 bytes, pad out to 4 characters.
+        if (length % 3) {
+            i = length - (length % 3);
+            result += toBase64Table[data[i] >> 2];
+            if ((length % 3) === 2) {
+                result += toBase64Table[((data[i] & 0x03) << 4) + (data[i + 1] >> 4)];
+                result += toBase64Table[(data[i + 1] & 0x0f) << 2];
+                result += base64Pad;
+            } else {
+                result += toBase64Table[(data[i] & 0x03) << 4];
+                result += base64Pad + base64Pad;
+            }
+        }
+
+        return result;
+    },
+
+    /* Convert Base64 data to a string */
+    toBinaryTable: [
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 62, -1, -1, -1, 63,
+        52, 53, 54, 55, 56, 57, 58, 59, 60, 61, -1, -1, -1, 0, -1, -1,
+        -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+        15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1, -1, -1,
+        -1, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+        41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, -1, -1, -1, -1, -1
+    ],
+
+    decode: function (data, offset) {
+        "use strict";
+        offset = typeof (offset) !== 'undefined' ? offset : 0;
+        var toBinaryTable = Base64.toBinaryTable;
+        var base64Pad = Base64.base64Pad;
+        var result, result_length, idx, i, c, padding;
+        var leftbits = 0; // number of bits decoded, but yet to be appended
+        var leftdata = 0; // bits decoded, but yet to be appended
+        var data_length = data.indexOf('=') - offset;
+
+        if (data_length < 0) { data_length = data.length - offset; }
+
+        /* Every four characters is 3 resulting numbers */
+        result_length = (data_length >> 2) * 3 + Math.floor((data_length % 4) / 1.5);
+        result = new Array(result_length);
+
+        // Convert one by one.
+        /* BEGIN LOOP */
+        for (idx = 0, i = offset; i < data.length; i++) {
+            c = toBinaryTable[data.charCodeAt(i) & 0x7f];
+            padding = (data.charAt(i) === base64Pad);
+            // Skip illegal characters and whitespace
+            if (c === -1) {
+                console.error("Illegal character code " + data.charCodeAt(i) + " at position " + i);
+                continue;
+            }
+
+            // Collect data into leftdata, update bitcount
+            leftdata = (leftdata << 6) | c;
+            leftbits += 6;
+
+            // If we have 8 or more bits, append 8 bits to the result
+            if (leftbits >= 8) {
+                leftbits -= 8;
+                // Append if not padding.
+                if (!padding) {
+                    result[idx++] = (leftdata >> leftbits) & 0xff;
+                }
+                leftdata &= (1 << leftbits) - 1;
+            }
+        }
+        /* END LOOP */
+
+        // If there are any bits left, the base64 string was corrupted
+        if (leftbits) {
+            throw {
+                name: 'Base64-Error',
+                message: 'Corrupted base64 string'
+            };
+        }
+
+        return result;
+    }
+
+}; /* End of Base64 namespace */
 /*
   HtmlTerm: An HTML5 WebSocket client
   Copyright (C) 2009-2013  Rick Parrish, R&M Software
@@ -425,13 +541,13 @@ function getElementPosition(elem) {
 
 // This adds a trace message to the javascript error console
 function trace(AText) {
-//TODO    try {
-//TODO        console.log("trace: " + AText);
-//TODO    } catch (e) {
-//TODO        if (DEBUG) {
+    try {
+        console.log("trace: " + AText);
+    } catch (e) {
+        if (DEBUG) {
             setTimeout(function () { throw new Error("trace: " + AText); }, 0); 
-//TODO        }
-//TODO    }
+        }
+    }
 }
 /*
   HtmlTerm: An HTML5 WebSocket client
@@ -1404,7 +1520,7 @@ var TCrt = function () {
     var brokenCanvasUpdate = (navigator.userAgent.toLowerCase().indexOf("chrome/7.0.517") !== -1);
 
     // Private methods
-    var InitBuffers = function () { }; // Do nothing
+    var InitBuffers = function (AInitScrollBack) { }; // Do nothing
     var OnBlinkHide = function (e) { }; // Do nothing
     var OnBlinkShow = function (e) { }; // Do nothing
     var OnFontChanged = function (e) { }; // Do nothing
@@ -4194,11 +4310,14 @@ var TTelnet = function () {
     // Private variables
     var that = this;
     var FInputBuffer;
+    var FMode = 'plain';
     var FOutputBuffer;
     var FWasConnected = false;
     var FWebSocket;
 
     // Private methods
+    var decode_message = function (data) { }; // Do nothing
+    var encode_message = function (data) { }; // Do nothing
     var OnSocketClose = function () { }; // Do nothing
     var OnSocketError = function (e) { }; // Do nothing
     var OnSocketOpen = function () { }; // Do nothing
@@ -4215,16 +4334,47 @@ var TTelnet = function () {
     };
 
     this.connect = function (AHost, APort) {
+        // These support checks are from websockify's websock.js
+        var bt = false;
+        var wsbt = false;
+        var protocols;
+
+        // Check for full typed array support
+        if (('Uint8Array' in window) && ('set' in Uint8Array.prototype)) {
+            bt = true;
+        }
+
+        // Check for full binary type support in WebSockets
+        // TODO: this sucks, the property should exist on the prototype
+        // but it does not.
+        try {
+            if (bt && ('binaryType' in (new WebSocket("ws://localhost:17523")))) {
+                wsbt = true;
+            }
+        } catch (exc) {
+            // Just ignore failed test localhost connections
+        }
+
+        if (wsbt) {
+            protocols = ['binary', 'base64', 'plain'];
+        } else {
+            protocols = ['base64', 'plain'];
+        }
+
         try {
             FWasConnected = false;
-            FWebSocket = new WebSocket("ws://" + AHost + ":" + APort);
+            FWebSocket = new WebSocket("ws://" + AHost + ":" + APort, protocols);
         } catch (ex) {
             try {
-                FWebSocket = new MozWebSocket("ws://" + AHost + ":" + APort);
+                FWebSocket = new MozWebSocket("ws://" + AHost + ":" + APort, protocols);
             } catch (ex2) {
                 that.onsecurityerror();
                 return;
             }
+        }
+
+        if (protocols.indexOf('binary') >= 0) {
+            FWebSocket.binaryType = 'arraybuffer';
         }
 
         // Set event handlers
@@ -4242,10 +4392,50 @@ var TTelnet = function () {
         return false;
     });
 
+    decode_message = function (data) {
+        var i;
+        var Result = "";
+
+        if (FMode === 'binary') {
+            var u8 = new Uint8Array(data);
+            for (i = 0; i < u8.length; i++) {
+                Result += String.fromCharCode(u8[i]);
+            }
+        } else if (FMode === 'base64') {
+            var decoded = Base64.decode(data, 0);
+            for (i = 0; i < decoded.length; i++) {
+                Result += String.fromCharCode(decoded[i]);
+            }
+        } else {
+            Result = data;
+        }
+
+        return Result;
+    };
+
+    encode_message = function (data) {
+        var i;
+        var Result = [];
+
+        if (FMode === 'binary') {
+            for (i = 0; i < data.length; i++) {
+                Result.push(data.charCodeAt(i));
+            }
+            return new Uint8Array(Result);
+        } else if (FMode === 'base64') {
+            for (i = 0; i < data.length; i++) {
+                Result.push(data.charCodeAt(i));
+            }
+            return Base64.encode(Result);
+        } else {
+            return data;
+        }
+    };
+
     this.flush = function () {
         // if (DEBUG) trace("flush(): " + FOutputBuffer.toString());
 
-        FWebSocket.send(FOutputBuffer.toString());
+        FWebSocket.send(encode_message(FOutputBuffer.toString()));
         FOutputBuffer.clear();
     };
 
@@ -4263,13 +4453,17 @@ var TTelnet = function () {
     };
 
     OnSocketOpen = function () {
+        if (FWebSocket.protocol) {
+            FMode = FWebSocket.protocol;
+        } else {
+            FMode = 'plain';
+        }
+
         FWasConnected = true;
         that.onconnect();
     };
 
     OnSocketMessage = function (e) {
-        // if (DEBUG) trace("OnSocketMessage: " + e.data);
-
         // Free up some memory if we're at the end of the buffer
         if (FInputBuffer.bytesAvailable === 0) { FInputBuffer.clear(); }
 
@@ -4278,7 +4472,7 @@ var TTelnet = function () {
         FInputBuffer.position = FInputBuffer.length;
 
         // Write the incoming message to the input buffer
-        FInputBuffer.writeString(e.data);
+        FInputBuffer.writeString(decode_message(e.data));
 
         // Restore the old buffer position
         FInputBuffer.position = OldPosition;

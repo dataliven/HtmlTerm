@@ -53,6 +53,7 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="CHANGELOG.txt" />
     <Content Include="FileSaver.js" />
     <Content Include="Source\client\connectbutton\Down.png" />
     <Content Include="Source\client\connectbutton\General-Connect-icon.png" />
@@ -95,6 +96,7 @@
     <Content Include="Source\randm\xfer\TFileRecord.js" />
     <Content Include="Source\randm\xfer\TYModemReceive.js" />
     <Content Include="Source\randm\xfer\TYModemSend.js" />
+    <Content Include="string-base64.js" />
     <Content Include="Test.html" />
   </ItemGroup>
   <ItemGroup>

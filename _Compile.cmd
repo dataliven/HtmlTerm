@@ -19,6 +19,7 @@ REM  along with HtmlTerm.  If not, see <http://www.gnu.org/licenses/>.
 ECHO // HtmlTerm.js > Release\HtmlTerm.js
 
 TYPE Source\ImpliedGlobals.js >> Release\HtmlTerm.js
+TYPE Source\string-base64.js >> Release\HtmlTerm.js
 TYPE Source\randm\actionscript\ByteArray.js >> Release\HtmlTerm.js
 TYPE Source\randm\actionscript\FileReference.js >> Release\HtmlTerm.js
 TYPE Source\randm\actionscript\Keyboard.js >> Release\HtmlTerm.js

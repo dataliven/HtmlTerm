@@ -89,11 +89,11 @@ function getElementPosition(elem) {
 
 // This adds a trace message to the javascript error console
 function trace(AText) {
-//TODO    try {
-//TODO        console.log("trace: " + AText);
-//TODO    } catch (e) {
-//TODO        if (DEBUG) {
+    try {
+        console.log("trace: " + AText);
+    } catch (e) {
+        if (DEBUG) {
             setTimeout(function () { throw new Error("trace: " + AText); }, 0); 
-//TODO        }
-//TODO    }
+        }
+    }
 }

@@ -1,0 +1,29 @@
+﻿TODO -- Stuff in fTelnet that isn't in HtmlTerm
+	- Allow "0x0D" for ClientVars.Enter (maybe change to allow CR, LF or CRLF?)
+	- Screen captures
+	- RIP
+	- RLogin
+	- VTxxx
+	- Underline
+	- Telnet spec fixes (ie NAWS) and localecho
+
+Sep 29
+	- Added support for proxying through websockify
+
+July 25
+	- Implement scrollback mode
+	- Implement fixes/additions from fTelnet's Ansi unit
+
+July 24
+	- Implement YModem-G uploading
+
+July 23
+	- Fix batch downloading
+
+July 22
+	- Implement YModem-G downloading
+	- Port TCrtControls from fTelnet
+
+July 21
+	- Fix proxy usage (was only sending CR, proxy expected CRLF)
+	- Implement fixes/additions from fTelnet's Crt unit
